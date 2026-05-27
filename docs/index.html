@@ -114,6 +114,34 @@
     font-family:'Jua',sans-serif;font-size:14px;color:var(--soft);
   }
 
+  /* 엔트리 소개 카드 (시리즈 위에 노출) */
+  .about-entry{
+    display:flex;align-items:center;gap:14px;
+    background:#fff;
+    border:1px solid var(--border);
+    border-left:3px solid var(--green);
+    border-radius:12px;
+    padding:16px 20px;
+    margin:18px 0 6px;
+    transition:transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+    cursor:pointer;
+  }
+  .about-entry:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(20,25,30,.06);}
+  .about-entry .ae-ico{
+    flex-shrink:0;
+    width:42px;height:42px;border-radius:12px;
+    background:var(--green);color:#fff;
+    font-family:'Jua',sans-serif;font-size:22px;
+    display:inline-flex;align-items:center;justify-content:center;
+    box-shadow:inset -4px -4px 0 #4a8a58;
+  }
+  .about-entry .ae-body{flex:1;min-width:0;}
+  .about-entry .ae-tag{font-family:'Jua',sans-serif;font-size:11.5px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+  .about-entry .ae-title{font-family:'Jua',sans-serif;font-size:17px;color:var(--ink);margin-top:1px;}
+  .about-entry .ae-desc{font-size:14px;color:var(--soft);margin-top:3px;line-height:1.6;}
+  .about-entry .ae-arrow{font-family:'Jua',sans-serif;font-size:22px;color:var(--muted);flex-shrink:0;}
+  .about-entry:hover .ae-arrow{color:var(--ink);}
+
   /* 참고자료 · 라이선스 */
   .meta-box{
     background:#fafaf6;
@@ -150,6 +178,16 @@
     <p class="lead">👋 게임을 직접 만들어보고 싶은 친구들에게</p>
     <p>엔트리로 <b>옆에서 걷고, 점프하고, 미끄러지는</b> 게임 캐릭터를 한 단계씩 직접 만들어보는 시리즈예요. 아래에서 보고 싶은 편을 골라 클릭해 보세요.</p>
   </div>
+
+  <a class="about-entry" href="about-entry.html">
+    <div class="ae-ico">E</div>
+    <div class="ae-body">
+      <div class="ae-tag">먼저 읽어보기</div>
+      <div class="ae-title">엔트리(Entry)란? — 출처·특징·사용법·장점</div>
+      <div class="ae-desc">우리가 쓸 도구가 어디서 왔고, 왜 좋은지 5분 만에 정리!</div>
+    </div>
+    <div class="ae-arrow">›</div>
+  </a>
 
   <div class="path">
     <span class="path-step s1"><span class="dot"></span>이동·충돌</span>
