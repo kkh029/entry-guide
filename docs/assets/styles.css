@@ -1,0 +1,256 @@
+/* =========================================================
+   엔트리 게임 만들기 — 공통 스타일
+   ========================================================= */
+
+:root{
+  /* 본문 톤 — 절제된 페이퍼 */
+  --bg:        #f6f3ec;
+  --paper:     #ffffff;
+  --ink:       #2a3540;
+  --soft:      #6a7785;
+  --muted:     #98a3ad;
+  --border:    #e6e3da;
+  --border-s:  #efece4;
+
+  /* 편별 액센트 (채도 낮춤) */
+  --c1:        #c95a4f;   /* 1편 — 빨강 */
+  --c2:        #4a78b8;   /* 2편 — 파랑 */
+  --c3:        #7a5fb0;   /* 3편 — 보라 */
+
+  /* 상태 — 절제 */
+  --accent:    #b78a3a;   /* 골드(절제) — 강조 한 점 */
+  --green:     #5a9e6a;
+  --warn:      #c47a3a;
+
+  /* 캐릭터/장식용 원색 (장식 요소에만 사용) */
+  --red:       #ff6b5e;
+  --green-d:   #5cc46a;
+  --blue:      #4d9bf5;
+  --gold:      #ffc23c;
+  --purple:    #a877e8;
+
+  /* 헤더 스테이지 배경 */
+  --sky1:      #d8ecf6;
+  --sky2:      #ecf4f9;
+
+  /* 엔트리 블록 색 — 교육 목적상 실제 엔트리 색을 유지 */
+  --c-start:   #5cb1ef;
+  --c-flow:    #ff9000;
+  --c-move:    #4c97ff;
+  --c-judge:   #2eaf6e;
+  --c-data:    #ff5e5e;
+  --c-calc:    #59c94c;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+a{color:inherit;text-decoration:none;}
+
+body{
+  font-family:'Gowun Dodum',sans-serif;
+  color:var(--ink);
+  background:var(--bg);
+  line-height:1.85;
+  font-size:17px;
+  padding:0 0 80px;
+}
+
+.wrap{max-width:780px;margin:0 auto;padding:0 22px;}
+
+/* ───── 헤더 ───── */
+header{text-align:center;padding:54px 22px 22px;}
+.badge{
+  display:inline-block;
+  background:#fff;
+  color:var(--soft);
+  font-family:'Jua',sans-serif;
+  font-size:14px;
+  padding:5px 16px;
+  border-radius:30px;
+  border:1px solid var(--border);
+  margin-bottom:18px;
+  letter-spacing:.5px;
+}
+h1{
+  font-family:'Jua',sans-serif;
+  font-size:38px;
+  line-height:1.28;
+  color:var(--ink);
+}
+.sub{font-size:16px;color:var(--soft);margin-top:14px;}
+
+/* ───── 헤더 스테이지 (캐릭터 무대) ───── */
+.stage{
+  position:relative;
+  height:120px;
+  margin:24px auto 6px;
+  max-width:780px;
+  background:linear-gradient(180deg,var(--sky1),var(--sky2));
+  border-radius:14px;
+  overflow:hidden;
+}
+.ground{
+  position:absolute;bottom:0;left:0;right:0;height:24px;
+  background:repeating-linear-gradient(90deg,#a17a52 0 26px,#8e6c47 26px 28px);
+  border-top:5px solid #7ea884;
+}
+
+/* ───── 섹션 (박스 없이 흐름 + 가는 구분선) ───── */
+section.card{
+  background:transparent;
+  border:none;
+  border-radius:0;
+  padding:8px 0 4px;
+  margin:28px 0;
+  box-shadow:none;
+}
+section.card + section.card{
+  border-top:1px solid var(--border-s);
+  padding-top:32px;
+  margin-top:32px;
+}
+
+.step-no{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:50%;
+  background:var(--ink);color:#fff;
+  font-family:'Jua',sans-serif;font-size:17px;
+  margin-bottom:8px;
+}
+.c-red .step-no{background:var(--c1);}
+.c-blue .step-no{background:var(--c2);}
+.c-purple .step-no{background:var(--c3);}
+.c-green .step-no{background:var(--green);}
+.c-gold .step-no{background:var(--accent);}
+
+h2{
+  font-family:'Jua',sans-serif;
+  font-size:24px;
+  margin:4px 0 14px;
+  line-height:1.3;
+  color:var(--ink);
+}
+p{margin:12px 0;}
+.big{font-size:18px;}
+
+/* ───── 안내 박스(팁/경고/보너스) ───── */
+.tip{
+  background:#fafaf6;
+  border:1px solid var(--border-s);
+  border-left:3px solid var(--soft);
+  border-radius:6px;
+  padding:13px 16px;
+  margin:18px 0;
+  font-size:15.5px;
+  line-height:1.75;
+}
+.tip b{color:var(--ink);}
+.warn{border-left-color:var(--warn);}
+.warn b{color:var(--warn);}
+.bonus{border-left-color:var(--c3);}
+.bonus b{color:var(--c3);}
+
+/* ───── 엔트리 블록 (교육 목적 — 색 유지) ───── */
+.code{
+  background:#dde4ea;
+  border-radius:10px;
+  padding:12px 14px 22px;
+  margin:18px 0;
+  overflow-x:auto;
+}
+.eb{
+  font-family:system-ui,-apple-system,'Malgun Gothic','Apple SD Gothic Neo',sans-serif;
+  font-weight:700;color:#fff;font-size:13px;line-height:1.4;
+}
+/* 햇(이벤트) */
+.hat{
+  display:inline-block;background:var(--c-start);
+  padding:9px 16px;border-radius:14px 14px 3px 3px;
+  position:relative;box-shadow:0 3px 0 rgba(0,0,0,.22);
+}
+.hat::after{content:"";position:absolute;bottom:-8px;left:12px;width:16px;height:8px;background:inherit;border-radius:0 0 4px 4px;filter:brightness(.82);}
+/* 스택 */
+.stack{
+  display:block;width:fit-content;max-width:100%;
+  padding:9px 13px 8px;border-radius:3px;margin:0;position:relative;
+  box-shadow:0 3px 0 rgba(0,0,0,.22);
+}
+.stack::before{content:"";position:absolute;top:0;left:12px;width:16px;height:8px;background:rgba(0,0,0,.2);border-radius:0 0 4px 4px;}
+.stack::after{content:"";position:absolute;bottom:-8px;left:12px;width:16px;height:8px;background:inherit;border-radius:0 0 4px 4px;filter:brightness(.82);}
+.move{background:var(--c-move);}
+.data{background:var(--c-data);}
+/* C 블록 (흐름·반복) */
+.cblk{margin:0;width:fit-content;max-width:100%;}
+.cblk .top{padding:9px 13px 8px;border-radius:3px 3px 0 0;color:#fff;position:relative;box-shadow:0 2px 0 rgba(0,0,0,.15);}
+.cblk .top::before{content:"";position:absolute;top:0;left:12px;width:16px;height:8px;background:rgba(0,0,0,.2);border-radius:0 0 4px 4px;}
+.cblk .top::after{content:"";position:absolute;bottom:-8px;left:26px;width:16px;height:8px;background:inherit;border-radius:0 0 4px 4px;filter:brightness(.82);}
+.cblk .body{padding:8px 0 8px 14px;min-height:20px;}
+.cblk .bot{height:12px;border-radius:0 0 3px 3px;width:110px;position:relative;}
+.cblk .bot::after{content:"";position:absolute;bottom:-8px;left:12px;width:16px;height:8px;background:inherit;border-radius:0 0 4px 4px;filter:brightness(.82);}
+.flow>.top,.flow>.bot{background:var(--c-flow);}
+.flow>.body{border-left:12px solid var(--c-flow);}
+/* 판단·계산 */
+.bool{display:inline-block;background:var(--c-judge);color:#fff;padding:3px 11px;font-size:12px;margin:0 2px;clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 50%,calc(100% - 8px) 100%,8px 100%,0 50%);}
+.calc{display:inline-block;background:var(--c-calc);color:#fff;padding:2px 9px;font-size:12px;margin:0 2px;border-radius:10px;}
+/* 입력 · 주석 */
+.in{display:inline-block;background:#fff;color:#3a4a55;border:1px solid rgba(0,0,0,.18);border-radius:10px;padding:1px 9px;margin:0 2px;font-size:12px;text-align:center;}
+.note{display:block;font-family:'Gowun Dodum',sans-serif;font-weight:normal;font-size:11.5px;color:#8a9eaa;margin:3px 0 3px 4px;}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;font-size:13.5px;}
+.legend span{padding:3px 12px;border-radius:20px;color:#fff;font-family:'Gaegu',sans-serif;font-weight:700;}
+
+/* ───── 마무리(체크리스트) ───── */
+.finish{
+  background:transparent;
+  border:none;
+  border-top:1px solid var(--border-s);
+  border-radius:0;
+  padding:28px 0 8px;
+  text-align:center;
+  margin-top:36px;
+}
+.finish h2{color:var(--ink);}
+.finish .check{font-size:16px;text-align:left;display:inline-block;margin:0 auto;}
+.finish .check div{margin:7px 0;}
+.next{
+  margin-top:20px;
+  background:#fff;
+  border:1px solid var(--border-s);
+  border-radius:10px;
+  padding:14px 18px;
+  font-size:15px;
+  color:var(--soft);
+  line-height:1.75;
+}
+
+/* ───── 푸터 / 홈 링크 ───── */
+footer{text-align:center;color:var(--muted);font-size:13px;margin-top:36px;}
+
+.home-link{
+  position:fixed;top:14px;left:14px;z-index:30;
+  background:#fff;color:var(--ink);
+  font-family:'Jua',sans-serif;
+  padding:7px 14px;border-radius:30px;
+  border:1px solid var(--border);
+  font-size:14px;text-decoration:none;
+  transition:transform .15s ease, border-color .15s ease;
+}
+.home-link:hover{transform:translateY(-1px);border-color:var(--soft);}
+
+.home-link-bottom{
+  display:inline-block;margin-top:18px;
+  background:#fff;color:var(--ink);
+  font-family:'Jua',sans-serif;
+  padding:10px 22px;border-radius:30px;
+  border:1px solid var(--border);
+  font-size:15px;text-decoration:none;
+  transition:transform .15s ease, border-color .15s ease;
+}
+.home-link-bottom:hover{transform:translateY(-1px);border-color:var(--soft);}
+
+/* ───── 작은 화면 ───── */
+@media (max-width: 520px){
+  body{font-size:16px;}
+  h1{font-size:30px;}
+  h2{font-size:21px;}
+  section.card{padding:22px 18px;border-radius:12px;}
+  .wrap{padding:0 16px;}
+}

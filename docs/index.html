@@ -7,108 +7,131 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
 <style>
-  :root{
-    --sky1:#aee3ff; --sky2:#d8f3ff;
-    --ink:#33424f; --soft:#5a6b78;
-    --paper:#fffdf6;
-    --red:#ff6b5e; --green:#5cc46a; --blue:#4d9bf5;
-    --gold:#ffc23c; --purple:#a877e8;
+  /* 목차 페이지 전용 */
+  .wrap{max-width:820px;}
+
+  /* 헤더 — 세 캐릭터 무대 */
+  .stage{max-width:820px;height:130px;}
+  .h-char{position:absolute;bottom:30px;width:40px;height:40px;border-radius:12px 12px 8px 8px;}
+  .h-char::before{content:"";position:absolute;top:10px;right:7px;width:9px;height:9px;background:#fff;border-radius:50%;}
+  .h-char::after{content:"";position:absolute;top:13px;right:9px;width:4px;height:4px;background:#333;border-radius:50%;}
+  .h-c1{left:22%;background:var(--red);box-shadow:inset -5px -5px 0 #d9483d,0 5px 0 #b53b32;animation:hop 1.3s ease-in-out infinite;}
+  .h-c2{left:48%;background:var(--blue);box-shadow:inset -5px -5px 0 #2d72c4,0 5px 0 #2862a8;animation:hop 1.3s ease-in-out infinite .3s;}
+  .h-c3{left:74%;background:var(--purple);box-shadow:inset -5px -5px 0 #8255c4,0 5px 0 #6c47a8;animation:hop 1.3s ease-in-out infinite .6s;}
+  @keyframes hop{0%,100%{transform:translateY(0)}45%{transform:translateY(-16px)}55%{transform:translateY(-16px)}}
+  .h-cloud{position:absolute;background:#fff;border-radius:30px;opacity:.75;}
+  .h-cloud.c1{left:8%;top:18px;width:60px;height:16px;}
+  .h-cloud.c2{right:10%;top:30px;width:74px;height:20px;}
+
+  /* 인트로 — 박스 없이 */
+  .intro-card{
+    background:transparent;
+    border:none;
+    border-radius:0;
+    padding:8px 0 4px;
+    margin:24px 0 22px;
+    text-align:center;
   }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  a{color:inherit;text-decoration:none;}
-  body{
-    font-family:'Gowun Dodum',sans-serif; color:var(--ink);
-    background:
-      radial-gradient(circle at 12% 18%, #fff7 0 8px, transparent 9px),
-      radial-gradient(circle at 82% 12%, #fff7 0 12px, transparent 13px),
-      radial-gradient(circle at 68% 28%, #fff6 0 6px, transparent 7px),
-      radial-gradient(circle at 20% 70%, #fff7 0 10px, transparent 11px),
-      radial-gradient(circle at 88% 76%, #fff6 0 8px, transparent 9px),
-      linear-gradient(180deg,var(--sky1),var(--sky2));
-    background-attachment:fixed; line-height:1.85; font-size:18px; padding:0 0 80px;
+  .intro-card p{font-size:16px;}
+  .intro-card .lead{font-family:'Jua',sans-serif;font-size:19px;color:var(--ink);margin-bottom:8px;}
+
+  /* 학습 경로 */
+  .path{
+    background:#fff;
+    border:1px solid var(--border-s);
+    border-radius:10px;
+    padding:14px 18px;
+    margin:18px 0 22px;
+    display:flex;align-items:center;justify-content:center;
+    gap:10px;flex-wrap:wrap;
   }
-  .wrap{max-width:880px;margin:0 auto;padding:0 22px;}
-
-  header{text-align:center; padding:60px 22px 16px;}
-  .badge{display:inline-block;background:var(--gold);color:#fff;font-family:'Jua';font-size:16px;padding:6px 18px;border-radius:30px;box-shadow:0 4px 0 #e0a020;transform:rotate(-2deg);margin-bottom:18px;}
-  h1{font-family:'Jua';font-size:46px;line-height:1.2;text-shadow:3px 3px 0 #fff,5px 5px 0 #ffd86b;}
-  .sub{font-size:18px;color:var(--soft);margin-top:14px;}
-
-  /* 헤더 스테이지 — 세 캐릭터 */
-  .stage{position:relative;height:140px;margin:18px auto 6px;max-width:880px;overflow:hidden;}
-  .h-char{position:absolute;bottom:30px;width:44px;height:44px;border-radius:12px 12px 8px 8px;}
-  .h-char::before{content:"";position:absolute;top:11px;right:8px;width:9px;height:9px;background:#fff;border-radius:50%;}
-  .h-char::after{content:"";position:absolute;top:14px;right:10px;width:4px;height:4px;background:#333;border-radius:50%;}
-  .h-c1{left:18%;background:var(--red);box-shadow:inset -6px -6px 0 #d9483d,0 6px 0 #b53b32;animation:hop 1.3s ease-in-out infinite;}
-  .h-c2{left:46%;background:var(--blue);box-shadow:inset -6px -6px 0 #2d72c4,0 6px 0 #2862a8;animation:hop 1.3s ease-in-out infinite .3s;}
-  .h-c3{left:74%;background:var(--purple);box-shadow:inset -6px -6px 0 #8255c4,0 6px 0 #6c47a8;animation:hop 1.3s ease-in-out infinite .6s;}
-  @keyframes hop{0%,100%{transform:translateY(0)}45%{transform:translateY(-18px)}55%{transform:translateY(-18px)}}
-  .h-ground{position:absolute;bottom:0;left:0;right:0;height:30px;background:repeating-linear-gradient(90deg,#8d5a2b 0 26px,#7a4d24 26px 28px);border-top:6px solid #5cc46a;}
-  .h-cloud{position:absolute;background:#fff;border-radius:30px;opacity:.7;}
-  .h-cloud.c1{left:6%;top:14px;width:60px;height:18px;}
-  .h-cloud.c2{right:8%;top:30px;width:80px;height:22px;}
-
-  /* 인트로 카드 */
-  .intro-card{background:var(--paper);border-radius:24px;padding:26px 28px;margin:24px 0 30px;box-shadow:0 10px 0 #e9d9a8,0 14px 30px rgba(80,60,10,.12);border:3px solid #fff;text-align:center;}
-  .intro-card p{font-size:18px;}
-  .intro-card .lead{font-size:20px;font-family:'Jua';color:var(--ink);margin-bottom:10px;}
+  .path-step{display:inline-flex;align-items:center;gap:6px;font-family:'Jua',sans-serif;font-size:14px;color:var(--soft);}
+  .path-step .dot{width:10px;height:10px;border-radius:50%;background:var(--muted);display:inline-block;}
+  .path-step.s1 .dot{background:var(--c1);}
+  .path-step.s2 .dot{background:var(--c2);}
+  .path-step.s3 .dot{background:var(--c3);}
+  .path-arrow{color:var(--muted);font-size:14px;}
 
   /* 목차 카드 */
-  .toc-grid{display:flex;flex-direction:column;gap:22px;margin:30px 0;}
-  .ep{display:block;background:var(--paper);border-radius:22px;padding:24px 24px 22px;box-shadow:0 8px 0 #e9d9a8,0 12px 24px rgba(80,60,10,.1);border:3px solid #fff;position:relative;transition:transform .15s ease,box-shadow .15s ease;cursor:pointer;}
-  .ep:hover{transform:translateY(-3px);box-shadow:0 11px 0 #e9d9a8,0 16px 30px rgba(80,60,10,.14);}
-  .ep:active{transform:translateY(0);box-shadow:0 6px 0 #e9d9a8,0 10px 20px rgba(80,60,10,.1);}
-  .ep-head{display:flex;align-items:center;gap:16px;margin-bottom:10px;}
-  .ep-num{flex-shrink:0;width:64px;height:64px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:'Jua';font-size:32px;color:#fff;}
+  .toc-grid{display:flex;flex-direction:column;gap:14px;margin:24px 0;}
+  .ep{
+    display:block;
+    background:var(--paper);
+    border:1px solid var(--border);
+    border-left:3px solid var(--muted);
+    border-radius:12px;
+    padding:22px 24px;
+    transition:transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+    cursor:pointer;
+  }
+  .ep:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(20,25,30,.06);}
+  .ep-head{display:flex;align-items:center;gap:14px;margin-bottom:8px;}
+  .ep-num{
+    flex-shrink:0;width:42px;height:42px;border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-family:'Jua',sans-serif;font-size:20px;color:#fff;
+    background:var(--soft);
+  }
   .ep-title-wrap{flex:1;min-width:0;}
-  .ep-tag{font-family:'Jua';font-size:13px;color:var(--soft);letter-spacing:1px;text-transform:uppercase;}
-  .ep-title{font-family:'Jua';font-size:24px;line-height:1.25;margin-top:2px;}
-  .ep-arrow{font-family:'Jua';font-size:26px;color:#c9d3da;flex-shrink:0;}
-  .ep:hover .ep-arrow{color:var(--blue);}
+  .ep-tag{font-family:'Jua',sans-serif;font-size:11.5px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+  .ep-title{font-family:'Jua',sans-serif;font-size:20px;line-height:1.3;margin-top:2px;color:var(--ink);}
+  .ep-arrow{font-family:'Jua',sans-serif;font-size:22px;color:var(--muted);flex-shrink:0;}
+  .ep:hover .ep-arrow{color:var(--ink);}
 
-  .ep-desc{color:var(--ink);font-size:16px;margin:4px 0 12px;}
+  .ep-desc{color:var(--ink);font-size:15px;margin:4px 0 12px;line-height:1.75;}
 
-  .ep-keys{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
-  .ep-key{font-family:'Gaegu';font-weight:700;font-size:14px;background:#eef4f8;color:#3a4a55;padding:4px 12px;border-radius:14px;border:1.5px solid #d7e3ec;}
+  .ep-keys{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+  .ep-key{
+    font-family:'Gaegu',sans-serif;font-weight:700;font-size:13px;
+    background:#f4f1ea;color:var(--soft);
+    padding:3px 11px;border-radius:14px;
+    border:1px solid var(--border-s);
+  }
 
-  /* 색상 변형 */
-  .ep-1 .ep-num{background:var(--red);box-shadow:0 4px 0 #c94a40;}
-  .ep-1{border-left:6px solid var(--red);}
-  .ep-1 .ep-key{background:#fff0ee;border-color:#ffd4cf;color:#c94a40;}
+  /* 편별 액센트 (좌측 보더 + 번호 배경만) */
+  .ep-1{border-left-color:var(--c1);} .ep-1 .ep-num{background:var(--c1);}
+  .ep-2{border-left-color:var(--c2);} .ep-2 .ep-num{background:var(--c2);}
+  .ep-3{border-left-color:var(--c3);} .ep-3 .ep-num{background:var(--c3);}
 
-  .ep-2 .ep-num{background:var(--blue);box-shadow:0 4px 0 #2d72c4;}
-  .ep-2{border-left:6px solid var(--blue);}
-  .ep-2 .ep-key{background:#eaf3ff;border-color:#c8dcf5;color:#2d72c4;}
+  /* 다음 편 후보 — 박스 없이 */
+  .coming{
+    background:transparent;
+    border:none;
+    border-top:1px solid var(--border-s);
+    border-radius:0;
+    padding:24px 0 8px;
+    margin:30px 0 0;
+    text-align:center;
+  }
+  .coming h2{font-family:'Jua',sans-serif;font-size:19px;color:var(--ink);margin-bottom:8px;}
+  .coming p{font-size:15px;color:var(--soft);}
+  .coming .options{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px;}
+  .coming .opt{
+    background:#fff;border:1px solid var(--border);
+    border-radius:10px;padding:8px 14px;
+    font-family:'Jua',sans-serif;font-size:14px;color:var(--soft);
+  }
 
-  .ep-3 .ep-num{background:var(--purple);box-shadow:0 4px 0 #8255c4;}
-  .ep-3{border-left:6px solid var(--purple);}
-  .ep-3 .ep-key{background:#f4ecff;border-color:#dfceff;color:#6c47a8;}
-
-  /* 진행 상황 학습 경로 */
-  .path{background:#fff;border-radius:18px;padding:18px 20px;margin:20px 0;box-shadow:0 4px 0 #e9d9a8;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;}
-  .path-step{display:inline-flex;align-items:center;gap:6px;font-family:'Jua';font-size:14px;color:var(--soft);}
-  .path-step .dot{width:14px;height:14px;border-radius:50%;background:#d7e3ec;display:inline-block;}
-  .path-step.s1 .dot{background:var(--red);}
-  .path-step.s2 .dot{background:var(--blue);}
-  .path-step.s3 .dot{background:var(--purple);}
-  .path-arrow{color:#c9d3da;font-size:18px;}
-
-  /* 다음 편 후보 */
-  .coming{background:linear-gradient(135deg,#fff6d6,#ffe9b0);border:4px dashed var(--gold);border-radius:22px;padding:24px 26px;margin:30px 0 0;text-align:center;}
-  .coming h2{font-family:'Jua';font-size:22px;color:#b5760e;margin-bottom:10px;}
-  .coming p{font-size:16px;color:#7a5a18;}
-  .coming .options{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px;}
-  .coming .opt{background:#fff;border-radius:14px;padding:10px 16px;font-family:'Jua';font-size:15px;color:#b5760e;border:2px solid #ffd86b;}
-
-  footer{text-align:center;color:#6f8190;font-size:14px;margin-top:36px;}
+  /* 참고자료 · 라이선스 */
+  .meta-box{
+    background:#fafaf6;
+    border:1px solid var(--border-s);
+    border-radius:10px;
+    padding:14px 18px;
+    margin-top:14px;
+    font-size:13px;color:var(--soft);line-height:1.95;
+  }
+  .meta-box b{font-size:13.5px;color:var(--ink);}
+  .meta-box a{color:var(--c2);text-decoration:underline;text-underline-offset:2px;}
 </style>
 </head>
 <body>
 
 <header>
   <span class="badge">엔트리 코딩 시리즈</span>
-  <h1>엔트리로 만드는<br>나만의 게임 🎮</h1>
+  <h1>엔트리로 만드는<br>나만의 게임</h1>
   <p class="sub">화살표로 걷기부터, 진짜 같은 물리 움직임까지 한 편씩!</p>
 </header>
 
@@ -118,14 +141,14 @@
   <div class="h-char h-c1"></div>
   <div class="h-char h-c2"></div>
   <div class="h-char h-c3"></div>
-  <div class="h-ground"></div>
+  <div class="ground"></div>
 </div>
 
 <div class="wrap">
 
   <div class="intro-card">
-    <p class="lead">👋 안녕! 게임을 직접 만들어보고 싶은 친구들에게</p>
-    <p>이 책은 엔트리로 <b>옆에서 걷고, 점프하고, 미끄러지는</b> 게임 캐릭터를 한 단계씩 직접 만들어보는 시리즈예요. 아래에서 보고 싶은 편을 골라 클릭해 보세요!</p>
+    <p class="lead">👋 게임을 직접 만들어보고 싶은 친구들에게</p>
+    <p>엔트리로 <b>옆에서 걷고, 점프하고, 미끄러지는</b> 게임 캐릭터를 한 단계씩 직접 만들어보는 시리즈예요. 아래에서 보고 싶은 편을 골라 클릭해 보세요.</p>
   </div>
 
   <div class="path">
@@ -142,12 +165,12 @@
       <div class="ep-head">
         <div class="ep-num">1</div>
         <div class="ep-title-wrap">
-          <div class="ep-tag">EPISODE 1</div>
+          <div class="ep-tag">Episode 1</div>
           <div class="ep-title">내 캐릭터를 움직이게 만들자!</div>
         </div>
         <div class="ep-arrow">›</div>
       </div>
-      <div class="ep-desc">화살표 키로 걷고, 점프하고, 벽에 부딪히면 멈추는 기본 움직임을 만들어요. '바운딩 박스'로 충돌이 뭔지도 배워요.</div>
+      <div class="ep-desc">화살표 키로 걷고, 점프하고, 벽에 부딪히면 멈추는 기본 움직임을 만들어요. ‘바운딩 박스’로 충돌이 뭔지도 배워요.</div>
       <div class="ep-keys">
         <span class="ep-key">충돌(바운딩 박스)</span>
         <span class="ep-key">화살표 이동</span>
@@ -161,12 +184,12 @@
       <div class="ep-head">
         <div class="ep-num">2</div>
         <div class="ep-title-wrap">
-          <div class="ep-tag">EPISODE 2</div>
+          <div class="ep-tag">Episode 2</div>
           <div class="ep-title">이동·속도·가속도 — 게임 속 움직임의 비밀</div>
         </div>
         <div class="ep-arrow">›</div>
       </div>
-      <div class="ep-desc">진짜 게임이 왜 점점 빨라지고 점점 느려지는지! 자동차 비유로 이동·속도·가속도를 이해하고 '걷는속도' 변수까지 만들어요.</div>
+      <div class="ep-desc">진짜 게임이 왜 점점 빨라지고 점점 느려지는지! 자동차 비유로 이동·속도·가속도를 이해하고 ‘걷는속도’ 변수까지 만들어요.</div>
       <div class="ep-keys">
         <span class="ep-key">위치(x좌표)</span>
         <span class="ep-key">속도 변수</span>
@@ -180,7 +203,7 @@
       <div class="ep-head">
         <div class="ep-num">3</div>
         <div class="ep-title-wrap">
-          <div class="ep-tag">EPISODE 3</div>
+          <div class="ep-tag">Episode 3</div>
           <div class="ep-title">관성과 마찰 — 진짜 같은 움직임</div>
         </div>
         <div class="ep-arrow">›</div>
@@ -206,18 +229,16 @@
     </div>
   </div>
 
-  <!-- 참고 자료 -->
-  <div style="background:#f0f4f8;border-radius:14px;padding:16px 20px;margin-top:20px;font-size:13px;color:var(--soft);line-height:2;">
-    <b style="font-size:14px;color:var(--ink);">📚 참고 자료</b><br>
-    • <a href="https://en.scratch-wiki.info/wiki/Velocity" target="_blank" style="color:var(--blue);">Scratch Wiki, "Velocity"</a><br>
-    • <a href="https://pinnguaq.com/learn/player-control-in-scratch-2/" target="_blank" style="color:var(--blue);">Pinnguaq, "Player control in Scratch: Adding acceleration, speed, and friction"</a>
+  <div class="meta-box">
+    <b>📚 참고 자료</b><br>
+    • <a href="https://en.scratch-wiki.info/wiki/Velocity" target="_blank">Scratch Wiki, “Velocity”</a><br>
+    • <a href="https://pinnguaq.com/learn/player-control-in-scratch-2/" target="_blank">Pinnguaq, “Player control in Scratch: Adding acceleration, speed, and friction”</a>
   </div>
 
-  <!-- 라이선스 -->
-  <div style="background:#fffdf6;border:2px solid #f0e4b8;border-radius:14px;padding:16px 20px;margin-top:12px;font-size:13px;color:var(--soft);line-height:1.9;">
-    <b style="font-size:14px;color:var(--ink);">⚖️ 라이선스</b><br>
+  <div class="meta-box">
+    <b>⚖️ 라이선스</b><br>
     © 2026 김경환 · 비상업적 이용 자유 · 상업적 이용 시 별도 협의<br>
-    문의: <a href="mailto:kkh029@gmail.com" style="color:var(--blue);">kkh029@gmail.com</a>
+    문의: <a href="mailto:kkh029@gmail.com">kkh029@gmail.com</a>
   </div>
 
   <footer>
