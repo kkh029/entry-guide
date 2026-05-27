@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>엔트리 게임 만들기 — 목차</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky1:#aee3ff; --sky2:#d8f3ff;
+    --ink:#33424f; --soft:#5a6b78;
+    --paper:#fffdf6;
+    --red:#ff6b5e; --green:#5cc46a; --blue:#4d9bf5;
+    --gold:#ffc23c; --purple:#a877e8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  a{color:inherit;text-decoration:none;}
+  body{
+    font-family:'Gowun Dodum',sans-serif; color:var(--ink);
+    background:
+      radial-gradient(circle at 12% 18%, #fff7 0 8px, transparent 9px),
+      radial-gradient(circle at 82% 12%, #fff7 0 12px, transparent 13px),
+      radial-gradient(circle at 68% 28%, #fff6 0 6px, transparent 7px),
+      radial-gradient(circle at 20% 70%, #fff7 0 10px, transparent 11px),
+      radial-gradient(circle at 88% 76%, #fff6 0 8px, transparent 9px),
+      linear-gradient(180deg,var(--sky1),var(--sky2));
+    background-attachment:fixed; line-height:1.85; font-size:18px; padding:0 0 80px;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:0 22px;}
+
+  header{text-align:center; padding:60px 22px 16px;}
+  .badge{display:inline-block;background:var(--gold);color:#fff;font-family:'Jua';font-size:16px;padding:6px 18px;border-radius:30px;box-shadow:0 4px 0 #e0a020;transform:rotate(-2deg);margin-bottom:18px;}
+  h1{font-family:'Jua';font-size:46px;line-height:1.2;text-shadow:3px 3px 0 #fff,5px 5px 0 #ffd86b;}
+  .sub{font-size:18px;color:var(--soft);margin-top:14px;}
+
+  /* 헤더 스테이지 — 세 캐릭터 */
+  .stage{position:relative;height:140px;margin:18px auto 6px;max-width:880px;overflow:hidden;}
+  .h-char{position:absolute;bottom:30px;width:44px;height:44px;border-radius:12px 12px 8px 8px;}
+  .h-char::before{content:"";position:absolute;top:11px;right:8px;width:9px;height:9px;background:#fff;border-radius:50%;}
+  .h-char::after{content:"";position:absolute;top:14px;right:10px;width:4px;height:4px;background:#333;border-radius:50%;}
+  .h-c1{left:18%;background:var(--red);box-shadow:inset -6px -6px 0 #d9483d,0 6px 0 #b53b32;animation:hop 1.3s ease-in-out infinite;}
+  .h-c2{left:46%;background:var(--blue);box-shadow:inset -6px -6px 0 #2d72c4,0 6px 0 #2862a8;animation:hop 1.3s ease-in-out infinite .3s;}
+  .h-c3{left:74%;background:var(--purple);box-shadow:inset -6px -6px 0 #8255c4,0 6px 0 #6c47a8;animation:hop 1.3s ease-in-out infinite .6s;}
+  @keyframes hop{0%,100%{transform:translateY(0)}45%{transform:translateY(-18px)}55%{transform:translateY(-18px)}}
+  .h-ground{position:absolute;bottom:0;left:0;right:0;height:30px;background:repeating-linear-gradient(90deg,#8d5a2b 0 26px,#7a4d24 26px 28px);border-top:6px solid #5cc46a;}
+  .h-cloud{position:absolute;background:#fff;border-radius:30px;opacity:.7;}
+  .h-cloud.c1{left:6%;top:14px;width:60px;height:18px;}
+  .h-cloud.c2{right:8%;top:30px;width:80px;height:22px;}
+
+  /* 인트로 카드 */
+  .intro-card{background:var(--paper);border-radius:24px;padding:26px 28px;margin:24px 0 30px;box-shadow:0 10px 0 #e9d9a8,0 14px 30px rgba(80,60,10,.12);border:3px solid #fff;text-align:center;}
+  .intro-card p{font-size:18px;}
+  .intro-card .lead{font-size:20px;font-family:'Jua';color:var(--ink);margin-bottom:10px;}
+
+  /* 목차 카드 */
+  .toc-grid{display:flex;flex-direction:column;gap:22px;margin:30px 0;}
+  .ep{display:block;background:var(--paper);border-radius:22px;padding:24px 24px 22px;box-shadow:0 8px 0 #e9d9a8,0 12px 24px rgba(80,60,10,.1);border:3px solid #fff;position:relative;transition:transform .15s ease,box-shadow .15s ease;cursor:pointer;}
+  .ep:hover{transform:translateY(-3px);box-shadow:0 11px 0 #e9d9a8,0 16px 30px rgba(80,60,10,.14);}
+  .ep:active{transform:translateY(0);box-shadow:0 6px 0 #e9d9a8,0 10px 20px rgba(80,60,10,.1);}
+  .ep-head{display:flex;align-items:center;gap:16px;margin-bottom:10px;}
+  .ep-num{flex-shrink:0;width:64px;height:64px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:'Jua';font-size:32px;color:#fff;}
+  .ep-title-wrap{flex:1;min-width:0;}
+  .ep-tag{font-family:'Jua';font-size:13px;color:var(--soft);letter-spacing:1px;text-transform:uppercase;}
+  .ep-title{font-family:'Jua';font-size:24px;line-height:1.25;margin-top:2px;}
+  .ep-arrow{font-family:'Jua';font-size:26px;color:#c9d3da;flex-shrink:0;}
+  .ep:hover .ep-arrow{color:var(--blue);}
+
+  .ep-desc{color:var(--ink);font-size:16px;margin:4px 0 12px;}
+
+  .ep-keys{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+  .ep-key{font-family:'Gaegu';font-weight:700;font-size:14px;background:#eef4f8;color:#3a4a55;padding:4px 12px;border-radius:14px;border:1.5px solid #d7e3ec;}
+
+  /* 색상 변형 */
+  .ep-1 .ep-num{background:var(--red);box-shadow:0 4px 0 #c94a40;}
+  .ep-1{border-left:6px solid var(--red);}
+  .ep-1 .ep-key{background:#fff0ee;border-color:#ffd4cf;color:#c94a40;}
+
+  .ep-2 .ep-num{background:var(--blue);box-shadow:0 4px 0 #2d72c4;}
+  .ep-2{border-left:6px solid var(--blue);}
+  .ep-2 .ep-key{background:#eaf3ff;border-color:#c8dcf5;color:#2d72c4;}
+
+  .ep-3 .ep-num{background:var(--purple);box-shadow:0 4px 0 #8255c4;}
+  .ep-3{border-left:6px solid var(--purple);}
+  .ep-3 .ep-key{background:#f4ecff;border-color:#dfceff;color:#6c47a8;}
+
+  /* 진행 상황 학습 경로 */
+  .path{background:#fff;border-radius:18px;padding:18px 20px;margin:20px 0;box-shadow:0 4px 0 #e9d9a8;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;}
+  .path-step{display:inline-flex;align-items:center;gap:6px;font-family:'Jua';font-size:14px;color:var(--soft);}
+  .path-step .dot{width:14px;height:14px;border-radius:50%;background:#d7e3ec;display:inline-block;}
+  .path-step.s1 .dot{background:var(--red);}
+  .path-step.s2 .dot{background:var(--blue);}
+  .path-step.s3 .dot{background:var(--purple);}
+  .path-arrow{color:#c9d3da;font-size:18px;}
+
+  /* 다음 편 후보 */
+  .coming{background:linear-gradient(135deg,#fff6d6,#ffe9b0);border:4px dashed var(--gold);border-radius:22px;padding:24px 26px;margin:30px 0 0;text-align:center;}
+  .coming h2{font-family:'Jua';font-size:22px;color:#b5760e;margin-bottom:10px;}
+  .coming p{font-size:16px;color:#7a5a18;}
+  .coming .options{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px;}
+  .coming .opt{background:#fff;border-radius:14px;padding:10px 16px;font-family:'Jua';font-size:15px;color:#b5760e;border:2px solid #ffd86b;}
+
+  footer{text-align:center;color:#6f8190;font-size:14px;margin-top:36px;}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="badge">엔트리 코딩 시리즈</span>
+  <h1>엔트리로 만드는<br>나만의 게임 🎮</h1>
+  <p class="sub">화살표로 걷기부터, 진짜 같은 물리 움직임까지 한 편씩!</p>
+</header>
+
+<div class="stage">
+  <div class="h-cloud c1"></div>
+  <div class="h-cloud c2"></div>
+  <div class="h-char h-c1"></div>
+  <div class="h-char h-c2"></div>
+  <div class="h-char h-c3"></div>
+  <div class="h-ground"></div>
+</div>
+
+<div class="wrap">
+
+  <div class="intro-card">
+    <p class="lead">👋 안녕! 게임을 직접 만들어보고 싶은 친구들에게</p>
+    <p>이 책은 엔트리로 <b>옆에서 걷고, 점프하고, 미끄러지는</b> 게임 캐릭터를 한 단계씩 직접 만들어보는 시리즈예요. 아래에서 보고 싶은 편을 골라 클릭해 보세요!</p>
+  </div>
+
+  <div class="path">
+    <span class="path-step s1"><span class="dot"></span>이동·충돌</span>
+    <span class="path-arrow">→</span>
+    <span class="path-step s2"><span class="dot"></span>속도·가속도</span>
+    <span class="path-arrow">→</span>
+    <span class="path-step s3"><span class="dot"></span>관성·마찰</span>
+  </div>
+
+  <div class="toc-grid">
+
+    <a class="ep ep-1" href="entry-game-1-movement.html">
+      <div class="ep-head">
+        <div class="ep-num">1</div>
+        <div class="ep-title-wrap">
+          <div class="ep-tag">EPISODE 1</div>
+          <div class="ep-title">내 캐릭터를 움직이게 만들자!</div>
+        </div>
+        <div class="ep-arrow">›</div>
+      </div>
+      <div class="ep-desc">화살표 키로 걷고, 점프하고, 벽에 부딪히면 멈추는 기본 움직임을 만들어요. '바운딩 박스'로 충돌이 뭔지도 배워요.</div>
+      <div class="ep-keys">
+        <span class="ep-key">충돌(바운딩 박스)</span>
+        <span class="ep-key">화살표 이동</span>
+        <span class="ep-key">중력·점프</span>
+        <span class="ep-key">점프 충전</span>
+        <span class="ep-key">벽 밀어내기</span>
+      </div>
+    </a>
+
+    <a class="ep ep-2" href="entry-game-2-velocity.html">
+      <div class="ep-head">
+        <div class="ep-num">2</div>
+        <div class="ep-title-wrap">
+          <div class="ep-tag">EPISODE 2</div>
+          <div class="ep-title">이동·속도·가속도 — 게임 속 움직임의 비밀</div>
+        </div>
+        <div class="ep-arrow">›</div>
+      </div>
+      <div class="ep-desc">진짜 게임이 왜 점점 빨라지고 점점 느려지는지! 자동차 비유로 이동·속도·가속도를 이해하고 '걷는속도' 변수까지 만들어요.</div>
+      <div class="ep-keys">
+        <span class="ep-key">위치(x좌표)</span>
+        <span class="ep-key">속도 변수</span>
+        <span class="ep-key">가속도</span>
+        <span class="ep-key">매 프레임</span>
+        <span class="ep-key">스르륵 가속</span>
+      </div>
+    </a>
+
+    <a class="ep ep-3" href="entry-game-3-inertia.html">
+      <div class="ep-head">
+        <div class="ep-num">3</div>
+        <div class="ep-title-wrap">
+          <div class="ep-tag">EPISODE 3</div>
+          <div class="ep-title">관성과 마찰 — 진짜 같은 움직임</div>
+        </div>
+        <div class="ep-arrow">›</div>
+      </div>
+      <div class="ep-desc">2편에서 안 멈추던 캐릭터! 관성·마찰로 미끄러지듯 자연스럽게 멈추게 하고, 중력과 서브스텝으로 점프·낙하·벽 통과 버그까지 잡아요.</div>
+      <div class="ep-keys">
+        <span class="ep-key">관성(뉴턴 제1법칙)</span>
+        <span class="ep-key">마찰 계수</span>
+        <span class="ep-key">중력·종단속도</span>
+        <span class="ep-key">서브스텝</span>
+        <span class="ep-key">⭐ 코요테 타임</span>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="coming">
+    <h2>📘 다음 편 후보</h2>
+    <p>어떤 주제가 더 보고 싶나요? 의견 환영!</p>
+    <div class="options">
+      <span class="opt">🪙 코인 먹고 점수 올리기</span>
+      <span class="opt">👾 적을 만나면 게임 오버!</span>
+    </div>
+  </div>
+
+  <footer>엔트리로 만드는 나만의 게임 · 목차</footer>
+</div>
+
+</body>
+</html>

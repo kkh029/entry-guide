@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>엔트리 게임 만들기 ② 이동·속도·가속도</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky1:#aee3ff; --sky2:#d8f3ff;
+    --ink:#33424f; --soft:#5a6b78;
+    --paper:#fffdf6;
+    --red:#ff6b5e; --green:#5cc46a; --blue:#4d9bf5;
+    --gold:#ffc23c; --purple:#a877e8;
+    --c-start:#5cb1ef; --c-flow:#ff9000; --c-move:#4c97ff; --c-judge:#2eaf6e; --c-data:#ff5e5e;
+    --c-calc:#59c94c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Gowun Dodum',sans-serif; color:var(--ink);
+    background:
+      radial-gradient(circle at 12% 18%, #fff7 0 8px, transparent 9px),
+      radial-gradient(circle at 82% 12%, #fff7 0 12px, transparent 13px),
+      radial-gradient(circle at 68% 28%, #fff6 0 6px, transparent 7px),
+      linear-gradient(180deg,var(--sky1),var(--sky2));
+    background-attachment:fixed; line-height:1.85; font-size:18px; padding:0 0 80px;
+  }
+  .wrap{max-width:800px;margin:0 auto;padding:0 22px;}
+  header{text-align:center; padding:54px 22px 30px;}
+  .badge{display:inline-block;background:var(--gold);color:#fff;font-family:'Jua';font-size:16px;padding:6px 18px;border-radius:30px;box-shadow:0 4px 0 #e0a020;transform:rotate(-2deg);margin-bottom:18px;}
+  h1{font-family:'Jua';font-size:42px;line-height:1.25;text-shadow:3px 3px 0 #fff,5px 5px 0 #ffd86b;}
+  .sub{font-size:18px;color:var(--soft);margin-top:14px;}
+
+  /* 헤더 스테이지 — 점점 빨라지는 캐릭터 */
+  .stage{position:relative;height:120px;margin:24px auto 6px;max-width:800px;overflow:hidden;}
+  .hero{position:absolute;bottom:24px;left:0;width:46px;height:46px;background:var(--red);border-radius:12px 12px 8px 8px;
+    box-shadow:inset -6px -6px 0 #d9483d,0 6px 0 #b53b32;animation:accel 3.2s cubic-bezier(.4,0,1,1) infinite;}
+  .hero::before{content:"";position:absolute;top:11px;right:9px;width:9px;height:9px;background:#fff;border-radius:50%;}
+  .hero::after{content:"";position:absolute;top:14px;right:11px;width:4px;height:4px;background:#333;border-radius:50%;}
+  @keyframes accel{
+    0%{left:4%} 100%{left:88%}
+  }
+  /* 속도 표시 화살표 */
+  .speedline{position:absolute;bottom:46px;left:6%;font-family:'Jua';font-size:14px;color:#fff;background:var(--c-data);padding:3px 10px;border-radius:12px;animation:accel 3.2s cubic-bezier(.4,0,1,1) infinite;box-shadow:0 2px 0 #c94a40;}
+  .ground{position:absolute;bottom:0;left:0;right:0;height:26px;background:repeating-linear-gradient(90deg,#8d5a2b 0 26px,#7a4d24 26px 28px);border-top:6px solid #5cc46a;}
+
+  /* 카드 */
+  section.card{background:var(--paper);border-radius:24px;padding:30px 28px;margin:26px 0;box-shadow:0 10px 0 #e9d9a8,0 14px 30px rgba(80,60,10,.12);border:3px solid #fff;}
+  .step-no{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:var(--blue);color:#fff;font-family:'Jua';font-size:24px;box-shadow:0 4px 0 #2d72c4;margin-bottom:6px;}
+  .c-red .step-no{background:var(--red);box-shadow:0 4px 0 #c94a40;}
+  .c-green .step-no{background:var(--green);box-shadow:0 4px 0 #3d9c4b;}
+  .c-gold .step-no{background:var(--gold);box-shadow:0 4px 0 #d99c1f;}
+  .c-purple .step-no{background:var(--purple);box-shadow:0 4px 0 #8255c4;}
+  h2{font-family:'Jua';font-size:27px;margin:6px 0 14px;line-height:1.3;}
+  p{margin:12px 0;} .big{font-size:19px;}
+  .tip{background:#eafaff;border-left:7px solid var(--blue);border-radius:0 14px 14px 0;padding:14px 18px;margin:18px 0;font-size:17px;}
+  .tip b{color:#2d72c4;}
+  .warn{background:#fff3e6;border-left-color:var(--c-flow);}
+  .warn b{color:#d9641f;}
+  .bonus{background:#f6f0ff;border-left-color:var(--purple);}
+  .bonus b{color:#8255c4;}
+
+  /* 엔트리 블록 */
+  .code{background:#eef4f8;border:2px solid #d7e3ec;border-radius:16px;padding:16px 16px 18px;margin:18px 0;overflow-x:auto;}
+  .eb{font-family:'Gaegu',cursive;font-weight:700;color:#fff;font-size:17px;}
+  .hat{display:inline-block;background:var(--c-start);padding:14px 18px 10px;border-radius:20px 20px 7px 7px;margin-bottom:-2px;box-shadow:0 2px 0 rgba(0,0,0,.12);}
+  .stack{display:block;width:fit-content;max-width:100%;padding:10px 15px;border-radius:6px;margin:0 0 -2px;position:relative;box-shadow:0 2px 0 rgba(0,0,0,.12);}
+  .stack::before{content:"";position:absolute;top:-1px;left:16px;width:18px;height:6px;background:inherit;border-radius:0 0 4px 4px;}
+  .move{background:var(--c-move);} .data{background:var(--c-data);}
+  .cblk{margin:0 0 -2px;width:fit-content;max-width:100%;}
+  .cblk .top{padding:10px 15px;border-radius:7px 7px 0 0;color:#fff;box-shadow:0 2px 0 rgba(0,0,0,.1);position:relative;}
+  .cblk .top::before{content:"";position:absolute;top:-1px;left:16px;width:18px;height:6px;background:inherit;border-radius:0 0 4px 4px;}
+  .cblk .body{padding:7px 0 7px 12px;}
+  .cblk .bot{height:13px;border-radius:0 0 7px 7px;width:130px;}
+  .flow>.top,.flow>.bot{background:var(--c-flow);}
+  .flow>.body{border-left:13px solid var(--c-flow);}
+  .bool{display:inline-block;background:var(--c-judge);color:#fff;padding:4px 13px;font-size:15px;margin:0 2px;clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 50%,calc(100% - 8px) 100%,8px 100%,0 50%);}
+  .in{display:inline-block;background:#fff;color:#3a4a55;border:1px solid rgba(0,0,0,.18);border-radius:12px;padding:1px 10px;margin:0 2px;font-size:15px;text-align:center;}
+  .calc{display:inline-block;background:var(--c-calc);color:#fff;padding:2px 11px;font-size:15px;margin:0 2px;border-radius:12px;}
+  .note{display:block;font-family:'Gowun Dodum';font-weight:normal;font-size:13px;color:#5a6b78;margin:4px 0 6px 4px;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;font-size:14px;}
+  .legend span{padding:4px 13px;border-radius:20px;color:#fff;font-family:'Gaegu';font-weight:700;}
+
+  /* 개념 계층 비주얼 (가속도→속도→이동) */
+  .concept-stack{display:flex;flex-direction:column;gap:8px;margin:18px auto;max-width:480px;}
+  .cs-row{display:flex;align-items:center;gap:14px;background:#fff;border:3px solid #d7e3ec;border-radius:16px;padding:14px 18px;box-shadow:0 4px 0 #e9eff3;}
+  .cs-row.accel{border-color:var(--green);background:#eafff2;}
+  .cs-row.vel{border-color:var(--blue);background:#eef6ff;}
+  .cs-row.pos{border-color:var(--gold);background:#fff8e6;}
+  .cs-icon{font-size:32px;flex-shrink:0;}
+  .cs-text{flex:1;}
+  .cs-label{font-family:'Jua';font-size:18px;}
+  .cs-row.accel .cs-label{color:#2a8a50;}
+  .cs-row.vel .cs-label{color:#2d72c4;}
+  .cs-row.pos .cs-label{color:#b5760e;}
+  .cs-desc{font-size:14px;color:var(--soft);line-height:1.5;margin-top:2px;}
+  .cs-arrow{text-align:center;font-size:22px;color:#b0c4d0;margin:-4px 0;}
+
+  /* 자동차 비유 (운전석) */
+  .car-dash{background:linear-gradient(180deg,#2a3a4a,#1e2a36);border-radius:18px;padding:18px;margin:18px 0;color:#fff;}
+  .car-title{font-family:'Jua';font-size:15px;color:#aac;letter-spacing:1px;text-align:center;margin-bottom:14px;}
+  .car-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  .car-dial{background:#0e1820;border:3px solid #3a4a5a;border-radius:14px;padding:14px 8px;text-align:center;}
+  .car-dial .cd-icon{font-size:26px;margin-bottom:4px;}
+  .car-dial .cd-num{font-family:'Jua';font-size:24px;color:#7af0a8;}
+  .car-dial.vel .cd-num{color:#7ac3ff;}
+  .car-dial.pos .cd-num{color:#ffd86b;}
+  .car-dial .cd-name{font-family:'Gaegu';font-weight:700;font-size:14px;color:#aac;margin-top:4px;}
+  .car-dial .cd-unit{font-size:11px;color:#778;margin-top:1px;}
+
+  /* 위치 점 비주얼 */
+  .pos-track{position:relative;background:#eef7ff;border:2px solid #d7e8f5;border-radius:14px;height:80px;margin:16px 0;overflow:hidden;}
+  .pt-axis{position:absolute;bottom:30px;left:6%;right:6%;height:2px;background:#aac4d6;}
+  .pt-tick{position:absolute;bottom:24px;width:2px;height:10px;background:#aac4d6;}
+  .pt-num{position:absolute;bottom:6px;font-family:'Jua';font-size:13px;color:var(--soft);transform:translateX(-50%);}
+  .pt-dot{position:absolute;bottom:34px;width:18px;height:18px;background:var(--red);border-radius:50%;box-shadow:0 2px 0 #b53b32;transform:translateX(-50%);}
+  .pt-label{position:absolute;bottom:54px;font-family:'Jua';font-size:13px;color:var(--red);transform:translateX(-50%);white-space:nowrap;}
+
+  /* 속도 비교: 빠른 차 / 느린 차 */
+  .vel-compare{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0;}
+  .vc-item{flex:1;min-width:170px;background:#eef7ff;border:2px solid #d7e8f5;border-radius:14px;padding:14px;text-align:center;}
+  .vc-item.fast{background:#fff3e6;border-color:#ffd5a8;}
+  .vc-title{font-family:'Jua';font-size:15px;color:var(--blue);margin-bottom:8px;}
+  .vc-item.fast .vc-title{color:#d9641f;}
+  .vc-track{position:relative;height:32px;background:repeating-linear-gradient(90deg,#a9763f 0 16px,#9a6a37 16px 18px);border-radius:4px;margin:8px 0;border:2px solid #8d5a2b;}
+  .vc-car{position:absolute;top:4px;width:20px;height:20px;background:var(--red);border-radius:5px;box-shadow:inset -2px -2px 0 #d9483d;}
+  .vc-car::after{content:"";position:absolute;top:4px;right:3px;width:4px;height:4px;background:#fff;border-radius:50%;}
+  .vc-arrow{position:absolute;top:8px;font-size:12px;font-family:'Jua';color:#fff;background:var(--c-data);padding:1px 6px;border-radius:8px;}
+  .vc-desc{font-size:13px;color:var(--soft);margin-top:6px;line-height:1.5;}
+
+  /* 가속도 단계별 시각화 */
+  .accel-timeline{background:#eafff2;border:2px solid #a8e6c0;border-radius:14px;padding:16px;margin:18px 0;}
+  .at-title{font-family:'Jua';font-size:15px;color:#2a8a50;margin-bottom:12px;text-align:center;}
+  .at-row{display:grid;grid-template-columns:60px 1fr 70px;gap:8px;align-items:center;font-size:14px;padding:6px 0;border-bottom:1px dashed #c5e0d0;}
+  .at-row:last-child{border-bottom:none;}
+  .at-frame{font-family:'Jua';font-size:13px;color:#2a8a50;text-align:center;}
+  .at-bar-wrap{background:#fff;border-radius:8px;height:18px;overflow:hidden;border:1px solid #d0e8d8;position:relative;}
+  .at-bar{height:100%;background:linear-gradient(90deg,#7af0a8,#4cc97a);border-radius:8px;transition:width .3s;}
+  .at-val{font-family:'Jua';font-size:14px;color:var(--ink);text-align:right;}
+
+  /* 1편 vs 2편 비교 */
+  .vs-compare{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0;}
+  .vs-card{flex:1;min-width:170px;border-radius:14px;padding:14px 16px;}
+  .vs-old{background:#fff7e6;border:2px solid #ffd5a0;}
+  .vs-old .vs-head{color:#b5760e;}
+  .vs-new{background:#eafff2;border:2px solid #a8e6c0;}
+  .vs-new .vs-head{color:#2a8a50;}
+  .vs-head{font-family:'Jua';font-size:15px;margin-bottom:8px;}
+  .vs-line{font-size:14px;margin:6px 0;line-height:1.5;}
+  .vs-mini-code{font-family:'Gaegu';font-weight:700;background:#fff;border:1.5px solid #d7e3ec;border-radius:8px;padding:4px 8px;font-size:13px;margin-top:8px;display:block;color:#3a4a55;}
+
+  /* 변수 안내 박스 */
+  .var-intro{background:#fff;border:3px dashed var(--c-data);border-radius:14px;padding:14px 16px;margin:16px 0;display:flex;gap:12px;align-items:center;}
+  .var-intro .vi-icon{font-size:30px;flex-shrink:0;}
+  .var-intro .vi-text{flex:1;font-size:15px;line-height:1.6;}
+  .var-intro .vi-text b{color:#c94a40;}
+
+  /* 마무리 */
+  .finish{background:linear-gradient(135deg,#fff6d6,#ffe9b0);border:4px dashed var(--gold);border-radius:24px;padding:30px 28px;text-align:center;margin-top:30px;}
+  .finish h2{color:#b5760e;}
+  .finish .check{font-size:17px;text-align:left;display:inline-block;margin:0 auto;}
+  .finish .check div{margin:8px 0;}
+  .next{margin-top:22px;background:#fff;border-radius:16px;padding:16px 20px;font-size:16px;color:var(--soft);box-shadow:0 4px 0 #e9d9a8;}
+  footer{text-align:center;color:#6f8190;font-size:14px;margin-top:40px;}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="badge">엔트리 게임 만들기 · 2편</span>
+  <h1>이동·속도·가속도<br>— 게임 속 움직임의 비밀</h1>
+  <p class="sub">왜 진짜 게임은 점점 빨라지고 점점 느려질까? 🏎️</p>
+</header>
+
+<div class="stage">
+  <div class="ground"></div>
+  <div class="speedline">속도 ↑</div>
+  <div class="hero"></div>
+</div>
+
+<div class="wrap">
+
+  <!-- 인트로 -->
+  <section class="card">
+    <p class="big">🎉 1편에서 화살표 키로 캐릭터를 움직였죠? 그런데 키를 누르자마자 <b>5픽셀씩 똑같이</b> 움직였어요. 진짜 게임을 떠올려 봐요. 마리오도, 자동차 게임도, 캐릭터가 <b>스르륵 출발해서 점점 빨라지고, 키를 떼면 천천히 멈춰요</b>. 그 비밀은 바로 <b>'속도'와 '가속도'</b>예요!</p>
+    <p>이번 편에서는 게임이 움직임을 어떻게 계산하는지 알아보고, <b>'걷는속도' 변수</b>를 만들어서 진짜 게임처럼 움직이는 준비를 할 거예요. 다음 편에서 이 위에 <b>관성과 마찰</b>을 얹어 완성할 거예요!</p>
+    <div class="legend">
+      <span style="background:var(--c-start)">시작</span>
+      <span style="background:var(--c-flow)">흐름(반복·만일)</span>
+      <span style="background:var(--c-move)">움직임</span>
+      <span style="background:var(--c-judge)">판단</span>
+      <span style="background:var(--c-data)">자료(변수)</span>
+      <span style="background:var(--c-calc)">계산</span>
+    </div>
+  </section>
+
+  <!-- 자동차 비유로 한 눈에! -->
+  <section class="card">
+    <h2>🏎️ 자동차로 한눈에 보면…</h2>
+    <p>이동·속도·가속도는 <b>자동차 운전석</b>을 떠올리면 쉬워요. 세 가지가 서로 다른 일을 해요!</p>
+
+    <div class="car-dash">
+      <div class="car-title">— 운전석 대시보드 —</div>
+      <div class="car-grid">
+        <div class="car-dial pos">
+          <div class="cd-icon">📍</div>
+          <div class="cd-num">102km</div>
+          <div class="cd-name">위치(이동)</div>
+          <div class="cd-unit">지금 어디 있나</div>
+        </div>
+        <div class="car-dial vel">
+          <div class="cd-icon">⏱️</div>
+          <div class="cd-num">60</div>
+          <div class="cd-name">속도</div>
+          <div class="cd-unit">km/h</div>
+        </div>
+        <div class="car-dial">
+          <div class="cd-icon">🦶</div>
+          <div class="cd-num">+5</div>
+          <div class="cd-name">가속도</div>
+          <div class="cd-unit">액셀 밟는 세기</div>
+        </div>
+      </div>
+    </div>
+
+    <p>액셀을 밟으면 <b>속도</b>가 늘고, 속도가 있으면 <b>위치</b>가 바뀌어요. 정리하면 이런 계단 모양이에요:</p>
+
+    <div class="concept-stack">
+      <div class="cs-row accel">
+        <div class="cs-icon">🦶</div>
+        <div class="cs-text">
+          <div class="cs-label">가속도</div>
+          <div class="cs-desc">속도를 <b>얼마나 바꿀까</b>? — 액셀·브레이크의 세기</div>
+        </div>
+      </div>
+      <div class="cs-arrow">↓ 속도를 바꿔요</div>
+      <div class="cs-row vel">
+        <div class="cs-icon">⏱️</div>
+        <div class="cs-text">
+          <div class="cs-label">속도</div>
+          <div class="cs-desc">위치를 <b>얼마나 빨리 바꿀까</b>? — 1초에 몇 칸 가나</div>
+        </div>
+      </div>
+      <div class="cs-arrow">↓ 위치를 바꿔요</div>
+      <div class="cs-row pos">
+        <div class="cs-icon">📍</div>
+        <div class="cs-text">
+          <div class="cs-label">위치 (이동)</div>
+          <div class="cs-desc">캐릭터가 <b>지금 어디 있는지</b> — 엔트리에선 x, y 좌표!</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip"><b>💡 한 줄로!</b> <b>가속도</b>가 <b>속도</b>를 바꾸고, <b>속도</b>가 <b>위치</b>를 바꿔요. 이 순서를 기억하면 게임이 어떻게 굴러가는지 다 보여요!</div>
+  </section>
+
+  <!-- 1. 이동 -->
+  <section class="card c-gold">
+    <div class="step-no">1</div>
+    <h2>이동 — 위치(x좌표)가 바뀌는 것</h2>
+    <p><b>이동</b>은 가장 간단해요. 캐릭터가 <b>지금 있는 곳</b>이 바뀌는 거예요. 엔트리에서는 <b>x좌표</b>(좌우)와 <b>y좌표</b>(위아래)로 위치를 표현해요.</p>
+
+    <div class="pos-track">
+      <div class="pt-axis"></div>
+      <div class="pt-tick" style="left:10%;"></div>
+      <div class="pt-tick" style="left:30%;"></div>
+      <div class="pt-tick" style="left:50%;"></div>
+      <div class="pt-tick" style="left:70%;"></div>
+      <div class="pt-tick" style="left:90%;"></div>
+      <div class="pt-num" style="left:10%;">0</div>
+      <div class="pt-num" style="left:30%;">5</div>
+      <div class="pt-num" style="left:50%;">10</div>
+      <div class="pt-num" style="left:70%;">15</div>
+      <div class="pt-num" style="left:90%;">20</div>
+      <div class="pt-dot" style="left:30%;"></div>
+      <div class="pt-label" style="left:30%;">캐릭터 (x=5)</div>
+    </div>
+
+    <p>1편에서 <b>"x좌표를 5만큼 바꾸기"</b> 블록을 썼던 거 기억나죠? 그게 바로 <b>위치(x좌표)에 5를 더하기</b>예요. 매번 5씩 더하니까 캐릭터가 오른쪽으로 가는 거였어요!</p>
+
+    <div class="tip">
+      <b>📐 매 프레임이 뭐예요?</b><br>
+      게임은 1초에 <b>30~60번</b> 화면을 그려요. 한 번 그릴 때마다를 <b>1프레임</b>이라고 해요. 엔트리의 <b>"계속 반복하기"</b> 안에 든 블록은 <b>매 프레임마다 한 번씩</b> 실행돼요. 그래서 위치가 매번 조금씩 변하면 우리 눈엔 <b>움직이는 것처럼</b> 보여요!
+    </div>
+  </section>
+
+  <!-- 2. 속도 -->
+  <section class="card">
+    <div class="step-no">2</div>
+    <h2>속도 — 위치가 얼마나 빠르게 바뀌는가</h2>
+    <p><b>속도</b>는 <b>한 프레임에 위치가 몇 칸 움직이는지</b>예요. 속도가 5라면 매 프레임마다 5칸씩, 속도가 10이라면 10칸씩 움직여요. 같은 시간 안에 더 멀리 가니까 더 <b>빠른</b> 거죠!</p>
+
+    <div class="vel-compare">
+      <div class="vc-item">
+        <div class="vc-title">🐢 속도 = 3</div>
+        <div class="vc-track">
+          <div class="vc-car" style="left:18%;"></div>
+          <div class="vc-arrow" style="left:42%;">→ 3</div>
+        </div>
+        <div class="vc-desc">한 프레임에 3칸씩만<br>천천히 가요</div>
+      </div>
+      <div class="vc-item fast">
+        <div class="vc-title">🐰 속도 = 8</div>
+        <div class="vc-track">
+          <div class="vc-car" style="left:50%;"></div>
+          <div class="vc-arrow" style="left:74%;">→→→ 8</div>
+        </div>
+        <div class="vc-desc">한 프레임에 8칸씩<br>훨씬 빨라요!</div>
+      </div>
+    </div>
+
+    <p>속도에는 <b>방향</b>도 들어있어요! 숫자가 <b>+</b>면 오른쪽으로, <b>-</b>면 왼쪽으로 가요. 속도가 <b>0</b>이면 멈춰있는 거예요.</p>
+
+    <div class="vs-compare">
+      <div class="vs-card vs-old">
+        <div class="vs-head">📜 1편의 방식</div>
+        <div class="vs-line">키를 누를 때만 <b>5칸씩</b> 이동.</div>
+        <div class="vs-line">키를 떼면 <b>딱 멈춤</b>.</div>
+        <span class="vs-mini-code">x좌표를 5 만큼 바꾸기</span>
+      </div>
+      <div class="vs-card vs-new">
+        <div class="vs-head">🆕 속도 변수 방식</div>
+        <div class="vs-line"><b>'걷는속도'</b> 변수를 따로 둬요.</div>
+        <div class="vs-line">매 프레임 <b>속도만큼</b> 이동.</div>
+        <span class="vs-mini-code">x좌표를 [걷는속도] 만큼 바꾸기</span>
+      </div>
+    </div>
+
+    <p>이렇게 <b>속도를 변수에 따로 저장</b>하면 키를 안 눌러도 계속 움직이게 할 수 있고, 점점 빠르게도, 점점 느리게도 만들 수 있어요. 진짜 게임 같은 움직임이 가능해지는 거예요!</p>
+
+    <div class="tip">
+      <b>🧭 정리하면!</b><br>
+      <b>위치 + 속도 = 새 위치</b> (매 프레임마다)<br>
+      엔트리 블록으로는 <b>"x좌표를 [걷는속도] 만큼 바꾸기"</b> 한 줄이에요!
+    </div>
+  </section>
+
+  <!-- 3. 가속도 -->
+  <section class="card c-green">
+    <div class="step-no">3</div>
+    <h2>가속도 — 속도가 얼마나 바뀌는가</h2>
+    <p>속도가 항상 똑같으면 재미없죠. 진짜 자동차도 액셀을 밟으면 <b>속도가 점점 올라가요</b>. 이렇게 <b>"매 프레임마다 속도를 얼마나 바꿀까?"</b>를 정하는 게 <b>가속도</b>예요.</p>
+
+    <p>예를 들어 가속도가 <b>+0.8</b>이라면, 키를 누르고 있는 동안 매 프레임마다 속도에 0.8씩 더해져요. 어떻게 변하는지 표로 볼까요?</p>
+
+    <div class="accel-timeline">
+      <div class="at-title">⏱️ 키를 계속 누르고 있을 때 (가속도 = +0.8)</div>
+      <div class="at-row">
+        <div class="at-frame">1프레임</div>
+        <div class="at-bar-wrap"><div class="at-bar" style="width:10%;"></div></div>
+        <div class="at-val">속도 0.8</div>
+      </div>
+      <div class="at-row">
+        <div class="at-frame">2프레임</div>
+        <div class="at-bar-wrap"><div class="at-bar" style="width:20%;"></div></div>
+        <div class="at-val">속도 1.6</div>
+      </div>
+      <div class="at-row">
+        <div class="at-frame">5프레임</div>
+        <div class="at-bar-wrap"><div class="at-bar" style="width:50%;"></div></div>
+        <div class="at-val">속도 4.0</div>
+      </div>
+      <div class="at-row">
+        <div class="at-frame">10프레임</div>
+        <div class="at-bar-wrap"><div class="at-bar" style="width:100%;"></div></div>
+        <div class="at-val">속도 8.0</div>
+      </div>
+    </div>
+
+    <p>키를 누른 지 <b>1초도 안 돼서</b> 속도가 0.8 → 8.0까지 쭉 올라가요. 이게 바로 <b>"스르륵 가속"</b>의 비밀이에요!</p>
+
+    <p>반대로 키를 떼고 가속도가 <b>0</b>이 되면 속도는 그 자리에 그대로 남아있어요. <b>속도가 8이면 영원히 속도 8</b>로 가는 거예요. 멈추질 않아요! 그럼 어떻게 멈출까요? 👉 <b>3편에서 '마찰'</b>로 해결할 거예요!</p>
+
+    <div class="tip">
+      <b>💡 가속도의 부호!</b><br>
+      가속도가 <b>+</b>면 속도가 점점 커져요(빨라짐). <b>-</b>면 속도가 점점 작아져요(느려지거나 반대 방향으로 빨라짐). 게임에서는 <b>오른쪽 키 = +0.8</b>, <b>왼쪽 키 = -0.8</b>로 자주 써요.
+    </div>
+  </section>
+
+  <!-- 4. 실습 -->
+  <section class="card c-red">
+    <div class="step-no">4</div>
+    <h2>'걷는속도' 변수로 진짜 만들어보기</h2>
+    <p>이제 직접 만들어봐요! <b>속성 → 변수</b>에서 <b>'걷는속도'</b> 변수를 하나 만드세요. 처음 값은 0이에요(멈춤 상태).</p>
+
+    <div class="var-intro">
+      <div class="vi-icon">📦</div>
+      <div class="vi-text">
+        <b>'걷는속도'</b> 변수 = 캐릭터가 지금 얼마나 빠르게 움직이는지 적어두는 <b>메모장</b>이에요. 매 프레임마다 이 메모장의 숫자를 보고 위치를 바꿔요!
+      </div>
+    </div>
+
+    <p style="font-weight:700;color:var(--soft);">▶ 시작 블록 안에 이렇게 쌓아주세요.</p>
+
+    <div class="code">
+      <div class="eb hat">▶ 시작하기 버튼을 클릭했을 때</div>
+      <div class="eb cblk flow">
+        <div class="top">🔁 계속 반복하기</div>
+        <div class="body">
+
+          <div class="eb cblk flow">
+            <div class="top">만일 <span class="bool">오른쪽 화살표 ▾ 키가 눌러져 있는가?</span> 이라면</div>
+            <div class="body">
+              <div class="eb stack data">'걷는속도'에 <span class="in">0.8</span> 만큼 더하기 <span class="note">↑ 가속도! 키 누르면 속도가 0.8씩 늘어요</span></div>
+            </div>
+            <div class="bot"></div>
+          </div>
+
+          <div class="eb cblk flow">
+            <div class="top">만일 <span class="bool">왼쪽 화살표 ▾ 키가 눌러져 있는가?</span> 이라면</div>
+            <div class="body">
+              <div class="eb stack data">'걷는속도'에 <span class="in">-0.8</span> 만큼 더하기 <span class="note">왼쪽 키는 가속도가 -0.8</span></div>
+            </div>
+            <div class="bot"></div>
+          </div>
+
+          <div class="eb stack move">x 좌표를 <span class="in">걷는속도</span> 만큼 바꾸기 <span class="note">매 프레임마다 속도만큼 위치 이동! (속도 → 위치)</span></div>
+
+        </div>
+        <div class="bot"></div>
+      </div>
+    </div>
+
+    <p>실행해 보면 신기한 일이 일어나요! 키를 누르면 처음엔 <b>느리게 출발</b>하다가 점점 <b>빨라져요</b>. 그런데… 키를 떼도 캐릭터가 <b>멈추지 않고 계속 가요!</b> 🤔</p>
+
+    <div class="tip warn">
+      <b>⚠️ 어? 안 멈춰요!</b><br>
+      맞아요, 지금은 일부러 그런 거예요. 가속도만 있고 <b>속도를 줄이는 힘이 없어서</b>예요. 우주 공간에서 물체를 한 번 밀면 영원히 가는 것과 똑같아요. 이걸 게임에서 자연스럽게 멈추게 하려면 <b>3편의 '마찰'</b>이 필요해요!
+    </div>
+
+    <div class="tip">
+      <b>🧪 실험해 봐요!</b><br>
+      ① 가속도 숫자 <b>0.8</b>을 <b>2.0</b>으로 바꿔보세요. 훨씬 빨리 가속돼요!<br>
+      ② <b>0.2</b>로 바꾸면? 엄청 천천히 빨라져요. 큰 트럭 같은 느낌!<br>
+      ③ 키를 짧게 톡톡 눌러보세요. 누른 만큼만 속도가 늘어요.
+    </div>
+  </section>
+
+  <!-- 정리 카드 -->
+  <section class="card c-purple">
+    <div class="step-no">★</div>
+    <h2>오늘의 한 줄 요약</h2>
+
+    <div class="concept-stack" style="margin:6px auto 14px;">
+      <div class="cs-row pos">
+        <div class="cs-icon">📍</div>
+        <div class="cs-text">
+          <div class="cs-label">위치(x좌표)</div>
+          <div class="cs-desc">매 프레임 <b>+ 걷는속도</b></div>
+        </div>
+      </div>
+      <div class="cs-row vel">
+        <div class="cs-icon">⏱️</div>
+        <div class="cs-text">
+          <div class="cs-label">걷는속도(변수)</div>
+          <div class="cs-desc">키 입력에 따라 <b>+ 가속도</b></div>
+        </div>
+      </div>
+      <div class="cs-row accel">
+        <div class="cs-icon">🦶</div>
+        <div class="cs-text">
+          <div class="cs-label">가속도(숫자)</div>
+          <div class="cs-desc">오른쪽 키 = <b>+0.8</b>, 왼쪽 키 = <b>-0.8</b></div>
+        </div>
+      </div>
+    </div>
+
+    <p>이 세 가지가 <b>위에서 아래로</b> 연결돼요. 가속도가 속도를 바꾸고, 속도가 위치를 바꿔요. 이 흐름이 <b>모든 게임 물리의 기본</b>이에요!</p>
+  </section>
+
+  <!-- 마무리 -->
+  <div class="finish">
+    <h2>🎉 오늘도 잘했어요!</h2>
+    <p>게임 움직임의 진짜 비밀을 배웠어요. 하나씩 확인해 볼까요?</p>
+    <div class="check">
+      <div>✅ 이동·속도·가속도가 뭔지 알기 (위치 → 속도 → 가속도)</div>
+      <div>✅ 매 프레임마다 위치가 바뀌면 움직이는 것처럼 보임</div>
+      <div>✅ 속도는 한 프레임에 몇 칸 가는지, 방향(+/-)도 들어있음</div>
+      <div>✅ 가속도는 매 프레임마다 속도가 얼마나 바뀌는지</div>
+      <div>✅ '걷는속도' 변수 만들어서 스르륵 가속하기</div>
+    </div>
+    <div class="next">📘 <b>다음 편 예고</b> — 우리 캐릭터가 안 멈춰서 문제예요! <b>'관성'</b>과 <b>'마찰'</b>로 자연스럽게 멈추게 하고, <b>'중력'</b>으로 점프와 낙하까지 진짜 같이 만들어볼 거예요!</div>
+  </div>
+
+  <footer>엔트리로 만드는 나만의 게임 · 2편 「이동·속도·가속도」</footer>
+</div>
+
+</body>
+</html>
