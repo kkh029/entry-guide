@@ -67,24 +67,33 @@
   .bonus{background:#f6f0ff;border-left-color:var(--purple);}
   .bonus b{color:#8255c4;}
 
-  /* 엔트리 블록 */
-  .code{background:#eef4f8;border:2px solid #d7e3ec;border-radius:16px;padding:16px 16px 18px;margin:18px 0;overflow-x:auto;}
-  .eb{font-family:'Gaegu',cursive;font-weight:700;color:#fff;font-size:17px;}
-  .hat{display:inline-block;background:var(--c-start);padding:14px 18px 10px;border-radius:20px 20px 7px 7px;margin-bottom:-2px;box-shadow:0 2px 0 rgba(0,0,0,.12);}
-  .stack{display:block;width:fit-content;max-width:100%;padding:10px 15px;border-radius:6px;margin:0 0 -2px;position:relative;box-shadow:0 2px 0 rgba(0,0,0,.12);}
-  .stack::before{content:"";position:absolute;top:-1px;left:16px;width:18px;height:6px;background:inherit;border-radius:0 0 4px 4px;}
+  /* ─── 엔트리 블록 ─── */
+  .code{background:#cddbe6;border-radius:10px;padding:12px 14px 22px;margin:18px 0;overflow-x:auto;}
+  .eb{font-family:system-ui,-apple-system,'Malgun Gothic','Apple SD Gothic Neo',sans-serif;font-weight:700;color:#fff;font-size:13px;line-height:1.4;}
+  /* 햇(이벤트) 블록 */
+  .hat{display:inline-block;background:var(--c-start);padding:9px 16px 9px;border-radius:14px 14px 3px 3px;position:relative;box-shadow:0 3px 0 rgba(0,0,0,.22);}
+  .hat::after{content:"";position:absolute;bottom:-8px;left:12px;width:16px;height:8px;background:inherit;border-radius:0 0 4px 4px;filter:brightness(.82);}
+  /* 스택 블록 */
+  .stack{display:block;width:fit-content;max-width:100%;padding:9px 13px 8px;border-radius:3px;margin:0;position:relative;box-shadow:0 3px 0 rgba(0,0,0,.22);}
+  .stack::before{content:"";position:absolute;top:0;left:12px;width:16px;height:8px;background:rgba(0,0,0,.2);border-radius:0 0 4px 4px;}
+  .stack::after{content:"";position:absolute;bottom:-8px;left:12px;width:16px;height:8px;background:inherit;border-radius:0 0 4px 4px;filter:brightness(.82);}
   .move{background:var(--c-move);} .data{background:var(--c-data);}
-  .cblk{margin:0 0 -2px;width:fit-content;max-width:100%;}
-  .cblk .top{padding:10px 15px;border-radius:7px 7px 0 0;color:#fff;box-shadow:0 2px 0 rgba(0,0,0,.1);position:relative;}
-  .cblk .top::before{content:"";position:absolute;top:-1px;left:16px;width:18px;height:6px;background:inherit;border-radius:0 0 4px 4px;}
-  .cblk .body{padding:7px 0 7px 12px;}
-  .cblk .bot{height:13px;border-radius:0 0 7px 7px;width:130px;}
+  /* C 블록 (흐름·반복) */
+  .cblk{margin:0;width:fit-content;max-width:100%;}
+  .cblk .top{padding:9px 13px 8px;border-radius:3px 3px 0 0;color:#fff;position:relative;box-shadow:0 2px 0 rgba(0,0,0,.15);}
+  .cblk .top::before{content:"";position:absolute;top:0;left:12px;width:16px;height:8px;background:rgba(0,0,0,.2);border-radius:0 0 4px 4px;}
+  .cblk .top::after{content:"";position:absolute;bottom:-8px;left:26px;width:16px;height:8px;background:inherit;border-radius:0 0 4px 4px;filter:brightness(.82);}
+  .cblk .body{padding:8px 0 8px 14px;min-height:20px;}
+  .cblk .bot{height:12px;border-radius:0 0 3px 3px;width:110px;position:relative;}
+  .cblk .bot::after{content:"";position:absolute;bottom:-8px;left:12px;width:16px;height:8px;background:inherit;border-radius:0 0 4px 4px;filter:brightness(.82);}
   .flow>.top,.flow>.bot{background:var(--c-flow);}
-  .flow>.body{border-left:13px solid var(--c-flow);}
-  .bool{display:inline-block;background:var(--c-judge);color:#fff;padding:4px 13px;font-size:15px;margin:0 2px;clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 50%,calc(100% - 8px) 100%,8px 100%,0 50%);}
-  .in{display:inline-block;background:#fff;color:#3a4a55;border:1px solid rgba(0,0,0,.18);border-radius:12px;padding:1px 10px;margin:0 2px;font-size:15px;text-align:center;}
-  .calc{display:inline-block;background:var(--c-calc);color:#fff;padding:2px 11px;font-size:15px;margin:0 2px;border-radius:12px;}
-  .note{display:block;font-family:'Gowun Dodum';font-weight:normal;font-size:13px;color:#5a6b78;margin:4px 0 6px 4px;}
+  .flow>.body{border-left:12px solid var(--c-flow);}
+  /* 판단 블록 (육각형) · 계산 블록 */
+  .bool{display:inline-block;background:var(--c-judge);color:#fff;padding:3px 11px;font-size:12px;margin:0 2px;clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 50%,calc(100% - 8px) 100%,8px 100%,0 50%);}
+  .calc{display:inline-block;background:var(--c-calc);color:#fff;padding:2px 9px;font-size:12px;margin:0 2px;border-radius:10px;}
+  /* 입력값 · 주석 */
+  .in{display:inline-block;background:#fff;color:#3a4a55;border:1px solid rgba(0,0,0,.18);border-radius:10px;padding:1px 9px;margin:0 2px;font-size:12px;text-align:center;}
+  .note{display:block;font-family:'Gowun Dodum',sans-serif;font-weight:normal;font-size:11.5px;color:#8a9eaa;margin:3px 0 3px 4px;}
   .legend{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;font-size:14px;}
   .legend span{padding:4px 13px;border-radius:20px;color:#fff;font-family:'Gaegu';font-weight:700;}
 
