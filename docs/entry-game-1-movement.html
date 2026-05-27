@@ -46,6 +46,75 @@
   .ill-label{font-family:'Jua',sans-serif;font-size:13px;line-height:1.5;color:var(--soft);}
   .bad-label{color:var(--c1);}
   .good-label{color:var(--green);}
+
+  /* 직접 해보기 — 인터랙티브 데모 */
+  .try-demo{
+    background:#fff;border:1px solid var(--border);
+    border-radius:12px;padding:16px 16px 14px;margin:16px 0 6px;
+  }
+  .try-demo .demo-title{
+    font-family:'Jua',sans-serif;font-size:16px;color:var(--ink);
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  }
+  .try-demo .demo-title .pill{
+    background:var(--green);color:#fff;font-family:'Jua',sans-serif;
+    font-size:11px;padding:2px 9px;border-radius:20px;letter-spacing:.5px;
+  }
+  .try-canvas-wrap{
+    position:relative;background:linear-gradient(180deg,var(--sky1),var(--sky2));
+    border-radius:10px;overflow:hidden;outline:none;cursor:pointer;
+  }
+  .try-canvas-wrap:focus{box-shadow:0 0 0 3px rgba(74,120,184,.35);}
+  .try-canvas-wrap canvas{display:block;width:100%;height:auto;}
+  .try-hud{
+    position:absolute;top:8px;left:10px;
+    font-family:'Jua',sans-serif;font-size:13px;
+    background:rgba(255,255,255,.85);color:var(--ink);
+    padding:3px 10px;border-radius:14px;
+  }
+  .try-focus-msg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    text-align:center;padding:0 18px;
+    font-family:'Jua',sans-serif;font-size:14.5px;color:var(--ink);
+    background:rgba(255,255,255,.55);pointer-events:none;
+    opacity:0;transition:opacity .15s ease;
+  }
+  .try-canvas-wrap.idle .try-focus-msg{opacity:1;}
+  .try-controls{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;
+  }
+  .try-controls button{
+    font-family:'Jua',sans-serif;font-size:14px;
+    background:var(--green);color:#fff;border:none;
+    padding:7px 16px;border-radius:20px;
+    box-shadow:0 2px 0 #3e7549;cursor:pointer;
+    transition:transform .1s ease;
+  }
+  .try-controls button:active{transform:translateY(1px);box-shadow:0 1px 0 #3e7549;}
+  .try-controls button.secondary{
+    background:#fff;color:var(--ink);
+    border:1px solid var(--border);box-shadow:0 2px 0 var(--border);
+  }
+  .try-controls button.secondary:active{box-shadow:0 1px 0 var(--border);}
+  .try-controls .speed-row{
+    display:flex;align-items:center;gap:8px;margin-left:auto;
+    font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);
+  }
+  .try-controls .speed-row input[type=range]{width:110px;}
+  .try-controls .speed-row b{color:var(--ink);min-width:14px;display:inline-block;text-align:center;}
+  .try-hint{
+    font-family:'Gowun Dodum',sans-serif;font-size:13.5px;
+    color:var(--soft);margin-top:8px;line-height:1.65;
+  }
+  .try-hint kbd{
+    display:inline-block;background:#fafaf6;
+    border:1px solid var(--border);border-bottom-width:2px;
+    border-radius:5px;padding:1px 8px;
+    font-family:'Jua',sans-serif;font-size:12px;color:var(--ink);
+  }
+  @media (max-width:520px){
+    .try-controls .speed-row{margin-left:0;width:100%;justify-content:space-between;}
+  }
 </style>
 </head>
 <body>
@@ -141,6 +210,23 @@
       </div>
     </div>
     <div class="tip"><b>💡 알아두기</b> 숫자 <b>5</b>(흰 칸)를 크게 하면 더 빨리 달려요. 5쯤이 딱 좋아요!</div>
+
+    <div class="try-demo">
+      <div class="demo-title"><span class="pill">직접 해보기</span> 위 블록이 어떻게 동작하는지 눌러서 확인해 보세요!</div>
+      <div class="try-canvas-wrap idle" id="demoStage1" tabindex="0" aria-label="화살표 키로 캐릭터 움직이기 데모">
+        <canvas id="demoCanvas1" width="720" height="220"></canvas>
+        <div class="try-hud">x 좌표: <b id="demoX1">0</b></div>
+        <div class="try-focus-msg">▶ 실행 버튼을 누르거나 이 화면을 클릭한 뒤<br>← → 화살표 키를 눌러보세요</div>
+      </div>
+      <div class="try-controls">
+        <button id="demoRun1">▶ 실행</button>
+        <button id="demoReset1" class="secondary">↺ 처음으로</button>
+        <span class="speed-row">한 번에 <b id="demoSpeedVal1">5</b> 칸씩
+          <input type="range" id="demoSpeed1" min="1" max="15" value="5" aria-label="이동 속도">
+        </span>
+      </div>
+      <div class="try-hint">⌨️ <kbd>←</kbd> <kbd>→</kbd> 키로 움직여요. 슬라이더로 위 블록의 <b>5</b> 숫자를 바꿔 보면 캐릭터 속도가 어떻게 달라지는지 느낄 수 있어요!</div>
+    </div>
   </section>
 
   <section class="card c-green">
@@ -234,6 +320,118 @@
     </span>
   </footer>
 </div>
+
+<script>
+(function(){
+  const wrap        = document.getElementById('demoStage1');
+  const canvas      = document.getElementById('demoCanvas1');
+  const ctx         = canvas.getContext('2d');
+  const runBtn      = document.getElementById('demoRun1');
+  const resetBtn    = document.getElementById('demoReset1');
+  const speedSlider = document.getElementById('demoSpeed1');
+  const speedVal    = document.getElementById('demoSpeedVal1');
+  const xLabel      = document.getElementById('demoX1');
+
+  const W = canvas.width, H = canvas.height;
+  const groundY = H - 30;
+  const heroW = 38, heroH = 44;
+  const startX = (W - heroW) / 2;
+  let heroX = startX;
+  let running = false;
+  let speed = 5;
+  const keys = { left:false, right:false };
+
+  function roundRect(x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+  function drawGround(){
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#a17a52';
+    ctx.fillRect(0, groundY, W, H - groundY);
+    ctx.fillStyle = '#8e6c47';
+    for (let x = 0; x < W; x += 28) ctx.fillRect(x + 24, groundY, 4, H - groundY);
+    ctx.fillStyle = '#7ea884';
+    ctx.fillRect(0, groundY - 5, W, 5);
+  }
+  function drawHero(){
+    const x = heroX, y = groundY - heroH;
+    ctx.fillStyle = 'rgba(0,0,0,.13)';
+    ctx.beginPath();
+    ctx.ellipse(x + heroW/2, groundY - 1, heroW/2 + 2, 4, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#ff6b5e';
+    roundRect(x, y, heroW, heroH, 10); ctx.fill();
+    ctx.fillStyle = '#d9483d';
+    roundRect(x + heroW - 5, y + 5, 5, heroH - 9, 4); ctx.fill();
+    roundRect(x + 5, y + heroH - 5, heroW - 10, 5, 4); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(x + heroW - 12, y + 14, 5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#333';
+    ctx.beginPath(); ctx.arc(x + heroW - 11, y + 15, 2.2, 0, Math.PI*2); ctx.fill();
+  }
+  function render(){
+    drawGround();
+    drawHero();
+    xLabel.textContent = Math.round(heroX - startX);
+  }
+  function loop(){
+    if (!running) return;
+    if (keys.right) heroX += speed;
+    if (keys.left)  heroX -= speed;
+    if (heroX < 0) heroX = 0;
+    if (heroX > W - heroW) heroX = W - heroW;
+    render();
+    requestAnimationFrame(loop);
+  }
+  function setRunning(on){
+    running = on;
+    runBtn.textContent = on ? '⏸ 정지' : '▶ 실행';
+    wrap.classList.toggle('idle', !on);
+    if (on){
+      wrap.focus();
+      requestAnimationFrame(loop);
+    } else {
+      keys.left = keys.right = false;
+    }
+  }
+  function reset(){
+    heroX = startX;
+    keys.left = keys.right = false;
+    render();
+  }
+
+  runBtn.addEventListener('click', () => setRunning(!running));
+  resetBtn.addEventListener('click', reset);
+  speedSlider.addEventListener('input', e => {
+    speed = parseInt(e.target.value, 10);
+    speedVal.textContent = speed;
+  });
+  wrap.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  { keys.left  = true; e.preventDefault(); }
+    if (e.key === 'ArrowRight') { keys.right = true; e.preventDefault(); }
+  });
+  wrap.addEventListener('keyup', e => {
+    if (e.key === 'ArrowLeft')  keys.left  = false;
+    if (e.key === 'ArrowRight') keys.right = false;
+  });
+  wrap.addEventListener('blur', () => {
+    keys.left = keys.right = false;
+    if (running) setRunning(false);
+  });
+  wrap.addEventListener('click', () => {
+    wrap.focus();
+    if (!running) setRunning(true);
+  });
+
+  render();
+})();
+</script>
 
 </body>
 </html>
