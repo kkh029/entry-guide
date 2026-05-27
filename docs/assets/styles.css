@@ -94,14 +94,19 @@ h1{
   border-top:5px solid #7ea884;
 }
 
-/* ───── 카드 ───── */
+/* ───── 섹션 (박스 없이 흐름 + 가는 구분선) ───── */
 section.card{
-  background:var(--paper);
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:28px 28px;
-  margin:22px 0;
-  box-shadow:0 1px 2px rgba(20,25,30,.03);
+  background:transparent;
+  border:none;
+  border-radius:0;
+  padding:8px 0 4px;
+  margin:28px 0;
+  box-shadow:none;
+}
+section.card + section.card{
+  border-top:1px solid var(--border-s);
+  padding-top:32px;
+  margin-top:32px;
 }
 
 .step-no{
@@ -194,12 +199,13 @@ p{margin:12px 0;}
 
 /* ───── 마무리(체크리스트) ───── */
 .finish{
-  background:#fafaf6;
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:28px;
+  background:transparent;
+  border:none;
+  border-top:1px solid var(--border-s);
+  border-radius:0;
+  padding:28px 0 8px;
   text-align:center;
-  margin-top:28px;
+  margin-top:36px;
 }
 .finish h2{color:var(--ink);}
 .finish .check{font-size:16px;text-align:left;display:inline-block;margin:0 auto;}
