@@ -182,10 +182,27 @@
 
 <div class="wrap">
 
-  <!-- 인트로 -->
+  <!-- 인트로 — 문제 제기 + 1편 vs 오늘 비교 -->
   <section class="card">
-    <p class="big">🎉 1편에서 화살표 키로 캐릭터를 움직였죠? 그런데 키를 누르자마자 <b>5픽셀씩 똑같이</b> 움직였어요. 진짜 게임을 떠올려 봐요. 마리오도, 자동차 게임도, 캐릭터가 <b>스르륵 출발해서 점점 빨라지고, 키를 떼면 천천히 멈춰요</b>. 그 비밀은 바로 <b>'속도'와 '가속도'</b>예요!</p>
-    <p>이번 편에서는 게임이 움직임을 어떻게 계산하는지 알아보고, <b>'걷는속도' 변수</b>를 만들어서 진짜 게임처럼 움직이는 준비를 할 거예요. 다음 편에서 이 위에 <b>관성과 마찰</b>을 얹어 완성할 거예요!</p>
+    <p class="big">🎮 1편에서는 키를 누르면 캐릭터가 <b>딱! 5칸</b> 이동했어요. 그런데 뭔가 어색하지 않았나요?</p>
+
+    <div class="vs-compare">
+      <div class="vs-card vs-old">
+        <div class="vs-head">😅 1편의 움직임</div>
+        <div class="vs-line">키를 누르는 순간 <b>바로 5칸</b></div>
+        <div class="vs-line">키를 떼는 순간 <b>딱 멈춤</b></div>
+        <span class="vs-mini-code">x좌표를 5 만큼 바꾸기</span>
+      </div>
+      <div class="vs-card vs-new">
+        <div class="vs-head">🏎️ 오늘 만들 움직임</div>
+        <div class="vs-line">처음엔 천천히, <b>점점 빨라짐</b></div>
+        <div class="vs-line">키를 떼도 <b>스르르 가다 멈춤</b></div>
+        <span class="vs-mini-code">x좌표를 [걷는속도] 만큼 바꾸기</span>
+      </div>
+    </div>
+
+    <p>마리오도, 자동차 게임도, 달리기 게임도 모두 <b>오른쪽처럼</b> 움직여요. 이 차이를 만드는 게 바로 <b>'이동', '속도', '가속도'</b> 세 가지 개념이에요. 하나씩 이야기처럼 풀어볼게요!</p>
+
     <div class="legend">
       <span style="background:var(--c-start)">시작</span>
       <span style="background:var(--c-flow)">흐름(반복·만일)</span>
@@ -194,66 +211,6 @@
       <span style="background:var(--c-data)">자료(변수)</span>
       <span style="background:var(--c-calc)">계산</span>
     </div>
-  </section>
-
-  <!-- 자동차 비유로 한 눈에! -->
-  <section class="card">
-    <h2>🏎️ 자동차로 한눈에 보면…</h2>
-    <p>이동·속도·가속도는 <b>자동차 운전석</b>을 떠올리면 쉬워요. 세 가지가 서로 다른 일을 해요!</p>
-
-    <div class="car-dash">
-      <div class="car-title">— 운전석 대시보드 —</div>
-      <div class="car-grid">
-        <div class="car-dial pos">
-          <div class="cd-icon">📍</div>
-          <div class="cd-num">102km</div>
-          <div class="cd-name">위치(이동)</div>
-          <div class="cd-unit">지금 어디 있나</div>
-        </div>
-        <div class="car-dial vel">
-          <div class="cd-icon">⏱️</div>
-          <div class="cd-num">60</div>
-          <div class="cd-name">속도</div>
-          <div class="cd-unit">km/h</div>
-        </div>
-        <div class="car-dial">
-          <div class="cd-icon">🦶</div>
-          <div class="cd-num">+5</div>
-          <div class="cd-name">가속도</div>
-          <div class="cd-unit">액셀 밟는 세기</div>
-        </div>
-      </div>
-    </div>
-
-    <p>액셀을 밟으면 <b>속도</b>가 늘고, 속도가 있으면 <b>위치</b>가 바뀌어요. 정리하면 이런 계단 모양이에요:</p>
-
-    <div class="concept-stack">
-      <div class="cs-row accel">
-        <div class="cs-icon">🦶</div>
-        <div class="cs-text">
-          <div class="cs-label">가속도</div>
-          <div class="cs-desc">속도를 <b>얼마나 바꿀까</b>? — 액셀·브레이크의 세기</div>
-        </div>
-      </div>
-      <div class="cs-arrow">↓ 속도를 바꿔요</div>
-      <div class="cs-row vel">
-        <div class="cs-icon">⏱️</div>
-        <div class="cs-text">
-          <div class="cs-label">속도</div>
-          <div class="cs-desc">위치를 <b>얼마나 빨리 바꿀까</b>? — 1초에 몇 칸 가나</div>
-        </div>
-      </div>
-      <div class="cs-arrow">↓ 위치를 바꿔요</div>
-      <div class="cs-row pos">
-        <div class="cs-icon">📍</div>
-        <div class="cs-text">
-          <div class="cs-label">위치 (이동)</div>
-          <div class="cs-desc">캐릭터가 <b>지금 어디 있는지</b> — 엔트리에선 x, y 좌표!</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="tip"><b>💡 한 줄로!</b> <b>가속도</b>가 <b>속도</b>를 바꾸고, <b>속도</b>가 <b>위치</b>를 바꿔요. 이 순서를 기억하면 게임이 어떻게 굴러가는지 다 보여요!</div>
   </section>
 
   <!-- 1. 이동 -->
@@ -284,12 +241,24 @@
       <b>📐 매 프레임이 뭐예요?</b><br>
       게임은 1초에 <b>30~60번</b> 화면을 그려요. 한 번 그릴 때마다를 <b>1프레임</b>이라고 해요. 엔트리의 <b>"계속 반복하기"</b> 안에 든 블록은 <b>매 프레임마다 한 번씩</b> 실행돼요. 그래서 위치가 매번 조금씩 변하면 우리 눈엔 <b>움직이는 것처럼</b> 보여요!
     </div>
+
+    <div class="tip warn">
+      <b>💭 근데 왜 1편 움직임은 어색했을까요?</b><br>
+      자전거를 탈 때 페달을 밟는 순간 바로 시속 20km가 되나요? 아니죠. 처음엔 느리다가 <b>점점 빨라지잖아요</b>. 1편에선 매번 똑같이 5칸씩 가니까 그 느낌이 없었어요. 이 문제를 해결하는 게 바로 다음에 배울 <b>'속도'</b>예요!
+    </div>
   </section>
 
   <!-- 2. 속도 -->
   <section class="card">
     <div class="step-no">2</div>
     <h2>속도 — 위치가 얼마나 빠르게 바뀌는가</h2>
+
+    <div class="tip bonus">
+      <b>📖 속도(Velocity)란?</b><br>
+      "속도는 <b>방향을 포함한 빠르기</b>예요. 그래서 <b>음수(-)가 될 수 있어요.</b> 방향 없이 빠르기만 나타내는 '속력'과는 달라요."<br>
+      <small style="opacity:.7;">— <a href="https://en.scratch-wiki.info/wiki/Velocity" target="_blank" style="color:#8255c4;">Scratch Wiki, "Velocity"</a></small>
+    </div>
+
     <p><b>속도</b>는 <b>한 프레임에 위치가 몇 칸 움직이는지</b>예요. 속도가 5라면 매 프레임마다 5칸씩, 속도가 10이라면 10칸씩 움직여요. 같은 시간 안에 더 멀리 가니까 더 <b>빠른</b> 거죠!</p>
 
     <div class="vel-compare">
@@ -313,27 +282,25 @@
 
     <p>속도에는 <b>방향</b>도 들어있어요! 숫자가 <b>+</b>면 오른쪽으로, <b>-</b>면 왼쪽으로 가요. 속도가 <b>0</b>이면 멈춰있는 거예요.</p>
 
-    <div class="vs-compare">
-      <div class="vs-card vs-old">
-        <div class="vs-head">📜 1편의 방식</div>
-        <div class="vs-line">키를 누를 때만 <b>5칸씩</b> 이동.</div>
-        <div class="vs-line">키를 떼면 <b>딱 멈춤</b>.</div>
-        <span class="vs-mini-code">x좌표를 5 만큼 바꾸기</span>
-      </div>
-      <div class="vs-card vs-new">
-        <div class="vs-head">🆕 속도 변수 방식</div>
-        <div class="vs-line"><b>'걷는속도'</b> 변수를 따로 둬요.</div>
-        <div class="vs-line">매 프레임 <b>속도만큼</b> 이동.</div>
-        <span class="vs-mini-code">x좌표를 [걷는속도] 만큼 바꾸기</span>
-      </div>
-    </div>
+    <p>이렇게 <b>속도를 변수에 따로 저장</b>하면 키를 안 눌러도 계속 움직이게 할 수 있고, 점점 빠르게도, 점점 느리게도 만들 수 있어요. 이 아이디어는 여러 종류의 게임에서 두루 쓰여요:</p>
 
-    <p>이렇게 <b>속도를 변수에 따로 저장</b>하면 키를 안 눌러도 계속 움직이게 할 수 있고, 점점 빠르게도, 점점 느리게도 만들 수 있어요. 진짜 게임 같은 움직임이 가능해지는 거예요!</p>
+    <div style="background:#f0f7ff;border:2px solid #d0e4f7;border-radius:14px;padding:14px 18px;margin:16px 0;font-size:15px;line-height:2.2;">
+      🏎️ <b>레이싱·드라이빙 게임</b> — 속도 변수로 훨씬 현실감 있는 조작감<br>
+      🦘 <b>플랫포머 게임</b> — 점프·낙하의 수직 이동에 특히 유용<br>
+      🚀 <b>우주 게임</b> — 관성 표현으로 진짜 우주 같은 느낌<br>
+      🎱 <b>물리 시뮬레이션</b> — 공이 튀기고 중력을 받는 장면<br>
+      <small style="opacity:.65;">— <a href="https://en.scratch-wiki.info/wiki/Velocity" target="_blank" style="color:#4d9bf5;">Scratch Wiki, "Velocity"</a></small>
+    </div>
 
     <div class="tip">
       <b>🧭 정리하면!</b><br>
       <b>위치 + 속도 = 새 위치</b> (매 프레임마다)<br>
       엔트리 블록으로는 <b>"x좌표를 [걷는속도] 만큼 바꾸기"</b> 한 줄이에요!
+    </div>
+
+    <div class="tip warn">
+      <b>💭 근데 속도가 항상 같으면 또 어색해요!</b><br>
+      속도 변수를 쓰면 1편보다는 낫지만, 속도가 처음부터 끝까지 <b>고정값</b>이면 여전히 어색해요. 자동차 액셀을 밟을 때 <b>속도가 점점 올라가는 것처럼</b>, 속도 자체가 변해야 진짜 같아요. 그걸 담당하는 게 바로 <b>'가속도'</b>예요!
     </div>
   </section>
 
@@ -341,7 +308,12 @@
   <section class="card c-green">
     <div class="step-no">3</div>
     <h2>가속도 — 속도가 얼마나 바뀌는가</h2>
-    <p>속도가 항상 똑같으면 재미없죠. 진짜 자동차도 액셀을 밟으면 <b>속도가 점점 올라가요</b>. 이렇게 <b>"매 프레임마다 속도를 얼마나 바꿀까?"</b>를 정하는 게 <b>가속도</b>예요.</p>
+
+    <div class="tip" style="background:#eafff2;border-left-color:var(--green);">
+      <b style="color:#2a8a50;">📖 가속도(Acceleration)란?</b><br>
+      "가속도는 <b>속도가 변하는 비율</b>이에요. <b>+값이면 점점 빨라지고</b>(가속), <b>-값이면 점점 느려져요</b>(감속)."<br>
+      <small style="opacity:.7;">— <a href="https://pinnguaq.com/learn/player-control-in-scratch-2/" target="_blank" style="color:#2a8a50;">Pinnguaq, "Player control in Scratch"</a></small>
+    </div>
 
     <p>예를 들어 가속도가 <b>+0.8</b>이라면, 키를 누르고 있는 동안 매 프레임마다 속도에 0.8씩 더해져요. 어떻게 변하는지 표로 볼까요?</p>
 
@@ -371,11 +343,18 @@
 
     <p>키를 누른 지 <b>1초도 안 돼서</b> 속도가 0.8 → 8.0까지 쭉 올라가요. 이게 바로 <b>"스르륵 가속"</b>의 비밀이에요!</p>
 
-    <p>반대로 키를 떼고 가속도가 <b>0</b>이 되면 속도는 그 자리에 그대로 남아있어요. <b>속도가 8이면 영원히 속도 8</b>로 가는 거예요. 멈추질 않아요! 그럼 어떻게 멈출까요? 👉 <b>3편에서 '마찰'</b>로 해결할 거예요!</p>
-
     <div class="tip">
       <b>💡 가속도의 부호!</b><br>
       가속도가 <b>+</b>면 속도가 점점 커져요(빨라짐). <b>-</b>면 속도가 점점 작아져요(느려지거나 반대 방향으로 빨라짐). 게임에서는 <b>오른쪽 키 = +0.8</b>, <b>왼쪽 키 = -0.8</b>로 자주 써요.
+    </div>
+
+    <p>반대로 키를 떼고 가속도가 <b>0</b>이 되면 속도는 그 자리에 그대로 남아있어요. <b>속도가 8이면 영원히 속도 8</b>로 가는 거예요. 멈추질 않아요! 그럼 어떻게 멈출까요?</p>
+
+    <div class="tip warn">
+      <b>🔮 다음 편 미리보기: 마찰(Friction)</b><br>
+      "마찰은 움직임에 저항하는 힘으로, 속도를 줄여요."<br>
+      속도에 0.9를 계속 곱하면 <b>속도 × 0.9 × 0.9 × 0.9 …</b> → 결국 0에 가까워져요! 3편에서 이걸로 자연스럽게 멈추게 만들 거예요.<br>
+      <small style="opacity:.7;">— <a href="https://pinnguaq.com/learn/player-control-in-scratch-2/" target="_blank" style="color:#d9641f;">Pinnguaq, "Player control in Scratch"</a></small>
     </div>
   </section>
 
@@ -436,38 +415,98 @@
       ② <b>0.2</b>로 바꾸면? 엄청 천천히 빨라져요. 큰 트럭 같은 느낌!<br>
       ③ 키를 짧게 톡톡 눌러보세요. 누른 만큼만 속도가 늘어요.
     </div>
+
+    <div class="tip bonus">
+      <b>⭐ 보너스: 3편 코드 힌트 (Scratch Wiki)</b><br>
+      Scratch Wiki에서는 속도를 서서히 줄이는 방법을 이렇게 소개해요:<br>
+      <span style="font-family:'Gaegu',cursive;font-weight:700;font-size:16px;display:inline-block;background:#fff;border:2px solid #d8c8f8;border-radius:10px;padding:4px 12px;margin:8px 0;">
+        '걷는속도'를 <span style="color:#a877e8;">(걷는속도 × 0.9)</span> 로 정하기
+      </span><br>
+      이렇게 하면 키를 안 눌러도 속도가 <b>서서히 줄어들어</b> 자연스럽게 멈춰요. 다음 편에서 직접 써볼 거예요!<br>
+      <small style="opacity:.7;">— <a href="https://en.scratch-wiki.info/wiki/Velocity" target="_blank" style="color:#8255c4;">Scratch Wiki, "Velocity"</a></small>
+    </div>
   </section>
 
-  <!-- 정리 카드 -->
-  <section class="card c-purple">
-    <div class="step-no">★</div>
-    <h2>오늘의 한 줄 요약</h2>
+  <!-- 5. 자동차로 전체 정리 (뒤로 이동) -->
+  <section class="card">
+    <h2>🏁 오늘 배운 것을 자동차로 정리하면!</h2>
+    <p>이동·속도·가속도를 모두 배운 지금, <b>자동차 운전석</b>으로 한 번에 정리해봐요. 세 가지가 어떻게 연결되는지 보여요!</p>
 
-    <div class="concept-stack" style="margin:6px auto 14px;">
-      <div class="cs-row pos">
-        <div class="cs-icon">📍</div>
-        <div class="cs-text">
-          <div class="cs-label">위치(x좌표)</div>
-          <div class="cs-desc">매 프레임 <b>+ 걷는속도</b></div>
+    <div class="car-dash">
+      <div class="car-title">— 운전석 대시보드 —</div>
+      <div class="car-grid">
+        <div class="car-dial pos">
+          <div class="cd-icon">📍</div>
+          <div class="cd-num">102km</div>
+          <div class="cd-name">위치(이동)</div>
+          <div class="cd-unit">지금 어디 있나</div>
         </div>
-      </div>
-      <div class="cs-row vel">
-        <div class="cs-icon">⏱️</div>
-        <div class="cs-text">
-          <div class="cs-label">걷는속도(변수)</div>
-          <div class="cs-desc">키 입력에 따라 <b>+ 가속도</b></div>
+        <div class="car-dial vel">
+          <div class="cd-icon">⏱️</div>
+          <div class="cd-num">60</div>
+          <div class="cd-name">속도</div>
+          <div class="cd-unit">km/h</div>
         </div>
-      </div>
-      <div class="cs-row accel">
-        <div class="cs-icon">🦶</div>
-        <div class="cs-text">
-          <div class="cs-label">가속도(숫자)</div>
-          <div class="cs-desc">오른쪽 키 = <b>+0.8</b>, 왼쪽 키 = <b>-0.8</b></div>
+        <div class="car-dial">
+          <div class="cd-icon">🦶</div>
+          <div class="cd-num">+5</div>
+          <div class="cd-name">가속도</div>
+          <div class="cd-unit">액셀 밟는 세기</div>
         </div>
       </div>
     </div>
 
-    <p>이 세 가지가 <b>위에서 아래로</b> 연결돼요. 가속도가 속도를 바꾸고, 속도가 위치를 바꿔요. 이 흐름이 <b>모든 게임 물리의 기본</b>이에요!</p>
+    <p>액셀(가속도)을 밟으면 <b>속도계(속도)</b>가 올라가고, 속도가 있으면 <b>주행거리(위치)</b>가 늘어요. 이 세 가지가 순서대로 연결된 거예요!</p>
+
+    <div class="concept-stack">
+      <div class="cs-row accel">
+        <div class="cs-icon">🦶</div>
+        <div class="cs-text">
+          <div class="cs-label">가속도</div>
+          <div class="cs-desc">속도를 <b>얼마나 바꿀까</b>? — 액셀·브레이크의 세기</div>
+        </div>
+      </div>
+      <div class="cs-arrow">↓ 속도를 바꿔요</div>
+      <div class="cs-row vel">
+        <div class="cs-icon">⏱️</div>
+        <div class="cs-text">
+          <div class="cs-label">속도</div>
+          <div class="cs-desc">위치를 <b>얼마나 빨리 바꿀까</b>? — 1프레임에 몇 칸 가나</div>
+        </div>
+      </div>
+      <div class="cs-arrow">↓ 위치를 바꿔요</div>
+      <div class="cs-row pos">
+        <div class="cs-icon">📍</div>
+        <div class="cs-text">
+          <div class="cs-label">위치 (이동)</div>
+          <div class="cs-desc">캐릭터가 <b>지금 어디 있는지</b> — 엔트리에선 x, y 좌표!</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip"><b>💡 한 줄로!</b> <b>가속도</b>가 <b>속도</b>를 바꾸고, <b>속도</b>가 <b>위치</b>를 바꿔요. 이 흐름이 <b>모든 게임 물리의 기본</b>이에요!</div>
+  </section>
+
+  <!-- 정리 카드 — 코드 찾기 활동 -->
+  <section class="card c-purple">
+    <div class="step-no">★</div>
+    <h2>🔍 배운 내용을 코드에서 찾아봐요!</h2>
+    <p>아까 만든 코드 블록을 다시 떠올리면서 아래 질문에 답해봐요. 개념과 코드가 어떻게 연결되는지 직접 확인해보는 거예요!</p>
+
+    <div style="background:#f6f0ff;border:2px solid #d8c8f8;border-radius:14px;padding:16px 20px;margin:16px 0;font-size:15px;line-height:2.4;">
+      <div>① <b>'가속도'</b>에 해당하는 부분은 어디예요? <span style="color:#a877e8;">(힌트: 숫자 0.8이 더해지는 곳)</span></div>
+      <div>② <b>'속도 → 위치'</b>로 연결되는 블록은 무엇인가요? <span style="color:#a877e8;">(힌트: 맨 마지막 줄)</span></div>
+      <div>③ 가속도를 <b>2.0</b>으로 바꾸면 캐릭터가 어떻게 달라질까요?</div>
+      <div>④ 가속도를 <b>-0.8</b>로만 바꾸면? <span style="color:#a877e8;">(힌트: 방향을 생각해봐요)</span></div>
+    </div>
+
+    <div class="tip bonus">
+      <b>💬 답을 확인해봐요!</b><br>
+      ① <code style="background:#fff;padding:1px 7px;border-radius:6px;font-size:14px;">'걷는속도'에 0.8 만큼 더하기</code> — 이게 가속도예요!<br>
+      ② <code style="background:#fff;padding:1px 7px;border-radius:6px;font-size:14px;">x 좌표를 걷는속도 만큼 바꾸기</code> — 속도가 위치를 바꾸는 줄이에요!<br>
+      ③ 훨씬 빨리 가속돼요 — 스포츠카 느낌!<br>
+      ④ 오른쪽 키를 눌러도 왼쪽으로 가속돼요 — 반대 방향으로 출발해요!
+    </div>
   </section>
 
   <!-- 마무리 -->
@@ -475,16 +514,28 @@
     <h2>🎉 오늘도 잘했어요!</h2>
     <p>게임 움직임의 진짜 비밀을 배웠어요. 하나씩 확인해 볼까요?</p>
     <div class="check">
-      <div>✅ 이동·속도·가속도가 뭔지 알기 (위치 → 속도 → 가속도)</div>
-      <div>✅ 매 프레임마다 위치가 바뀌면 움직이는 것처럼 보임</div>
-      <div>✅ 속도는 한 프레임에 몇 칸 가는지, 방향(+/-)도 들어있음</div>
-      <div>✅ 가속도는 매 프레임마다 속도가 얼마나 바뀌는지</div>
-      <div>✅ '걷는속도' 변수 만들어서 스르륵 가속하기</div>
+      <div>✅ 1편의 '딱딱한 움직임'이 왜 어색했는지 알기</div>
+      <div>✅ 이동 = 위치가 바뀌는 것, 매 프레임마다 반복</div>
+      <div>✅ 속도 = 한 프레임에 몇 칸 가는지 + 방향(+/-)</div>
+      <div>✅ 가속도 = 매 프레임마다 속도가 얼마나 바뀌는지</div>
+      <div>✅ '걷는속도' 변수로 스르륵 가속하는 코드 완성!</div>
     </div>
-    <div class="next">📘 <b>다음 편 예고</b> — 우리 캐릭터가 안 멈춰서 문제예요! <b>'관성'</b>과 <b>'마찰'</b>로 자연스럽게 멈추게 하고, <b>'중력'</b>으로 점프와 낙하까지 진짜 같이 만들어볼 거예요!</div>
+    <div class="next">📘 <b>다음 편 예고</b> — 우리 캐릭터가 안 멈춰서 문제예요! <b>'마찰'</b>로 자연스럽게 멈추게 하고, <b>'중력'</b>으로 점프와 낙하까지 진짜 같이 만들어볼 거예요!</div>
   </div>
 
-  <footer>엔트리로 만드는 나만의 게임 · 2편 「이동·속도·가속도」</footer>
+  <!-- 참고 자료 -->
+  <div style="background:#f0f4f8;border-radius:14px;padding:16px 20px;margin-top:20px;font-size:13px;color:var(--soft);line-height:2;">
+    <b style="font-size:14px;color:var(--ink);">📚 참고 자료</b><br>
+    • <a href="https://en.scratch-wiki.info/wiki/Velocity" target="_blank" style="color:var(--blue);">Scratch Wiki, "Velocity"</a><br>
+    • <a href="https://pinnguaq.com/learn/player-control-in-scratch-2/" target="_blank" style="color:var(--blue);">Pinnguaq, "Player control in Scratch: Adding acceleration, speed, and friction"</a>
+  </div>
+
+  <footer>
+    엔트리로 만드는 나만의 게임 · 2편 「이동·속도·가속도」<br>
+    <span style="font-size:12px;opacity:.75;">
+      © 2026 김경환 · 비상업적 이용 자유 · 상업적 이용 시 별도 협의 (<a href="mailto:kkh029@gmail.com" style="color:inherit;">kkh029@gmail.com</a>)
+    </span>
+  </footer>
 </div>
 
 </body>
