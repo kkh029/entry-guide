@@ -112,6 +112,32 @@
   .cmp tr:last-child td{border-bottom:none;}
   .cmp td.k{font-family:'Jua',sans-serif;color:var(--ink);width:34%;}
 
+  /* 사이트 메뉴 카드 */
+  .site-grid{
+    display:grid;grid-template-columns:repeat(2,1fr);
+    gap:10px;margin:14px 0;
+  }
+  .site-card{
+    background:#fff;border:1px solid var(--border);
+    border-left:3px solid var(--c2);
+    border-radius:8px;padding:12px 14px;
+    font-size:14.5px;line-height:1.6;
+  }
+  .site-card b{font-family:'Jua',sans-serif;color:var(--ink);display:block;font-size:15px;margin-bottom:3px;}
+  .site-card span{color:var(--soft);font-size:13.5px;}
+  @media (max-width:520px){.site-grid{grid-template-columns:1fr;}}
+
+  /* 도움말 블록 태그 */
+  .help-tags{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px;}
+  .help-tag{
+    background:#f0f5f0;border:1px solid var(--border-s);
+    border-radius:20px;padding:5px 12px;
+    font-family:'Jua',sans-serif;font-size:12.5px;color:var(--ink);
+  }
+
+  /* 서브 헤더 */
+  .sub-h{font-family:'Jua',sans-serif;font-size:17px;color:var(--ink);margin:18px 0 8px;}
+
   /* CTA — 바로가기 */
   .cta{
     background:linear-gradient(180deg, #eef6ee, #fafaf6);
@@ -190,7 +216,7 @@
     <p>엔트리는 <b>2013년</b>, “모두가 코딩을 배울 수 있는 환경을 만들자”는 생각으로 한국의 대학생들이 시작한 작은 프로젝트였어요. 처음에는 비영리 단체 형태로 운영되었답니다.</p>
     <p><b>2015년</b>에는 네이버가 운영하는 <b>커넥트재단</b>이 엔트리를 품에 안았어요. 그 뒤로는 누구나 무료로 쓸 수 있도록, 그리고 학교에서도 마음 놓고 쓸 수 있도록 꾸준히 발전해 왔어요.</p>
     <p>지금은 <b>전국 초·중·고 정규 교육과정</b>에서 소프트웨어(SW) 교육에 가장 많이 쓰이는 도구 중 하나가 되었고, 교과서에도 자주 등장해요.</p>
-    <div class="tip bonus"><b>💡 알고 가면 좋은 점</b> 우리가 흔히 비슷한 것으로 아는 <b>스크래치(Scratch)</b>는 미국 MIT에서, <b>엔트리</b>는 한국에서 만들었어요. 둘 다 블록 코딩이지만, 엔트리는 처음부터 <b>한국어와 한국 학교 수업</b>에 맞춰 설계되었다는 점이 달라요.</div>
+    <div class="tip bonus"><b>💡 알고 가면 좋은 점</b> 엔트리와 비슷한 도구로 <b>스크래치(Scratch)</b>가 있어요. 스크래치는 미국 MIT에서 만든 블록 코딩의 원조로, 엔트리도 스크래치에서 영감을 받아 탄생했어요. 둘의 차이는 마지막 섹션에서 자세히 비교해 볼게요!</div>
   </section>
 
   <!-- 3) 주요 특징 -->
@@ -226,9 +252,82 @@
     <div class="tip warn"><b>⚠️ 작은 팁</b> 학교 컴퓨터는 인터넷 익스플로러가 깔려 있을 때가 있는데, 엔트리는 <b>크롬·엣지·웨일</b>을 권장해요. 익스플로러에서는 잘 안 돌아갈 수 있어요.</div>
   </section>
 
-  <!-- 5) 왜 좋아요? -->
-  <section class="card c-gold">
+  <!-- 5) 공식 홈페이지 & 도움말 -->
+  <section class="card c-green">
     <div class="step-no">5</div>
+    <h2>공식 홈페이지 & 도움말 살펴보기</h2>
+    <p>엔트리를 잘 활용하려면 공식 사이트에 어떤 메뉴가 있는지 알아두면 큰 도움이 돼요.</p>
+
+    <p class="sub-h">🌐 공식 홈페이지 — <a href="https://playentry.org" target="_blank" style="color:var(--c2);text-decoration:underline;text-underline-offset:2px;">playentry.org</a></p>
+    <p style="font-size:14.5px;color:var(--soft);margin-bottom:8px;">로그인하면 아래 메뉴들을 자유롭게 이용할 수 있어요.</p>
+    <div class="site-grid">
+      <div class="site-card">
+        <b>🎨 만들기</b>
+        <span>블록 코딩 작업 공간이에요. 작품 만들기, 인공지능 블록, 하드웨어 연결까지 모두 여기서 시작해요.</span>
+      </div>
+      <div class="site-card">
+        <b>🖼️ 작품 공유</b>
+        <span>다른 사람이 만든 게임·애니메이션을 구경하고, '리메이크'로 코드를 직접 열어볼 수 있어요.</span>
+      </div>
+      <div class="site-card">
+        <b>📚 학습하기</b>
+        <span>엔트리팀이 제작한 단계별 강의예요. 미션을 풀면서 개념을 하나씩 쌓아 나갈 수 있어요.</span>
+      </div>
+      <div class="site-card">
+        <b>💬 커뮤니티 · Q&A</b>
+        <span>궁금한 점을 Q&A에 올리면 선생님·다른 학생이 답해줘요. 공지사항도 여기서 확인해요.</span>
+      </div>
+      <div class="site-card">
+        <b>👩‍🏫 학급 관리 (교사용)</b>
+        <span>선생님은 학급을 만들어 학생 작품을 한 화면에서 보고 피드백을 남길 수 있어요.</span>
+      </div>
+      <div class="site-card">
+        <b>📰 엔트리 피드</b>
+        <span>팔로우한 친구들의 새 작품이 올라와요. 좋아요와 댓글로 소통할 수 있어요.</span>
+      </div>
+    </div>
+
+    <p class="sub-h">📖 도움말 홈페이지 — <a href="https://docs.playentry.org" target="_blank" style="color:var(--c2);text-decoration:underline;text-underline-offset:2px;">docs.playentry.org</a></p>
+    <p>블록 사용법이 헷갈릴 때, 새 기능을 배우고 싶을 때 가장 먼저 찾아야 할 곳이에요. 이런 내용이 담겨 있어요.</p>
+    <div class="site-grid">
+      <div class="site-card">
+        <b>🧩 블록 꾸러미 전체 설명</b>
+        <span>모든 블록의 이름과 역할이 카테고리별로 정리되어 있어요. 처음 보는 블록도 여기서 바로 찾을 수 있어요.</span>
+      </div>
+      <div class="site-card">
+        <b>🚀 시작 가이드</b>
+        <span>회원가입부터 첫 작품 저장까지 화면 캡처와 함께 단계별로 안내해 줘서 처음에도 막히지 않아요.</span>
+      </div>
+      <div class="site-card">
+        <b>🤔 자주 묻는 질문 (FAQ)</b>
+        <span>"저장이 안 돼요", "블록이 사라졌어요" 처럼 자주 겪는 문제의 해결 방법이 모여 있어요.</span>
+      </div>
+      <div class="site-card">
+        <b>🔔 업데이트 소식</b>
+        <span>새로 추가된 블록·기능을 공지해요. 엔트리가 어떻게 성장하는지 구경하는 재미도 있어요.</span>
+      </div>
+    </div>
+    <p style="font-size:13.5px;color:var(--soft);margin:8px 0 4px;">도움말에서 다루는 블록 카테고리</p>
+    <div class="help-tags">
+      <span class="help-tag">시작</span>
+      <span class="help-tag">흐름</span>
+      <span class="help-tag">움직임</span>
+      <span class="help-tag">생김새</span>
+      <span class="help-tag">붓</span>
+      <span class="help-tag">소리</span>
+      <span class="help-tag">판단</span>
+      <span class="help-tag">계산</span>
+      <span class="help-tag">자료</span>
+      <span class="help-tag">함수</span>
+      <span class="help-tag">인공지능</span>
+      <span class="help-tag">하드웨어</span>
+    </div>
+    <div class="tip"><b>📌 팁</b> 블록 이름이나 기능이 기억나지 않을 땐 도움말에서 검색해 보세요. 짧은 설명과 예시로 금방 이해할 수 있어요.</div>
+  </section>
+
+  <!-- 6) 왜 좋아요? -->
+  <section class="card c-gold">
+    <div class="step-no">6</div>
     <h2>왜 엔트리가 좋아요?</h2>
     <p>전 세계에 코딩 도구가 정말 많은데, 우리는 왜 엔트리로 시작할까요? 이런 점이 정말 좋아요.</p>
     <div class="pros">
@@ -265,11 +364,12 @@
     </div>
   </section>
 
-  <!-- 6) 비교 표 -->
+  <!-- 7) 비교 표 -->
   <section class="card c-blue">
-    <div class="step-no">6</div>
+    <div class="step-no">7</div>
     <h2>한 눈에 보기 — 엔트리 vs 스크래치</h2>
-    <p>둘 다 좋은 도구지만, 한국 학생에게 처음 추천할 만한 점은 조금 달라요.</p>
+    <p><b>스크래치(Scratch)</b>는 <b>2003년 미국 MIT 미디어랩</b>에서 만든 블록 코딩 플랫폼이에요. 전 세계 170개국 이상의 학생들이 사용하는, 블록 코딩의 '원조'라 할 수 있어요. 엔트리도 스크래치에서 영감을 받아 탄생할 만큼, 두 도구는 블록을 끌어다 붙이는 방식이 매우 비슷해요.</p>
+    <p>둘 다 훌륭한 도구지만, 한국 학생에게 처음 추천할 만한 점은 조금씩 달라요.</p>
     <table class="cmp">
       <thead>
         <tr><th>항목</th><th>엔트리</th><th>스크래치</th></tr>
