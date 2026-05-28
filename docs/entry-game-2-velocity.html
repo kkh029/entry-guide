@@ -171,6 +171,79 @@
     transition:transform .12s ease;text-decoration:none;
   }
   .cta a.go:hover{transform:translateY(-1px);}
+
+  /* 직접 해보기 — 인터랙티브 데모 */
+  .try-demo{
+    background:#fff;border:1px solid var(--border);
+    border-radius:12px;padding:16px 16px 14px;margin:16px 0 6px;
+  }
+  .try-demo .demo-title{
+    font-family:'Jua',sans-serif;font-size:16px;color:var(--ink);
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  }
+  .try-demo .demo-title .pill{
+    background:var(--c2);color:#fff;font-family:'Jua',sans-serif;
+    font-size:11px;padding:2px 9px;border-radius:20px;letter-spacing:.5px;
+  }
+  .try-canvas-wrap{
+    position:relative;background:linear-gradient(180deg,var(--sky1),var(--sky2));
+    border-radius:10px;overflow:hidden;outline:none;cursor:pointer;
+  }
+  .try-canvas-wrap:focus{box-shadow:0 0 0 3px rgba(74,120,184,.35);}
+  .try-canvas-wrap canvas{display:block;width:100%;height:auto;}
+  .try-hud{
+    position:absolute;top:8px;left:10px;
+    font-family:'Jua',sans-serif;font-size:13px;
+    background:rgba(255,255,255,.85);color:var(--ink);
+    padding:3px 10px;border-radius:14px;
+  }
+  .try-hud.vel{
+    top:8px;left:auto;right:10px;
+    background:rgba(74,120,184,.18);color:var(--ink);
+  }
+  .try-focus-msg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    text-align:center;padding:0 18px;
+    font-family:'Jua',sans-serif;font-size:14.5px;color:var(--ink);
+    background:rgba(255,255,255,.55);pointer-events:none;
+    opacity:0;transition:opacity .15s ease;
+  }
+  .try-canvas-wrap.idle .try-focus-msg{opacity:1;}
+  .try-controls{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;
+  }
+  .try-controls button{
+    font-family:'Jua',sans-serif;font-size:14px;
+    background:var(--c2);color:#fff;border:none;
+    padding:7px 16px;border-radius:20px;
+    box-shadow:0 2px 0 #38609a;cursor:pointer;
+    transition:transform .1s ease;
+  }
+  .try-controls button:active{transform:translateY(1px);box-shadow:0 1px 0 #38609a;}
+  .try-controls button.secondary{
+    background:#fff;color:var(--ink);
+    border:1px solid var(--border);box-shadow:0 2px 0 var(--border);
+  }
+  .try-controls button.secondary:active{box-shadow:0 1px 0 var(--border);}
+  .try-controls .speed-row{
+    display:flex;align-items:center;gap:8px;margin-left:auto;
+    font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);
+  }
+  .try-controls .speed-row input[type=range]{width:110px;}
+  .try-controls .speed-row b{color:var(--ink);min-width:22px;display:inline-block;text-align:center;}
+  .try-hint{
+    font-family:'Gowun Dodum',sans-serif;font-size:13.5px;
+    color:var(--soft);margin-top:8px;line-height:1.65;
+  }
+  .try-hint kbd{
+    display:inline-block;background:#fafaf6;
+    border:1px solid var(--border);border-bottom-width:2px;
+    border-radius:5px;padding:1px 8px;
+    font-family:'Jua',sans-serif;font-size:12px;color:var(--ink);
+  }
+  @media (max-width:520px){
+    .try-controls .speed-row{margin-left:0;width:100%;justify-content:space-between;}
+  }
 </style>
 </head>
 <body>
@@ -431,6 +504,24 @@
       이렇게 하면 키를 안 눌러도 속도가 <b>서서히 줄어들어</b> 자연스럽게 멈춰요. 다음 편에서 직접 써볼 거예요!<br>
       <small style="opacity:.7;">— <a href="https://en.scratch-wiki.info/wiki/Velocity" target="_blank" style="color:var(--c3);">Scratch Wiki, “Velocity”</a></small>
     </div>
+
+    <div class="try-demo">
+      <div class="demo-title"><span class="pill">직접 해보기</span> 위 블록을 눌러서 직접 가속을 느껴봐요!</div>
+      <div class="try-canvas-wrap idle" id="demoStage2" tabindex="0" aria-label="화살표 키로 가속 체험하기 데모">
+        <canvas id="demoCanvas2" width="720" height="220"></canvas>
+        <div class="try-hud">x 좌표: <b id="demoX2">0</b></div>
+        <div class="try-hud vel">속도: <b id="demoVel2">0.0</b></div>
+        <div class="try-focus-msg">▶ 실행 버튼을 누르거나 이 화면을 클릭한 뒤<br>← → 화살표 키를 눌러보세요</div>
+      </div>
+      <div class="try-controls">
+        <button id="demoRun2">▶ 실행</button>
+        <button id="demoReset2" class="secondary">↺ 처음으로</button>
+        <span class="speed-row">한 번 누를 때 가속도 <b id="demoAccelVal2">0.8</b>
+          <input type="range" id="demoAccel2" min="0.2" max="2.0" step="0.1" value="0.8" aria-label="가속도">
+        </span>
+      </div>
+      <div class="try-hint">⌨️ <kbd>←</kbd> <kbd>→</kbd> 키를 <b>꾹 누르면</b> 점점 빨라져요. 키를 <b>떼도 캐릭터가 안 멈춰요!</b> 가속도는 속도에 계속 쌓이거든요. (3편에서 마찰로 자연스럽게 멈추게 할 거예요!)</div>
+    </div>
   </section>
 
   <section class="card">
@@ -554,6 +645,123 @@
     </span>
   </footer>
 </div>
+
+<script>
+(function(){
+  const wrap        = document.getElementById('demoStage2');
+  const canvas      = document.getElementById('demoCanvas2');
+  const ctx         = canvas.getContext('2d');
+  const runBtn      = document.getElementById('demoRun2');
+  const resetBtn    = document.getElementById('demoReset2');
+  const accelSlider = document.getElementById('demoAccel2');
+  const accelVal    = document.getElementById('demoAccelVal2');
+  const xLabel      = document.getElementById('demoX2');
+  const velLabel    = document.getElementById('demoVel2');
+
+  const W = canvas.width, H = canvas.height;
+  const groundY = H - 30;
+  const heroW = 38, heroH = 44;
+  const startX = (W - heroW) / 2;
+  let heroX = startX;
+  let vel = 0;
+  let accel = 0.8;
+  let running = false;
+  const keys = { left:false, right:false };
+
+  function roundRect(x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+  function drawGround(){
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#a17a52';
+    ctx.fillRect(0, groundY, W, H - groundY);
+    ctx.fillStyle = '#8e6c47';
+    for (let x = 0; x < W; x += 28) ctx.fillRect(x + 24, groundY, 4, H - groundY);
+    ctx.fillStyle = '#7ea884';
+    ctx.fillRect(0, groundY - 5, W, 5);
+  }
+  function drawHero(){
+    const x = heroX, y = groundY - heroH;
+    ctx.fillStyle = 'rgba(0,0,0,.13)';
+    ctx.beginPath();
+    ctx.ellipse(x + heroW/2, groundY - 1, heroW/2 + 2, 4, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#ff6b5e';
+    roundRect(x, y, heroW, heroH, 10); ctx.fill();
+    ctx.fillStyle = '#d9483d';
+    roundRect(x + heroW - 5, y + 5, 5, heroH - 9, 4); ctx.fill();
+    roundRect(x + 5, y + heroH - 5, heroW - 10, 5, 4); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(x + heroW - 12, y + 14, 5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#333';
+    ctx.beginPath(); ctx.arc(x + heroW - 11, y + 15, 2.2, 0, Math.PI*2); ctx.fill();
+  }
+  function render(){
+    drawGround();
+    drawHero();
+    xLabel.textContent = Math.round(heroX - startX);
+    velLabel.textContent = vel.toFixed(1);
+  }
+  function loop(){
+    if (!running) return;
+    if (keys.right) vel += accel;
+    if (keys.left)  vel -= accel;
+    heroX += vel;
+    if (heroX < 0)         { heroX = 0;         vel = 0; }
+    if (heroX > W - heroW) { heroX = W - heroW; vel = 0; }
+    render();
+    requestAnimationFrame(loop);
+  }
+  function setRunning(on){
+    running = on;
+    runBtn.textContent = on ? '⏸ 정지' : '▶ 실행';
+    wrap.classList.toggle('idle', !on);
+    if (on){
+      wrap.focus();
+      requestAnimationFrame(loop);
+    } else {
+      keys.left = keys.right = false;
+    }
+  }
+  function reset(){
+    heroX = startX;
+    vel = 0;
+    keys.left = keys.right = false;
+    render();
+  }
+
+  runBtn.addEventListener('click', () => setRunning(!running));
+  resetBtn.addEventListener('click', reset);
+  accelSlider.addEventListener('input', e => {
+    accel = parseFloat(e.target.value);
+    accelVal.textContent = accel.toFixed(1);
+  });
+  wrap.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  { keys.left  = true; e.preventDefault(); }
+    if (e.key === 'ArrowRight') { keys.right = true; e.preventDefault(); }
+  });
+  wrap.addEventListener('keyup', e => {
+    if (e.key === 'ArrowLeft')  keys.left  = false;
+    if (e.key === 'ArrowRight') keys.right = false;
+  });
+  wrap.addEventListener('blur', () => {
+    keys.left = keys.right = false;
+    if (running) setRunning(false);
+  });
+  wrap.addEventListener('click', () => {
+    wrap.focus();
+    if (!running) setRunning(true);
+  });
+
+  render();
+})();
+</script>
 
 <nav class="toc-sidebar">
   <div class="toc-title">이 페이지 목차</div>
