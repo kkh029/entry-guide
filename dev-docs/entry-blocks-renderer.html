@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>엔트리 블록 SVG 미니 렌더러 (B-mini) — 설계 문서</title>
+
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css"
+        media="(prefers-color-scheme: light)">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"
+        media="(prefers-color-scheme: dark)">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+  <script src="assets/doc.js" defer></script>
+</head>
+
+<body class="layout">
+<main>
+
+  <header class="doc-header">
+    <h1>엔트리 블록 SVG 미니 렌더러 (B-mini)</h1>
+    <div class="meta">
+      <span>작성일 2026-05-28</span>
+      <span>관련 PR <a href="https://github.com/kkh029/entry-guide/pull/16">#16</a></span>
+      <span>대상 컴포넌트 <code>docs/assets/entry-blocks/</code></span>
+    </div>
+    <p class="lede">교육 문서의 엔트리 블록 시각화를 div+CSS 흉내내기에서 실제 엔트리 에디터와 거의 동일한 SVG로 교체. <code>renderer.js</code> 단일 파일(~600줄)로 7개 모양 · 5개 필드 · 재귀 nesting 지원.</p>
+  </header>
+
+  <div class="callout tldr">
+    <div class="callout-title">TL;DR</div>
+    <ul>
+      <li>EntryJS 전체(17MB raw, 3.3MB gzip)는 정적 문서에 과해 도입 불가. 대신 <strong>데이터(색·아이콘)만 vendoring + 모양 SVG path는 자체 작성</strong>하는 B-mini 방식 채택</li>
+      <li>지원 모양 7종(hat/stack/cap/reporter/boolean/cblock/cblock_double) + 필드 5종(text/input/dropdown/icon/block) + <strong>block 필드로 자식 블록 재귀 nesting</strong></li>
+      <li>HTML <code>&lt;div class="entry-code" data-blocks='[...]'&gt;</code>로 선언, 페이지 로드 시 자동 SVG 변환</li>
+      <li>1편/2편/3편의 코드 블록 12 묶음 + 색상 가이드 전체 교체. 옛 CSS 약 45줄 제거</li>
+    </ul>
+  </div>
+
+  <h2>배경</h2>
+  <p>기존 학습 문서는 엔트리 블록을 <code>&lt;div class="eb hat"&gt;</code> / <code>&lt;div class="eb cblk flow"&gt;</code> 같은 자체 CSS 클래스로 흉내냈다. 컬러와 모서리 둥글기만으로 만든 사각형이라 실제 엔트리 에디터의 모양과 거리가 있었고, 텍스트·입력칸·c-block 들여쓰기 처리도 매번 수작업이라 코드 수정 부담이 컸다.</p>
+
+  <div class="callout issue">
+    <div class="callout-title">이슈</div>
+    <ul>
+      <li>옛 디자인: 스크래치풍 색(<code>#5cb1ef</code> 등) — 실제 엔트리(<code>#00b400</code> 등)와 시각적 불일치</li>
+      <li>외곽 모양: 둥근 사각형뿐이라 hat·c-block의 ㄷ자·boolean의 육각형 등 형태 다양성 부족</li>
+      <li>블록 작성 시 <code>&lt;div class="eb"&gt;&lt;span class="bool"&gt;...&lt;/span&gt;&lt;/div&gt;</code> 식의 verbose HTML — 학습 작성자 부담</li>
+      <li>학생이 엔트리 에디터를 직접 보면 우리 문서의 색·모양과 매칭이 안 됨</li>
+    </ul>
+  </div>
+
+  <h2>대안 검토</h2>
+
+  <p>EntryJS(<a href="https://github.com/entrylabs/entryjs">entrylabs/entryjs</a>, Apache 2.0)의 실제 블록 렌더링 코드를 활용하는 방향을 우선 검토했다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>대안</th><th>접근</th><th>크기</th><th>노력</th><th>판단</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>A1. <code>entry.min.js</code> 통째 vendoring</strong></td>
+          <td>EntryJS 빌드 산출물을 그대로 로드, <code>Entry.RenderView</code> API 호출</td>
+          <td>17 MB raw · <strong>3.3 MB gzip</strong></td>
+          <td>적음</td>
+          <td>❌ 교육 문서 한 페이지 위해 3 MB 다운로드는 과함</td>
+        </tr>
+        <tr>
+          <td>A2. webpack tree-shaking</td>
+          <td><code>RenderView</code> 진입점만 import하는 mini-entry 빌드</td>
+          <td>예상 수백 KB</td>
+          <td>중간</td>
+          <td>❌ Entry가 글로벌 <code>Entry.X</code> 패턴이라 tree-shaking 효과 제한적, 위험 큼</td>
+        </tr>
+        <tr>
+          <td><strong>B-mini. 데이터 vendoring + 자체 SVG</strong></td>
+          <td>색·아이콘·라벨만 EntryJS에서 가져오고 모양 SVG path는 자체 작성</td>
+          <td><strong>~50 KB</strong></td>
+          <td>큼</td>
+          <td>✅ 채택</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout fix">
+    <div class="callout-title">채택 — B-mini</div>
+    <ul>
+      <li><strong>데이터 부분</strong>은 entrylabs/entryjs (Apache 2.0)에서 vendoring: 카테고리 색상(<code>EntryStatic.colorSet</code>) · 카테고리 마커 SVG 16종</li>
+      <li><strong>모양 부분</strong>은 production 엔트리 에디터(<a href="https://playentry.org/ws/new?type=normal&amp;mode=block&amp;lang=ko">playentry.org/ws</a>)의 시각적 디자인을 기준으로 SVG path 자체 작성. master의 <code>skeleton/basic/basic_event.ts</code>(옛 hat 안테나)와 다른 production 디자인(둥근 사각형 + 아이콘) 그대로 재현</li>
+      <li>출처 고지: <a href="https://github.com/kkh029/entry-guide/blob/main/docs/assets/entry-blocks/NOTICE.md">docs/assets/entry-blocks/NOTICE.md</a></li>
+    </ul>
+  </div>
+
+  <h2>모양 카탈로그</h2>
+
+  <p>지원 7종. 모두 <strong>왼쪽 평평 + 오른쪽 둥근 캡슐(rx=18)</strong> 기본형에 위/아래 connector 변형을 더한 형태. <code>SHAPE_DEFS</code> 객체에 등록된다(<a href="https://github.com/kkh029/entry-guide/blob/main/docs/assets/entry-blocks/renderer.js#L237-L244">renderer.js:L237-L244</a>).</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>shape</th><th>용도</th><th>위 connector</th><th>아래 connector</th><th>본체</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>hat</code></td><td>시작 이벤트 (when_run_button_click 등)</td><td>평평</td><td>▽ 볼록</td><td>높이 36 · 왼쪽 평평 + 오른쪽 캡슐</td></tr>
+        <tr><td><code>stack</code></td><td>일반 명령 (move·set_var 등)</td><td>∇ 오목</td><td>▽ 볼록</td><td>높이 36 · 동일</td></tr>
+        <tr><td><code>cap</code></td><td>마무리 (코드 멈추기 등)</td><td>∇ 오목</td><td>평평 (다음 블록 불가)</td><td>높이 36 · 동일</td></tr>
+        <tr><td><code>reporter</code></td><td>값 (변수·계산 결과)</td><td>—</td><td>—</td><td>높이 28 · 양옆 캡슐 (rx=14)</td></tr>
+        <tr><td><code>boolean</code></td><td>판단 (참/거짓)</td><td>—</td><td>—</td><td>높이 28 · 양옆 뾰족한 육각형</td></tr>
+        <tr><td><code>cblock</code></td><td>제어 단일 슬롯 (반복하기·만일~라면)</td><td>∇ 오목</td><td>▽ 볼록</td><td>top(36) + 슬롯(들여쓰기 16) + bottom(12)</td></tr>
+        <tr><td><code>cblock_double</code></td><td>제어 이중 슬롯 (만일~아니면)</td><td>∇ 오목</td><td>▽ 볼록</td><td>top + 슬롯1 + middle(36) + 슬롯2 + bottom</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>예: hat 모양 path 생성 함수 (<a href="https://github.com/kkh029/entry-guide/blob/main/docs/assets/entry-blocks/renderer.js#L248-L266">renderer.js:L248-L266</a>):</p>
+
+  <pre><code class="language-javascript">hat(W) {
+  const r = BODY_RX, H = BODY_H;
+  const cL = TRI_CX - TRI_W / 2;
+  const cR = TRI_CX + TRI_W / 2;
+  return [
+    `M 0,0`,                                  // 왼쪽 평평 시작
+    `H ${W - r}`,                             // 본체 위 직선
+    `A ${r},${r} 0 0,1 ${W},${r}`,            // 오른쪽 위 캡슐
+    `V ${H - r}`,
+    `A ${r},${r} 0 0,1 ${W - r},${H}`,        // 오른쪽 아래 캡슐
+    `H ${cR}`, `L ${TRI_CX},${H + TRI_H}`, `L ${cL},${H}`,  // 아래 ▽
+    `H 0`, 'z',                               // 왼쪽 평평 마감
+  ].join(' ');
+}</code></pre>
+
+  <h2>필드 카탈로그</h2>
+
+  <p><code>contents</code> 배열에 들어가는 항목 5종. 각 항목은 <code>measureContent()</code>로 폭을 미리 측정해 본체 SVG 너비를 결정한 뒤 <code>renderContent()</code>가 위치를 따라 그린다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>type</th><th>용도</th><th>시각</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>text</code></td><td>정적 글자</td><td>흰색 굵은 NanumGothic 13px</td></tr>
+        <tr><td><code>input</code></td><td>숫자/문자 입력칸</td><td>흰 둥근 박스 + 검정 글씨 + 회색 stroke</td></tr>
+        <tr><td><code>dropdown</code></td><td>선택 박스</td><td>카테고리 darken 색 둥근 박스 + 흰 글씨 + ▾ 화살표</td></tr>
+        <tr><td><code>icon</code></td><td>인라인 아이콘</td><td><code>ICONS[name]</code> SVG 통째 inline</td></tr>
+        <tr><td><code>block</code></td><td><strong>자식 블록 끼움 (재귀 nesting)</strong></td><td>자식 SVG를 <code>renderBlock()</code> 재귀 호출 후 <code>&lt;g transform&gt;</code>으로 배치</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>데이터 모델</h2>
+
+  <p>한 블록은 <code>{ shape, category, icon?, marker?, contents, statements?, middleContents? }</code>로 표현된다. <code>contents</code>는 필드 객체 배열이며, <code>contents[i].type === 'block'</code>이면 <code>block</code> 필드에 또 다른 블록 객체가 들어가 재귀 nesting된다.</p>
+
+  <pre><code class="language-json">{
+  "shape": "stack",
+  "category": "MOVING",
+  "contents": [
+    { "type": "text",  "value": "x 좌표를" },
+    { "type": "block", "block": {
+        "shape": "reporter",
+        "category": "VARIABLE",
+        "contents": [{ "type": "text", "value": "걷는속도" }]
+    }},
+    { "type": "text",  "value": "만큼 바꾸기" }
+  ]
+}</code></pre>
+
+  <p><code>cblock</code>·<code>cblock_double</code>은 <code>statements</code> 필드로 자식 stack 배열을 받는다.</p>
+
+  <pre><code class="language-json">{
+  "shape": "cblock",
+  "category": "FLOW",
+  "contents": [{ "type": "input", "value": "10" }, { "type": "text", "value": "번 반복하기" }],
+  "statements": [
+    { "shape": "stack", "category": "MOVING", "contents": [/* ... */] },
+    { "shape": "stack", "category": "LOOKS",  "contents": [/* ... */] }
+  ]
+}</code></pre>
+
+  <h2>렌더링 파이프라인</h2>
+
+  <pre class="mermaid">
+flowchart TD
+  HTML["&lt;div class='entry-code' data-blocks='[...]'&gt;"] --> Init["init()<br/>(DOMContentLoaded + fonts.ready)"]
+  Init --> Parse["JSON.parse(data-blocks)"]
+  Parse --> Loop[블록 배열 순회]
+  Loop --> Row[".entry-code-row 생성<br/>(margin-top: -6px ∇/▽ 정렬)"]
+  Row --> RB["renderBlock(opts)"]
+  RB --> Shape{"SHAPE_DEFS[shape]"}
+  Shape --> Basic["renderBasic()<br/>(hat/stack/cap)"]
+  Shape --> Rep["renderReporter()"]
+  Shape --> Bool["renderBoolean()"]
+  Shape --> CB["renderCBlock()<br/>(단일·이중 슬롯)"]
+  Basic --> Measure["contents.map(measureContent)"]
+  Rep --> Measure
+  Bool --> Measure
+  CB --> Measure
+  Measure --> RC{"content.type"}
+  RC -->|block| Recur["renderBlock(c.block)<br/>(재귀)"]
+  RC -->|기타| Draw["drawText/Input/Dropdown/Icon"]
+  Recur --> RB
+  Draw --> SVG[SVG element]
+  Basic --> SVG
+  Rep --> SVG
+  Bool --> SVG
+  CB --> SVG
+  SVG --> Append["row.appendChild(svg)<br/>+ note span"]
+  </pre>
+
+  <h2>파일 구조</h2>
+
+  <pre><code class="language-text">docs/assets/entry-blocks/
+├── renderer.js         # 미니 렌더러 본체 (단일 파일, ~600 LOC)
+├── colors.js           # vendoring 원본 참고용 (renderer.js에 inline됨)
+├── icons/              # vendoring 원본 SVG 16종 (renderer.js에 inline됨)
+│   ├── start_play.svg, start_icon_keyboard.svg, start_icon_mouse.svg
+│   ├── start_icon_object.svg, start_icon_signal.svg, start_icon_scene.svg
+│   ├── start_icon.svg, flow_icon.svg, moving_icon.svg, looks_icon.svg
+│   ├── brush_icon.svg, sound_icon.svg, judgement_icon.svg, calc_icon.svg
+│   └── variable_icon.svg, func_icon.svg
+└── NOTICE.md           # Apache 2.0 출처 고지</code></pre>
+
+  <p><code>renderer.js</code>는 IIFE로 감싸 전역 오염을 최소화하고 <code>window.EntryBlocks = { render, init, COLORS, ICONS, CATEGORY_TO_MARKER }</code>만 노출한다. 추가로 자동으로 <code>&lt;style&gt;</code> 한 블록을 <code>document.head</code>에 주입하여 <code>.entry-code-row</code>·<code>.entry-note</code> 정렬을 처리한다(<a href="https://github.com/kkh029/entry-guide/blob/main/docs/assets/entry-blocks/renderer.js#L532-L555">renderer.js:L532-L555</a>).</p>
+
+  <h2>사용 패턴</h2>
+
+  <h3>패턴 1 — HTML data-blocks (권장)</h3>
+
+  <pre><code class="language-html">&lt;script src="assets/entry-blocks/renderer.js" defer&gt;&lt;/script&gt;
+
+&lt;div class="entry-code" data-blocks='[
+  {"shape":"hat","category":"START","icon":"play",
+   "contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+  {"shape":"stack","category":"MOVING","note":"매 프레임 5칸씩",
+   "contents":[
+     {"type":"text","value":"x 좌표를"},
+     {"type":"input","value":"5"},
+     {"type":"text","value":"만큼 바꾸기"}
+   ]}
+]'&gt;&lt;/div&gt;</code></pre>
+
+  <h3>패턴 2 — JS 호출 (동적 생성)</h3>
+
+  <pre><code class="language-javascript">EntryBlocks.render('#my-target', {
+  shape: 'cblock',
+  category: 'FLOW',
+  contents: [{type:'input',value:'10'},{type:'text',value:'번 반복하기'}],
+  statements: [
+    { shape:'stack', category:'MOVING',
+      contents:[{type:'text',value:'x 좌표를'},{type:'input',value:'1'},{type:'text',value:'만큼 바꾸기'}] }
+  ],
+});</code></pre>
+
+  <h2>적용 범위</h2>
+
+  <div class="callout impact">
+    <div class="callout-title">영향 범위</div>
+    <ul>
+      <li><strong>1편</strong> (<code>docs/entry-game-1-movement.html</code>): legend 5종 + 코드 묶음 5개</li>
+      <li><strong>2편</strong> (<code>docs/entry-game-2-velocity.html</code>): legend 6종 + vs-card mini 2개 + 코드 묶음 1개</li>
+      <li><strong>3편</strong> (<code>docs/entry-game-3-inertia.html</code>): legend 6종 + 코드 묶음 6개</li>
+      <li><strong>공통</strong> (<code>docs/assets/styles.css</code>): 옛 <code>.eb</code>/<code>.cblk</code>/<code>.bool</code>/<code>.in</code>/<code>.note</code> 등 약 45줄 제거. <code>.legend</code>는 entry-block 컨테이너로 재활용</li>
+      <li><strong>참고</strong> (<code>docs/prototype-entry-blocks.html</code>): 디자인 시연 페이지 (배포는 되지만 학습 본문 아님)</li>
+    </ul>
+  </div>
+
+  <h2>검증</h2>
+
+  <ol class="steps">
+    <li><strong>모양 검증</strong>: 사용자가 <a href="https://playentry.org/ws/new?type=normal&amp;mode=block&amp;lang=ko">실제 엔트리 에디터</a> 캡처 8개(시작/흐름/움직임/생김새/붓/소리/판단/계산)를 공유 → 외곽·색·아이콘 매칭 확인</li>
+    <li><strong>색상 vendoring 정확도</strong>: 8개 카테고리 모두 vendored 색이 실제 에디터와 일치</li>
+    <li><strong>SVG 구조 검증</strong>: preview MCP로 25개 블록(prototype 페이지)의 path d 속성 모두 검증, 에러 0건</li>
+    <li><strong>전체 적용 검증</strong>: 1편/2편/3편 각 페이지에서 entry-code 모두 <code>data-rendered="true"</code> 확인, 에러 0건</li>
+  </ol>
+
+  <h2>알려진 한계</h2>
+
+  <div class="callout warn">
+    <div class="callout-title">한계</div>
+    <ul>
+      <li><strong>c-block 자식 statements 안의 note 누락</strong>: 새 시스템에서 note는 <code>.entry-code-row</code> 단위(최상위 블록)에만 표시. c-block 내부 자식 stack의 note는 SVG 내부라 누락됨. 1편 묶음 3·4, 3편 묶음 4 등 일부 학습 보조 텍스트 손실</li>
+      <li><strong>복합 reporter 단순화</strong>: "걷는속도 × 0.85" 같은 계산 블록 nesting은 단순 텍스트로 표현. 정확한 reporter+reporter 구조까지는 처리하지 않음</li>
+      <li><strong>모양 픽셀 일치 안 됨</strong>: production 에디터의 SVG path를 직접 가져온 게 아니라 디자인을 보고 자체 작성. 둥글기·세모 크기 등은 시각적으로 비슷하지만 픽셀 단위로는 완전히 일치하지 않음</li>
+      <li><strong>스크롤 시 좌우 잘림</strong>: 매우 깊이 중첩된 c-block(3편 묶음 4 서브스텝)의 폭이 모바일 viewport를 초과할 수 있음. 가로 스크롤 또는 줄바꿈 정책 미정</li>
+    </ul>
+  </div>
+
+  <h2>후속 TODO</h2>
+
+  <ul>
+    <li>c-block 자식 note 처리 방식 결정 — (a) c-block 외부로 분리 변환 (b) SVG 내부 회색 텍스트 (c) 그대로 손실 허용</li>
+    <li>복합 reporter (예: 산술 연산) 정확한 표현 필요 시 reporter 안 reporter nesting 패턴 정의</li>
+    <li>모바일 viewport에서 폭 초과 대응 (가로 스크롤 컨테이너 vs 자동 축소)</li>
+    <li><code>prototype-entry-blocks.html</code>의 배포 본 포함 여부 — 학습용이 아니라 디자인 시연이라 별도 처리 고려</li>
+    <li>opt-in이지만 <code>colors.js</code>/<code>icons/*.svg</code> 보존 — vendoring 원본 추적용. 실제 미사용이라 제거 여부 추후 결정</li>
+  </ul>
+
+  <h2>참고</h2>
+
+  <div class="callout link">
+    <div class="callout-title">연결</div>
+    <ul>
+      <li><a href="https://github.com/kkh029/entry-guide/pull/16">PR #16 — feat: 엔트리 블록 시각화를 SVG 렌더러(B-mini)로 교체</a></li>
+      <li><a href="https://github.com/entrylabs/entryjs">entrylabs/entryjs</a> (Apache 2.0) — 색상·아이콘 데이터 출처</li>
+      <li><a href="https://github.com/entrylabs/entryjs/blob/master/extern/util/static.js#L698-L790">extern/util/static.js:L698-L790</a> — <code>EntryStatic.colorSet</code> 원본</li>
+      <li><a href="https://github.com/entrylabs/entryjs/tree/master/images/block_icon">images/block_icon/</a> — 아이콘 SVG 원본</li>
+      <li><a href="https://github.com/entrylabs/entryjs/blob/master/src/playground/renderView.js">src/playground/renderView.js</a> — 참고했던 EntryJS view-only 렌더러 (도입 검토 후 미채택)</li>
+      <li><a href="https://github.com/kkh029/entry-guide/blob/main/docs/assets/entry-blocks/NOTICE.md">docs/assets/entry-blocks/NOTICE.md</a> — Apache 2.0 출처 고지 본문</li>
+    </ul>
+  </div>
+
+  <footer class="doc-footer">
+    <h2>관련 문서</h2>
+    <ul>
+      <li><a href="../velocity-improvement-plan.md">velocity-improvement-plan.md</a> — 2편 본문 리라이트 계획 (선행)</li>
+      <li><a href="../CLAUDE.md">CLAUDE.md</a> — 프로젝트 가이드 (dev-docs 폴더 정책 정의)</li>
+    </ul>
+  </footer>
+
+</main>
+<aside id="toc"></aside>
+</body>
+</html>
