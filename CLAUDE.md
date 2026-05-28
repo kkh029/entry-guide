@@ -17,6 +17,20 @@ There is **no build step and no package manager**. The site is plain HTML/CSS/JS
 - `actions/configure-pages@v5` runs with `enablement: true` so the workflow itself enables Pages — needed because past deploys failed when Pages wasn't pre-enabled in repo settings (see d503c3c).
 - To preview locally: open `docs/index.html` directly, or `python3 -m http.server 8000 --directory docs` then visit `http://localhost:8000/`.
 
+## Git workflow
+
+**PR을 만들기 직전에는 항상 `origin/main` 위로 리베이스한 상태인지 확인한다.**
+
+```
+git fetch origin main
+git rebase origin/main          # 이미 최신이면 no-op
+git log HEAD..origin/main       # 출력이 비어 있어야 함 (= behind 0)
+```
+
+behind 0 확인 후 `git push -u origin <branch>` (리베이스로 히스토리가 바뀌었으면 `--force-with-lease`) → PR 생성.
+
+`main` 자체는 절대 force-push 하지 않는다.
+
 ## Two top-level folders — do not conflate
 
 - **`docs/`** = production deployable. Everything here is served by GitHub Pages at `/entry-guide/docs/`. Treat as user-facing.
