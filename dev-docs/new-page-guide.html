@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>새 페이지 제작 가이드 — entry-guide</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<h1>새 페이지 제작 가이드</h1>
+<p class="meta">최종 갱신: 2026-05-28</p>
+
+<section>
+  <h2>개요</h2>
+  <p>
+    이 문서는 <code>docs/</code>에 새 페이지를 추가할 때 따라야 하는 레이아웃·구조·체크리스트를 정리한다.
+    빌드 툴이 없는 정적 HTML 사이트이므로, 신규 페이지는 기존 파일을 복사·수정하는 방식으로 만든다.
+  </p>
+  <p>
+    <strong>추천 베이스 파일:</strong> <code>docs/entry-game-2-velocity.html</code> (CTA·TOC·메타박스 구조가 가장 최신).
+  </p>
+</section>
+
+<section>
+  <h2>1. 파일명 규칙</h2>
+  <ul>
+    <li>에피소드: <code>entry-game-N-&lt;slug&gt;.html</code> (예: <code>entry-game-4-score.html</code>)</li>
+    <li>독립 소개 페이지: <code>about-&lt;slug&gt;.html</code></li>
+    <li>슬러그는 영어 소문자 + 하이픈만 사용</li>
+  </ul>
+</section>
+
+<section>
+  <h2>2. 전체 파일 뼈대</h2>
+  <p>아래가 신규 페이지의 최소 완성형이다. <code>&lt;!-- FILL --&gt;</code> 부분만 채우면 된다.</p>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="ko"&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+&lt;title&gt;&lt;!-- FILL: 페이지 제목 --&gt;&lt;/title&gt;
+&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;
+&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;
+&lt;link href="https://fonts.googleapis.com/css2?family=Jua&amp;family=Gowun+Dodum&amp;family=Gaegu:wght@700&amp;display=swap" rel="stylesheet"&gt;
+&lt;link rel="stylesheet" href="assets/styles.css"&gt;
+&lt;style&gt;
+  /* ─── 헤더 스테이지 캐릭터 애니메이션 ─── */
+  .hero{
+    position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
+    width:42px;height:42px;background:var(--ACCENT); /* FILL: --c1/--c2/--c3/--green */
+    border-radius:12px 12px 8px 8px;
+    animation:bobby 1.6s ease-in-out infinite;
+  }
+  @keyframes bobby{0%,100%{transform:translateX(-50%) translateY(0)}
+                   50%{transform:translateX(-50%) translateY(-10px)}}
+
+  /* ─── 다음 편 CTA ─── */
+  .cta{
+    background:linear-gradient(180deg, /* FILL: 밝은 액센트색 tint */ #eef3fb, #fafaf6);
+    border:1px solid var(--border-s);
+    border-radius:12px;padding:22px 20px;
+    text-align:center;margin:22px 0;
+  }
+  .cta h3{font-family:'Jua',sans-serif;font-size:20px;color:var(--ink);margin-bottom:6px;}
+  .cta p{font-size:15px;color:var(--soft);margin-bottom:12px;}
+  .cta a.go{
+    display:inline-block;background:var(--ACCENT);color:#fff; /* FILL */
+    font-family:'Jua',sans-serif;font-size:16px;
+    padding:10px 22px;border-radius:30px;
+    box-shadow:0 3px 0 /* FILL: 액센트 어두운 버전 */ #38609a;
+    transition:transform .12s ease;text-decoration:none;
+  }
+  .cta a.go:hover{transform:translateY(-1px);}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;!-- 고정 홈 링크 --&gt;
+&lt;a href="index.html" class="home-link"&gt;🏠 목차로&lt;/a&gt;
+
+&lt;!-- 헤더 --&gt;
+&lt;header&gt;
+  &lt;span class="badge"&gt;&lt;!-- FILL: 배지 텍스트 예) 3편 --&gt;&lt;/span&gt;
+  &lt;h1&gt;&lt;!-- FILL: 페이지 제목 --&gt;&lt;/h1&gt;
+  &lt;p class="sub"&gt;&lt;!-- FILL: 부제목 --&gt;&lt;/p&gt;
+&lt;/header&gt;
+
+&lt;!-- 캐릭터 스테이지 --&gt;
+&lt;div class="stage"&gt;
+  &lt;div class="hero"&gt;&lt;/div&gt;
+  &lt;div class="ground"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 본문 --&gt;
+&lt;div class="wrap"&gt;
+
+  &lt;!-- 도입부 카드 (색상 클래스 없음) --&gt;
+  &lt;section class="card"&gt;
+    &lt;p class="big"&gt;&lt;!-- FILL: 흥미 유발 한 문단 --&gt;&lt;/p&gt;
+  &lt;/section&gt;
+
+  &lt;!-- 본문 섹션들 --&gt;
+  &lt;section class="card c-red"&gt;  &lt;!-- c-red | c-blue | c-purple | c-green | c-gold --&gt;
+    &lt;div class="step-no"&gt;1&lt;/div&gt;
+    &lt;h2&gt;&lt;!-- FILL: 섹션 제목 (사이드바 목차에 자동 표시됨) --&gt;&lt;/h2&gt;
+    &lt;p&gt;&lt;!-- FILL --&gt;&lt;/p&gt;
+  &lt;/section&gt;
+
+  &lt;!-- 섹션을 더 추가할 때는 위 패턴 반복 --&gt;
+
+  &lt;!-- 다음 편 CTA --&gt;
+  &lt;div class="cta"&gt;
+    &lt;h3&gt;&lt;!-- FILL: 예) 📘 다음 단계로 넘어가볼까요? --&gt;&lt;/h3&gt;
+    &lt;p&gt;&lt;!-- FILL: 다음 편 한 줄 소개 --&gt;&lt;/p&gt;
+    &lt;a class="go" href="&lt;!-- FILL: 다음 편 파일명 --&gt;"&gt;&lt;!-- FILL: N편 제목 → --&gt;&lt;/a&gt;
+  &lt;/div&gt;
+  &lt;!-- 마지막 편이면 href="index.html" 로 하고 "🏠 목차로 돌아가기" --&gt;
+
+  &lt;!-- 참고 자료 (선택) --&gt;
+  &lt;div class="meta-box"&gt;
+    &lt;b&gt;📚 참고 자료&lt;/b&gt;&lt;br&gt;
+    • &lt;a href="…" target="_blank"&gt;출처 제목&lt;/a&gt;&lt;br&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 홈 링크 (하단) --&gt;
+  &lt;div style="text-align:center;margin-top:24px;"&gt;
+    &lt;a href="index.html" class="home-link-bottom"&gt;🏠 목차로 돌아가기&lt;/a&gt;
+  &lt;/div&gt;
+
+  &lt;footer&gt;
+    엔트리로 만드는 나만의 게임 · &lt;!-- FILL: N편 「제목」 --&gt;&lt;br&gt;
+    &lt;span style="font-size:10px;opacity:.7;"&gt;
+      © 2026 김경환 · &lt;a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;"&gt;CC BY-NC-SA 4.0&lt;/a&gt;
+    &lt;/span&gt;
+  &lt;/footer&gt;
+&lt;/div&gt;
+
+&lt;!-- 사이드바 목차 (큰 화면에서만 표시, JS가 자동 생성) --&gt;
+&lt;nav class="toc-sidebar"&gt;
+  &lt;div class="toc-title"&gt;이 페이지 목차&lt;/div&gt;
+  &lt;ol id="toc-list"&gt;&lt;/ol&gt;
+&lt;/nav&gt;
+
+&lt;!-- 사이드바 목차 스크립트: section.card h2를 자동 수집 --&gt;
+&lt;script&gt;
+(function(){
+  var hs = document.querySelectorAll('section.card h2');
+  var list = document.getElementById('toc-list');
+  if(!hs.length || !list) return;
+  hs.forEach(function(h, i){
+    if(!h.id) h.id = 'toc-' + i;
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a); list.appendChild(li);
+  });
+  var links = list.querySelectorAll('a');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = list.querySelector('a[href="#' + e.target.id + '"]');
+        if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-8% 0px -80% 0px'});
+  hs.forEach(function(h){ io.observe(h); });
+})();
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+</section>
+
+<section>
+  <h2>3. 액센트 색상 선택 기준</h2>
+  <table>
+    <thead>
+      <tr><th>토큰</th><th>헥스</th><th>용도</th><th>.step-no / .card 클래스</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>--c1</code></td><td>#c95a4f</td><td>1편 (이동·충돌)</td><td><code>c-red</code></td></tr>
+      <tr><td><code>--c2</code></td><td>#4a78b8</td><td>2편 (속도·가속도)</td><td><code>c-blue</code></td></tr>
+      <tr><td><code>--c3</code></td><td>#7a5fb0</td><td>3편 (관성·마찰)</td><td><code>c-purple</code></td></tr>
+      <tr><td><code>--green</code></td><td>#5a9e6a</td><td>about-entry 소개</td><td><code>c-green</code></td></tr>
+      <tr><td><code>--accent</code></td><td>#b78a3a</td><td>골드 강조 (소도구)</td><td><code>c-gold</code></td></tr>
+    </tbody>
+  </table>
+  <p>
+    새 에피소드를 추가할 때는 <code>assets/styles.css</code> <code>:root</code>에 <code>--c4</code> 등을 추가하고
+    <code>.c-NEW .step-no{ background:var(--c4); }</code> 규칙도 함께 추가한다.
+  </p>
+  <p>
+    CTA 박스 배경 그라데이션 tint 예시:
+  </p>
+  <ul>
+    <li>--c1(빨강): <code>#fdf0ef</code></li>
+    <li>--c2(파랑): <code>#eef3fb</code></li>
+    <li>--c3(보라): <code>#f3eff9</code></li>
+    <li>--green: <code>#eef6ee</code></li>
+  </ul>
+</section>
+
+<section>
+  <h2>4. 체크리스트</h2>
+  <p>신규 페이지 PR 올리기 전 확인 사항:</p>
+  <ul>
+    <li>☐ <code>&lt;head&gt;</code>에 3개 폰트 (Jua / Gowun Dodum / Gaegu 700) 모두 로드</li>
+    <li>☐ <code>&lt;link rel="stylesheet" href="assets/styles.css"&gt;</code> 포함</li>
+    <li>☐ 고정 <code>.home-link</code> (좌상단) + <code>.home-link-bottom</code> (본문 끝) 모두 있음</li>
+    <li>☐ 모든 <code>&lt;section class="card"&gt;</code>에 <code>&lt;h2&gt;</code> 있음 (사이드바 목차 자동 수집용)</li>
+    <li>☐ <code>.cta</code> 섹션이 <code>.home-link-bottom</code> 바로 위에 위치</li>
+    <li>☐ <code>&lt;nav class="toc-sidebar"&gt;</code> + TOC 스크립트가 <code>&lt;/body&gt;</code> 직전에 있음</li>
+    <li>☐ <code>&lt;footer&gt;</code> 문구가 <code>© 2026 김경환 · CC BY-NC-SA 4.0</code> 형식과 일치</li>
+    <li>☐ <code>docs/index.html</code> TOC 그리드에 신규 페이지 링크 추가</li>
+    <li>☐ 이전 편의 CTA 버튼이 신규 페이지를 가리키도록 수정</li>
+  </ul>
+</section>
+
+<section>
+  <h2>5. index.html 등록 방법</h2>
+  <p><code>docs/index.html</code>의 <code>.toc-grid</code> 안에 카드를 추가한다. 기존 카드를 복사해 수정하면 된다.</p>
+  <pre><code>&lt;a class="toc-card c-red" href="entry-game-N-slug.html"&gt;
+  &lt;span class="ep"&gt;N편&lt;/span&gt;
+  &lt;span class="ttl"&gt;제목&lt;/span&gt;
+  &lt;span class="desc"&gt;한 줄 설명&lt;/span&gt;
+&lt;/a&gt;</code></pre>
+  <p>학습 흐름 변경이 있으면 path strip도 함께 업데이트한다.</p>
+</section>
+
+<section>
+  <h2>6. 주의 사항</h2>
+  <ul>
+    <li>페이지별 <code>&lt;style&gt;</code>은 <code>&lt;head&gt;</code> 안에만 작성 (인라인 style은 사용하지 않음).</li>
+    <li>페이지 공통 스타일을 바꾸고 싶으면 <code>assets/styles.css</code>를 수정하되, 모든 페이지에 영향이 가므로 주의.</li>
+    <li>Entry 블록 시각화(<code>.hat</code>, <code>.stack</code>, <code>.cblk</code> 등)의 색상은 실제 엔트리 에디터 색상과 일치해야 한다. 절대 탈색하지 말 것.</li>
+    <li>캔버스 데모가 있는 페이지는 기존 <code>&lt;script&gt;</code> 뒤에 TOC 스크립트를 붙인다 (<code>id="toc-list"</code> 중복 없이).</li>
+    <li><code>dev-docs/</code> 파일은 배포되지 않으므로 여기에 설계 문서·메모를 자유롭게 써도 된다.</li>
+  </ul>
+</section>
+
+<script src="assets/doc.js"></script>
+</body>
+</html>
