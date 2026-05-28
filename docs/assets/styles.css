@@ -16,6 +16,7 @@
   --c1:        #c95a4f;   /* 1편 — 빨강 */
   --c2:        #4a78b8;   /* 2편 — 파랑 */
   --c3:        #7a5fb0;   /* 3편 — 보라 */
+  --c4:        #d68a3e;   /* 4편 — 주황 */
 
   /* 상태 — 절제 */
   --accent:    #b78a3a;   /* 골드(절제) — 강조 한 점 */
@@ -121,6 +122,7 @@ section.card + section.card{
 .c-purple .step-no{background:var(--c3);}
 .c-green .step-no{background:var(--green);}
 .c-gold .step-no{background:var(--accent);}
+.c-orange .step-no{background:var(--c4);}
 
 h2{
   font-family:'Jua',sans-serif;

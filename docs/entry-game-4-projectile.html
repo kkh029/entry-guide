@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>엔트리 게임 만들기 ④ 포물선과 발사</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="assets/entry-blocks/renderer.js" defer></script>
+<style>
+  /* 4편 — 헤더 스테이지 (포물선으로 날아가는 새) */
+  .hero{
+    position:absolute;bottom:36px;left:8%;
+    width:30px;height:30px;background:var(--c4);
+    border-radius:50% 50% 45% 45%;
+    box-shadow:inset -4px -4px 0 #a8682b;
+    animation:fly 3.2s cubic-bezier(.45,.05,.55,.95) infinite;
+  }
+  .hero::before{content:"";position:absolute;top:8px;right:5px;width:7px;height:7px;background:#fff;border-radius:50%;}
+  .hero::after{content:"";position:absolute;top:11px;right:6px;width:3.5px;height:3.5px;background:#333;border-radius:50%;}
+  .beak{
+    position:absolute;width:0;height:0;
+    border-top:5px solid transparent;border-bottom:5px solid transparent;
+    border-left:8px solid #f3b22c;
+    top:13px;right:-7px;
+  }
+  @keyframes fly{
+    0%   {left:8%;  bottom:36px;}
+    50%  {left:50%; bottom:88px;}
+    100% {left:92%; bottom:24px;}
+  }
+  .sling{
+    position:absolute;bottom:24px;left:6%;
+    width:8px;height:30px;background:#7c5a3c;
+    border-radius:3px;
+  }
+  .sling::before{
+    content:"";position:absolute;top:-8px;left:-7px;
+    width:22px;height:14px;
+    border:3px solid #7c5a3c;
+    border-bottom:none;border-radius:50% 50% 0 0;
+  }
+  .arc-trail{
+    position:absolute;bottom:30px;left:0;right:0;height:88px;
+    pointer-events:none;
+    background-image:radial-gradient(circle, var(--muted) 1.5px, transparent 2px);
+    background-size:14px 14px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 88px at 50% 100%, #000 0%, #000 60%, transparent 100%);
+            mask-image: radial-gradient(ellipse 80% 88px at 50% 100%, #000 0%, #000 60%, transparent 100%);
+    opacity:.45;
+  }
+  .target-pig{
+    position:absolute;bottom:24px;right:6%;
+    width:28px;height:24px;background:var(--green-d);
+    border-radius:50% 50% 45% 45%;
+    box-shadow:inset -3px -3px 0 #3e7549;
+  }
+  .target-pig::before{content:"";position:absolute;top:7px;right:5px;width:5px;height:5px;background:#fff;border-radius:50%;}
+  .target-pig::after{content:"";position:absolute;top:9px;right:6px;width:2.5px;height:2.5px;background:#333;border-radius:50%;}
+
+  /* 두 축이 독립적으로 움직이는 비교 */
+  .axis-split{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0;}
+  .axis-card{
+    flex:1;min-width:200px;
+    background:#fafaf6;
+    border:1px solid var(--border-s);
+    border-radius:10px;padding:14px;
+  }
+  .axis-card.x-only{border-left:3px solid var(--c2);}
+  .axis-card.y-only{border-left:3px solid var(--warn);}
+  .axis-card.combined{border-left:3px solid var(--c4);}
+  .axis-title{font-family:'Jua',sans-serif;font-size:14.5px;margin-bottom:8px;}
+  .axis-card.x-only .axis-title{color:var(--c2);}
+  .axis-card.y-only .axis-title{color:var(--warn);}
+  .axis-card.combined .axis-title{color:var(--c4);}
+  .axis-svg{display:block;width:100%;height:120px;background:#fff;border-radius:6px;border:1px solid var(--border);}
+  .axis-desc{font-size:13.5px;color:var(--soft);margin-top:6px;line-height:1.55;}
+
+  /* 시계 방향 각도 직관 */
+  .angle-clock{
+    display:flex;gap:18px;align-items:center;flex-wrap:wrap;
+    background:#fafaf6;border:1px solid var(--border-s);border-radius:10px;
+    padding:16px;margin:18px 0;
+  }
+  .clock-svg{width:160px;height:160px;flex-shrink:0;}
+  .clock-text{flex:1;min-width:200px;font-size:14.5px;color:var(--ink);line-height:1.75;}
+  .clock-text b{color:var(--c4);}
+
+  /* 발사 표 — 각도/힘별 vx, vy */
+  .launch-table{
+    background:#fafaf6;
+    border:1px solid var(--border-s);
+    border-left:3px solid var(--c4);
+    border-radius:10px;padding:14px 16px;margin:18px 0;
+  }
+  .lt-title{font-family:'Jua',sans-serif;font-size:14.5px;color:var(--ink);margin-bottom:10px;text-align:center;}
+  .lt-row{
+    display:grid;grid-template-columns:80px 60px 1fr 1fr;gap:8px;
+    align-items:center;font-size:13.5px;padding:6px 0;
+    border-bottom:1px dashed var(--border);
+  }
+  .lt-row.head{font-family:'Jua',sans-serif;color:var(--soft);font-size:12.5px;}
+  .lt-row:last-child{border-bottom:none;}
+  .lt-cell{text-align:center;}
+  .lt-vx{color:var(--c2);font-family:'Jua',sans-serif;}
+  .lt-vy{color:var(--warn);font-family:'Jua',sans-serif;}
+
+  /* 직접 해보기 — 인터랙티브 데모 (1편에서 복사) */
+  .try-demo{
+    background:#fff;border:1px solid var(--border);
+    border-radius:12px;padding:16px 16px 14px;margin:16px 0 6px;
+  }
+  .try-demo .demo-title{
+    font-family:'Jua',sans-serif;font-size:16px;color:var(--ink);
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  }
+  .try-demo .demo-title .pill{
+    background:var(--c4);color:#fff;font-family:'Jua',sans-serif;
+    font-size:11px;padding:2px 9px;border-radius:20px;letter-spacing:.5px;
+  }
+  .try-canvas-wrap{
+    position:relative;background:linear-gradient(180deg,var(--sky1),var(--sky2));
+    border-radius:10px;overflow:hidden;outline:none;cursor:crosshair;
+  }
+  .try-canvas-wrap:focus{box-shadow:0 0 0 3px rgba(214,138,62,.45);}
+  .try-canvas-wrap canvas{display:block;width:100%;height:auto;}
+  .try-hud{
+    position:absolute;top:8px;left:10px;
+    font-family:'Jua',sans-serif;font-size:13px;
+    background:rgba(255,255,255,.88);color:var(--ink);
+    padding:5px 12px;border-radius:14px;
+    line-height:1.6;
+  }
+  .try-hud .hud-row{display:flex;gap:14px;}
+  .try-hud .hud-key{color:var(--soft);margin-right:4px;}
+  .try-hud b.vx{color:var(--c2);}
+  .try-hud b.vy{color:var(--warn);}
+  .try-hud b.ang{color:var(--c4);}
+  .try-focus-msg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    text-align:center;padding:0 18px;
+    font-family:'Jua',sans-serif;font-size:14.5px;color:var(--ink);
+    background:rgba(255,255,255,.55);pointer-events:none;
+    opacity:0;transition:opacity .15s ease;
+  }
+  .try-canvas-wrap.idle .try-focus-msg{opacity:1;}
+  .try-controls{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;
+  }
+  .try-controls button{
+    font-family:'Jua',sans-serif;font-size:14px;
+    background:var(--c4);color:#fff;border:none;
+    padding:7px 16px;border-radius:20px;
+    box-shadow:0 2px 0 #a8682b;cursor:pointer;
+    transition:transform .1s ease;
+  }
+  .try-controls button:active{transform:translateY(1px);box-shadow:0 1px 0 #a8682b;}
+  .try-controls button.secondary{
+    background:#fff;color:var(--ink);
+    border:1px solid var(--border);box-shadow:0 2px 0 var(--border);
+  }
+  .try-controls button.secondary:active{box-shadow:0 1px 0 var(--border);}
+  .try-controls .stat-row{
+    display:flex;align-items:center;gap:14px;margin-left:auto;
+    font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);
+  }
+  .try-controls .stat-row b{color:var(--ink);min-width:18px;display:inline-block;text-align:center;}
+  .try-hint{
+    font-family:'Gowun Dodum',sans-serif;font-size:13.5px;
+    color:var(--soft);margin-top:8px;line-height:1.65;
+  }
+  .try-hint kbd{
+    display:inline-block;background:#fafaf6;
+    border:1px solid var(--border);border-bottom-width:2px;
+    border-radius:5px;padding:1px 8px;
+    font-family:'Jua',sans-serif;font-size:12px;color:var(--ink);
+  }
+  @media (max-width:520px){
+    .try-controls .stat-row{margin-left:0;width:100%;justify-content:space-between;}
+  }
+
+  /* 참고자료 박스 */
+  .meta-box{
+    background:#fafaf6;
+    border:1px solid var(--border-s);
+    border-radius:10px;
+    padding:14px 18px;
+    margin-top:14px;
+    font-size:13px;color:var(--soft);line-height:1.95;
+  }
+  .meta-box b{font-size:13.5px;color:var(--ink);}
+  .meta-box a{color:var(--c2);text-decoration:underline;text-underline-offset:2px;}
+
+  /* CTA — 4편(주황) */
+  .cta{
+    background:linear-gradient(180deg,#fdf3e8,#fafaf6);
+    border:1px solid var(--border-s);
+    border-radius:12px;padding:22px 20px;
+    text-align:center;margin:22px 0;
+  }
+  .cta h3{font-family:'Jua',sans-serif;font-size:20px;color:var(--ink);margin-bottom:6px;}
+  .cta p{font-size:15px;color:var(--soft);margin-bottom:12px;}
+  .cta a.go{
+    display:inline-block;background:var(--c4);color:#fff;
+    font-family:'Jua',sans-serif;font-size:16px;
+    padding:10px 22px;border-radius:30px;
+    box-shadow:0 3px 0 #a8682b;
+    transition:transform .12s ease;text-decoration:none;
+  }
+  .cta a.go:hover{transform:translateY(-1px);}
+</style>
+</head>
+<body>
+
+<a href="index.html" class="home-link">🏠 목차로</a>
+
+<header>
+  <span class="badge">엔트리 게임 만들기 · 4편</span>
+  <h1>포물선과 발사<br>— 앵그리버드처럼 날려보자</h1>
+  <p class="sub">각도와 힘을 정해서 발사! 자연스러운 곡선이 만들어지는 비밀 🎯</p>
+</header>
+
+<div class="stage">
+  <div class="arc-trail"></div>
+  <div class="sling"></div>
+  <div class="hero"><div class="beak"></div></div>
+  <div class="target-pig"></div>
+  <div class="ground"></div>
+</div>
+
+<div class="wrap">
+
+  <section class="card">
+    <p class="big">🐦 <b>앵그리버드</b>를 해본 적 있나요? 새를 새총에 걸고 <b>각도와 힘</b>을 정해서 놓으면, 새가 <b>아름다운 곡선</b>을 그리며 날아가요. 이 곡선이 바로 <b>포물선</b>이에요!</p>
+    <p>이번 편에서는 <b>2편</b>에서 배운 <b>속도·중력</b>을 <b>x축과 y축 양쪽에 동시에</b> 적용해서, 진짜 앵그리버드처럼 발사하는 코드를 만들어봐요. 그리고 발사 각도와 힘을 정할 때 살짝 필요한 <b>사인·코사인</b>(중학교 수학!)도 손가락 비유로 쉽게 알아볼 거예요.</p>
+
+    <div class="tip">
+      <b>📚 1~3편을 먼저 봤다면 좋아요</b><br>
+      이 페이지는 <b>1편의 좌표·중력</b>, <b>2편의 속도 변수</b>, <b>3편의 매 프레임 속도 갱신</b>을 그대로 써요. 처음이라면 2편을 먼저 보면 훨씬 자연스러워요!
+    </div>
+  </section>
+
+  <section class="card c-orange">
+    <div class="step-no">1</div>
+    <h2>🎯 직접 새를 날려보자</h2>
+    <p>아래 슬링샷에서 <b>새를 마우스로 끌어당겼다가 놓으면</b> 발사돼요. 각도와 힘에 따라 <b>곡선의 모양</b>이 어떻게 달라지는지 직접 느껴봐요!</p>
+
+    <div class="try-demo">
+      <div class="demo-title"><span class="pill">직접 해보기</span> 새총을 당겨서 돼지를 맞춰봐요!</div>
+      <div class="try-canvas-wrap idle" id="demoStage4" tabindex="0" aria-label="슬링샷으로 새를 발사하는 데모">
+        <canvas id="demoCanvas4" width="760" height="320"></canvas>
+        <div class="try-hud">
+          <div class="hud-row"><span><span class="hud-key">각도</span> <b class="ang" id="hudAngle">—</b>°</span> <span><span class="hud-key">힘</span> <b id="hudPower">—</b></span></div>
+          <div class="hud-row"><span><span class="hud-key">vx</span> <b class="vx" id="hudVx">—</b></span> <span><span class="hud-key">vy</span> <b class="vy" id="hudVy">—</b></span></div>
+        </div>
+        <div class="try-focus-msg">🖱️ 새를 클릭한 뒤 뒤로 당겼다가 놓으세요<br>(또는 화면 클릭 후 <kbd>←</kbd> <kbd>→</kbd>로 각도, <kbd>↑</kbd> <kbd>↓</kbd>로 힘, <kbd>스페이스</kbd>로 발사)</div>
+      </div>
+      <div class="try-controls">
+        <button id="demoFire4">🚀 발사</button>
+        <button id="demoReset4" class="secondary">↺ 다시</button>
+        <span class="stat-row">맞춘 횟수 <b id="hudHits">0</b></span>
+      </div>
+      <div class="try-hint">💡 같은 힘이라도 <b>각도가 45°일 때 가장 멀리</b> 날아가요. 너무 위로 쏘면 멀리 못 가고, 너무 옆으로 쏘면 금방 떨어져요. 직접 비교해봐요!</div>
+    </div>
+  </section>
+
+  <section class="card c-blue">
+    <div class="step-no">2</div>
+    <h2>🤔 왜 곡선이 그려질까?</h2>
+    <p>비밀은 의외로 간단해요. <b>x속도와 y속도가 따로따로 움직이기 때문</b>이에요. 두 속도가 합쳐지면 자연스럽게 곡선이 돼요!</p>
+
+    <div class="axis-split">
+      <div class="axis-card x-only">
+        <div class="axis-title">🏃 옆으로만 던지면?</div>
+        <svg class="axis-svg" viewBox="0 0 200 120" preserveAspectRatio="none" aria-hidden="true">
+          <line x1="10" y1="40" x2="190" y2="40" stroke="#4a78b8" stroke-width="2" stroke-dasharray="3,3"/>
+          <circle cx="20"  cy="40" r="4" fill="#4a78b8"/>
+          <circle cx="60"  cy="40" r="4" fill="#4a78b8"/>
+          <circle cx="100" cy="40" r="4" fill="#4a78b8"/>
+          <circle cx="140" cy="40" r="4" fill="#4a78b8"/>
+          <circle cx="180" cy="40" r="4" fill="#4a78b8"/>
+          <text x="100" y="100" text-anchor="middle" font-family="Jua" font-size="12" fill="#4a78b8">→ x속도만 일정</text>
+        </svg>
+        <div class="axis-desc">y속도가 0이라 <b>위아래로는 안 움직여요</b>. 일정한 속도로 옆으로만 직진!</div>
+      </div>
+      <div class="axis-card y-only">
+        <div class="axis-title">⬇️ 위로만 던지면?</div>
+        <svg class="axis-svg" viewBox="0 0 200 120" preserveAspectRatio="none" aria-hidden="true">
+          <line x1="100" y1="10" x2="100" y2="110" stroke="#c47a3a" stroke-width="2" stroke-dasharray="3,3"/>
+          <circle cx="100" cy="20"  r="4" fill="#c47a3a"/>
+          <circle cx="100" cy="36"  r="4" fill="#c47a3a"/>
+          <circle cx="100" cy="58"  r="4" fill="#c47a3a"/>
+          <circle cx="100" cy="84"  r="4" fill="#c47a3a"/>
+          <circle cx="100" cy="108" r="4" fill="#c47a3a"/>
+          <text x="100" y="118" text-anchor="middle" font-family="Jua" font-size="11" fill="#c47a3a">y속도가 중력으로 점점 ↓</text>
+        </svg>
+        <div class="axis-desc">x속도가 0이고, y속도는 <b>중력 때문에 점점 빨라져요</b>. 제자리에서 떨어지는 모습!</div>
+      </div>
+      <div class="axis-card combined">
+        <div class="axis-title">🎯 둘을 합치면?</div>
+        <svg class="axis-svg" viewBox="0 0 200 120" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M10,100 Q100,-10 190,100" stroke="#d68a3e" stroke-width="2" fill="none" stroke-dasharray="3,3"/>
+          <circle cx="20"  cy="78"  r="4" fill="#d68a3e"/>
+          <circle cx="60"  cy="36"  r="4" fill="#d68a3e"/>
+          <circle cx="100" cy="20"  r="4" fill="#d68a3e"/>
+          <circle cx="140" cy="36"  r="4" fill="#d68a3e"/>
+          <circle cx="180" cy="78"  r="4" fill="#d68a3e"/>
+          <text x="100" y="115" text-anchor="middle" font-family="Jua" font-size="12" fill="#d68a3e">포물선!</text>
+        </svg>
+        <div class="axis-desc">x는 일정하게, y는 중력으로 변하는 두 움직임이 <b>겹쳐서 곡선</b>이 돼요.</div>
+      </div>
+    </div>
+
+    <div class="tip">
+      <b>🧭 한 줄로!</b><br>
+      <b>x속도</b>는 그대로, <b>y속도</b>만 <b>중력</b> 때문에 매 프레임마다 변해요. 이게 합쳐지면 <b>포물선</b>이 돼요. 2편에서 배운 가속도(중력)를 y축에만 적용한 거예요!
+    </div>
+
+    <p>왜 옆으로 가는 속도(x)는 안 변할까요? 공중에는 <b>옆으로 끌어당기는 힘이 없거든요</b>. 위아래로만 <b>중력</b>이 잡아당기니까, y속도만 점점 아래로 변하는 거예요.</p>
+
+    <div class="tip warn">
+      <b>📖 실제 세상에선 공기 저항도 있어요</b><br>
+      진짜 야구공이나 화살은 <b>공기 저항</b> 때문에 x속도도 조금씩 줄어요. 하지만 앵그리버드 같은 게임에선 보통 <b>공기 저항을 무시</b>해요. 그래야 코드가 간단하고, 곡선도 더 예쁘게 나와요!
+    </div>
+  </section>
+
+  <section class="card c-purple">
+    <div class="step-no">3</div>
+    <h2>🧮 각도와 힘으로 vx·vy 구하기</h2>
+    <p>슬링샷을 당기면 두 가지가 정해져요. <b>어느 방향</b>으로 갈지(<b>각도</b>)와 <b>얼마나 세게</b> 갈지(<b>힘</b>). 이 두 개로부터 <b>x속도(vx)</b>와 <b>y속도(vy)</b>를 알아내야 해요.</p>
+
+    <div class="angle-clock">
+      <svg class="clock-svg" viewBox="0 0 160 160" aria-hidden="true">
+        <circle cx="80" cy="80" r="64" fill="#fff" stroke="#e6e3da" stroke-width="2"/>
+        <line x1="80" y1="80" x2="80" y2="20" stroke="#98a3ad" stroke-width="1.5" stroke-dasharray="2,3"/>
+        <line x1="80" y1="80" x2="140" y2="80" stroke="#98a3ad" stroke-width="1.5" stroke-dasharray="2,3"/>
+        <line x1="80" y1="80" x2="124" y2="36" stroke="#d68a3e" stroke-width="4" stroke-linecap="round"/>
+        <polygon points="124,36 116,42 130,48" fill="#d68a3e"/>
+        <text x="80" y="14" text-anchor="middle" font-family="Jua" font-size="13" fill="#6a7785">90°</text>
+        <text x="152" y="84" text-anchor="middle" font-family="Jua" font-size="13" fill="#6a7785">0°</text>
+        <text x="106" y="58" text-anchor="middle" font-family="Jua" font-size="13" fill="#d68a3e">45°</text>
+        <circle cx="80" cy="80" r="3" fill="#2a3540"/>
+      </svg>
+      <div class="clock-text">
+        🧭 각도는 <b>오른쪽 = 0°, 위 = 90°</b>로 잡아요.<br>
+        ・ <b>45°</b>는 “비스듬히 위” — 새총 당겼을 때 가장 자주 쓰는 각도예요.<br>
+        ・ <b>90°</b>는 “바로 위” — 옆으로 안 가고 위로만 솟구쳐요.<br>
+        ・ <b>0°</b>는 “옆으로만” — 떨어질 일만 남았죠!
+      </div>
+    </div>
+
+    <div class="tip bonus">
+      <b>📐 cos·sin이 뭐예요? (중학교 수학)</b><br>
+      각도가 정해지면 <b>x 비율과 y 비율</b>이 따라서 정해져요. 그 비율을 알려주는 게 바로 <b>cos(코사인)</b>과 <b>sin(사인)</b>이에요.<br>
+      ・ <b>vx = 힘 × cos(각도)</b> — x 쪽으로 얼마나 갈지<br>
+      ・ <b>vy = 힘 × sin(각도)</b> — y 쪽으로 얼마나 갈지 (위로 가야 하니 마이너스!)<br>
+      <small style="opacity:.8;">손가락 비유: 각도만큼 손가락을 돌렸을 때 <b>그림자가 옆 벽에 비친 길이가 cos</b>, <b>천장에 비친 길이가 sin</b>이에요!</small>
+    </div>
+
+    <p>각도와 힘을 정하면 vx, vy가 어떻게 정해지는지 표로 볼까요? (힘 = 10, 위 방향을 +y로 잡았어요)</p>
+
+    <div class="launch-table">
+      <div class="lt-title">⚙️ 발사 각도별 vx·vy (힘 = 10)</div>
+      <div class="lt-row head">
+        <div class="lt-cell">각도</div>
+        <div class="lt-cell">방향</div>
+        <div class="lt-cell">vx (가로)</div>
+        <div class="lt-cell">vy (위로)</div>
+      </div>
+      <div class="lt-row">
+        <div class="lt-cell">0°</div>
+        <div class="lt-cell">→ 옆으로만</div>
+        <div class="lt-cell lt-vx">10</div>
+        <div class="lt-cell lt-vy">0</div>
+      </div>
+      <div class="lt-row">
+        <div class="lt-cell">30°</div>
+        <div class="lt-cell">↗ 살짝 위로</div>
+        <div class="lt-cell lt-vx">약 8.7</div>
+        <div class="lt-cell lt-vy">약 5.0</div>
+      </div>
+      <div class="lt-row">
+        <div class="lt-cell">45°</div>
+        <div class="lt-cell">↗ 대각선</div>
+        <div class="lt-cell lt-vx">약 7.1</div>
+        <div class="lt-cell lt-vy">약 7.1</div>
+      </div>
+      <div class="lt-row">
+        <div class="lt-cell">60°</div>
+        <div class="lt-cell">↑ 많이 위로</div>
+        <div class="lt-cell lt-vx">5.0</div>
+        <div class="lt-cell lt-vy">약 8.7</div>
+      </div>
+      <div class="lt-row">
+        <div class="lt-cell">90°</div>
+        <div class="lt-cell">↑ 바로 위</div>
+        <div class="lt-cell lt-vx">0</div>
+        <div class="lt-cell lt-vy">10</div>
+      </div>
+    </div>
+
+    <div class="tip">
+      <b>🎯 45°가 가장 멀리 가는 이유</b><br>
+      <b>0°</b>는 위로 안 떠서 금방 땅에 닿고, <b>90°</b>는 옆으로 안 가서 제자리에 떨어져요. <b>45°</b>는 vx와 vy가 <b>딱 균형 잡혀서</b> 가장 멀리 날아가요!
+    </div>
+
+    <p>엔트리에서는 <b>계산 카테고리</b>의 <b>cos</b>·<b>sin</b> 블록을 써요. 입력 단위는 <b>도(°)</b>예요 (라디안 아님!). 발사 순간 딱 한 번 계산하면 끝!</p>
+  </section>
+
+  <section class="card c-orange">
+    <div class="step-no">4</div>
+    <h2>📦 엔트리로 직접 만들기</h2>
+    <p>이제 진짜 코드를 짜봐요. 변수가 4개 필요해요:</p>
+
+    <div class="tip">
+      ・ <b>발사각도</b> — 새총을 당긴 방향 (도°)<br>
+      ・ <b>발사힘</b> — 새총을 얼마나 세게 당겼는지<br>
+      ・ <b>vx</b> — x속도 (한 프레임에 가로로 몇 칸 가나)<br>
+      ・ <b>vy</b> — y속도 (한 프레임에 세로로 몇 칸 가나)
+    </div>
+
+    <p style="font-weight:700;color:var(--soft);">▶ <b>발사 순간</b> — 각도·힘으로 vx, vy 정하기</p>
+
+    <div class="entry-code" data-blocks='[
+      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"발사 신호를 받았을 때"}]},
+      {"shape":"stack","category":"VARIABLE","note":"가로 속도 = 힘 × cos(각도)","contents":[
+        {"type":"dropdown","value":"vx"},{"type":"text","value":"를"},
+        {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"발사힘"}]}},
+          {"type":"text","value":"×"},
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"cos("},{"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"발사각도"}]}},{"type":"text","value":")"}]}}
+        ]}},
+        {"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"stack","category":"VARIABLE","note":"세로 속도 = 힘 × sin(각도)  (위는 +)","contents":[
+        {"type":"dropdown","value":"vy"},{"type":"text","value":"를"},
+        {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"발사힘"}]}},
+          {"type":"text","value":"×"},
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"sin("},{"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"발사각도"}]}},{"type":"text","value":")"}]}}
+        ]}},
+        {"type":"text","value":"로 정하기"}
+      ]}
+    ]'></div>
+
+    <p style="font-weight:700;color:var(--soft);">▶ <b>매 프레임</b> — 중력으로 vy를 바꾸고, 위치를 옮기기</p>
+
+    <div class="entry-code" data-blocks='[
+      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+      {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+        {"shape":"stack","category":"VARIABLE","note":"중력이 vy를 점점 아래로","contents":[
+          {"type":"dropdown","value":"vy"},{"type":"text","value":"에"},
+          {"type":"input","value":"-0.4"},{"type":"text","value":"만큼 더하기"}
+        ]},
+        {"shape":"stack","category":"MOVING","note":"x 위치 갱신","contents":[
+          {"type":"text","value":"x 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"vx"}]}},
+          {"type":"text","value":"만큼 바꾸기"}
+        ]},
+        {"shape":"stack","category":"MOVING","note":"y 위치 갱신","contents":[
+          {"type":"text","value":"y 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"vy"}]}},
+          {"type":"text","value":"만큼 바꾸기"}
+        ]},
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"바닥"},{"type":"text","value":"에 닿았는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"FLOW","contents":[{"type":"text","value":"모든 코드 멈추기"}]}
+        ]}
+      ]}
+    ]'></div>
+
+    <div class="tip">
+      <b>🔬 핵심은 3편의 ‘매 프레임 갱신’ 그대로!</b><br>
+      ① <b>vy에 중력 더하기</b> — 위로 가던 게 점점 느려지다가 결국 아래로 떨어져요.<br>
+      ② <b>x 좌표를 vx만큼</b> — 가로는 일정하게 직진.<br>
+      ③ <b>y 좌표를 vy만큼</b> — vy가 양수면 위로, 음수면 아래로!<br>
+      이 세 줄이 매 프레임 반복되면 자동으로 <b>포물선</b>이 그려져요.
+    </div>
+
+    <div class="tip warn">
+      <b>⚠️ y좌표 방향에 주의!</b><br>
+      엔트리는 <b>위쪽이 +y</b>예요(우리 데모도 동일). 그래서 <b>vy가 +면 위로 올라가고</b>, 중력은 <b>-방향(아래로)</b>이라 <b>매 프레임 -0.4</b>씩 더하는 거예요. 처음엔 vy = +7로 출발 → 점점 줄어 0 → 음수로 → 아래로 떨어져요!
+    </div>
+
+    <div class="tip bonus">
+      <b>🧪 실험해 봐요!</b><br>
+      ① 중력 <b>-0.4</b>를 <b>-1.0</b>으로 바꾸면? 무거운 돌처럼 금방 떨어져요!<br>
+      ② 중력을 <b>-0.1</b>로 바꾸면? 달에서 던진 것처럼 멀리 떠 있어요.<br>
+      ③ 발사힘을 두 배로 키우면? 두 배 멀리 날아가요.
+    </div>
+  </section>
+
+  <section class="card c-gold">
+    <div class="step-no">5</div>
+    <h2>✨ 더 멋지게 만들기</h2>
+    <p>기본 포물선이 완성됐다면, 진짜 앵그리버드 느낌으로 한 발자국 더 가볼까요?</p>
+
+    <div class="tip">
+      <b>🎯 ① 발사 궤적 미리보기</b><br>
+      슬링샷을 당기는 동안 <b>점선으로 예상 궤적</b>을 미리 그려주면 조준이 쉬워져요. 매 프레임 vx, vy를 가짜로 굴려서 점만 찍어주면 끝!
+    </div>
+
+    <div class="tip">
+      <b>🐷 ② 목표물 충돌 (게임화)</b><br>
+      <b>“만일 ‘돼지’에 닿았는가?”</b> 판단 블록으로 충돌 체크 → 닿으면 점수 +10, 돼지 모양 숨기기. 3편에서 본 “닿았는가?” 판단을 그대로 쓰면 돼요!
+    </div>
+
+    <div class="tip">
+      <b>🔁 ③ 화면 밖 나가면 다시 발사</b><br>
+      <b>“만일 y 좌표 &lt; -200”</b> 이라면 새를 다시 슬링샷 위치로 보내고 vx, vy를 0으로 — 다음 발사 준비!
+    </div>
+
+    <div class="tip">
+      <b>💨 ④ 공기 저항 (고급)</b><br>
+      3편의 <b>마찰</b>을 떠올려보세요. 매 프레임 <b>vx × 0.99</b>, <b>vy × 0.99</b>를 하면 공기 저항이 느껴져요. 너무 멀리 못 가지만 훨씬 자연스러워요!
+    </div>
+  </section>
+
+  <div class="finish">
+    <h2>🎉 시리즈 진짜 완주!</h2>
+    <p>이제 1~4편 모두 끝났어요. 배운 걸 한 번에 정리해볼까요?</p>
+    <div class="check">
+      <div>✅ 포물선 = x속도와 y속도가 합쳐진 곡선</div>
+      <div>✅ x속도는 일정, y속도는 중력으로 매 프레임 변함</div>
+      <div>✅ 각도와 힘으로 vx, vy 정하기 (cos·sin)</div>
+      <div>✅ 45°일 때 가장 멀리 날아간다는 것</div>
+      <div>✅ 발사 + 매 프레임 갱신 코드 패턴 익히기</div>
+    </div>
+    <div class="next">🚀 <b>다음 단계 — 나만의 게임 만들기!</b> 1~4편의 움직임 코드를 조합하면 <b>플랫포머·발사 게임·물리 퍼즐</b> 거의 모든 장르를 만들 수 있어요. 직접 작품을 만들어보세요!</div>
+  </div>
+
+  <div class="meta-box">
+    <b>📚 참고 자료</b><br>
+    • <a href="https://en.scratch-wiki.info/wiki/Velocity" target="_blank">Scratch Wiki, “Velocity”</a> — 속도·중력 기본 패턴<br>
+    • <a href="https://ko.wikipedia.org/wiki/%ED%8F%AC%EC%82%AC%EC%B2%B4_%EC%9A%B4%EB%8F%99" target="_blank">위키백과, “포사체 운동”</a> — 포물선 운동의 물리 원리<br>
+    • <a href="https://ko.wikipedia.org/wiki/%EC%82%BC%EA%B0%81%ED%95%A8%EC%88%98" target="_blank">위키백과, “삼각함수”</a> — cos·sin의 정의
+  </div>
+
+  <div class="cta">
+    <h3>🏠 시리즈를 모두 마쳤어요!</h3>
+    <p>1~4편의 내용을 조합해서 나만의 게임을 만들어봐요!</p>
+    <a class="go" href="index.html">🏠 목차로 돌아가기</a>
+  </div>
+
+  <div style="text-align:center;margin-top:24px;">
+    <a href="index.html" class="home-link-bottom">🏠 목차로 돌아가기</a>
+  </div>
+
+  <div class="page-nav" style="max-width:720px;margin:0 auto;">
+    <a href="entry-game-3-inertia.html">← 3편 관성과 마찰</a>
+    <span class="nav-spacer"></span>
+  </div>
+
+  <footer>
+    엔트리로 만드는 나만의 게임 · 4편 「포물선과 발사」<br>
+    <span style="font-size:10px;opacity:.7;">
+      © 2026 김경환 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;">CC BY-NC-SA 4.0</a>
+    </span>
+  </footer>
+</div>
+
+<nav class="toc-sidebar">
+  <div class="toc-title">이 페이지 목차</div>
+  <ol id="toc-list"></ol>
+</nav>
+
+<script>
+(function(){
+  const wrap     = document.getElementById('demoStage4');
+  const canvas   = document.getElementById('demoCanvas4');
+  const ctx      = canvas.getContext('2d');
+  const fireBtn  = document.getElementById('demoFire4');
+  const resetBtn = document.getElementById('demoReset4');
+  const hudAngle = document.getElementById('hudAngle');
+  const hudPower = document.getElementById('hudPower');
+  const hudVx    = document.getElementById('hudVx');
+  const hudVy    = document.getElementById('hudVy');
+  const hudHits  = document.getElementById('hudHits');
+
+  const W = canvas.width, H = canvas.height;
+  const groundY  = H - 30;
+  const slingX   = 90;
+  const slingTop = groundY - 60;
+  const birdR    = 14;
+  const gravity  = 0.4;
+  const maxDrag  = 110;
+
+  let birdX = slingX, birdY = slingTop;
+  let vx = 0, vy = 0;
+  let state = 'ready';
+  let dragging = false;
+  let dragX = slingX, dragY = slingTop;
+  let trail = [];
+  let pig = { x: 620, y: groundY - 22, r: 18, alive: true };
+  let hits = 0;
+  let aimAngle = 45, aimPower = 60;
+
+  function drawSky(){
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#d8ecf6'); g.addColorStop(1, '#ecf4f9');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  function drawGround(){
+    ctx.fillStyle = '#a17a52';
+    ctx.fillRect(0, groundY, W, H - groundY);
+    ctx.fillStyle = '#8e6c47';
+    for (let x = 0; x < W; x += 28) ctx.fillRect(x + 24, groundY, 4, H - groundY);
+    ctx.fillStyle = '#7ea884';
+    ctx.fillRect(0, groundY - 5, W, 5);
+  }
+  function drawSling(){
+    ctx.strokeStyle = '#7c5a3c'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(slingX, groundY);
+    ctx.lineTo(slingX, slingTop + 8);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(slingX - 10, slingTop); ctx.lineTo(slingX - 14, slingTop - 14);
+    ctx.moveTo(slingX + 10, slingTop); ctx.lineTo(slingX + 14, slingTop - 14);
+    ctx.stroke();
+    if (state === 'ready' || state === 'aim'){
+      ctx.strokeStyle = '#5a3f29'; ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(slingX - 12, slingTop - 12); ctx.lineTo(birdX, birdY);
+      ctx.moveTo(slingX + 12, slingTop - 12); ctx.lineTo(birdX, birdY);
+      ctx.stroke();
+    }
+  }
+  function drawBird(x, y){
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,.12)';
+    ctx.beginPath(); ctx.ellipse(x, y + birdR + 2, birdR, 3, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#d68a3e';
+    ctx.beginPath(); ctx.arc(x, y, birdR, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#a8682b';
+    ctx.beginPath(); ctx.arc(x + 3, y + 3, birdR - 4, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(x + 5, y - 4, 4, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#333';
+    ctx.beginPath(); ctx.arc(x + 6, y - 4, 2, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#f3b22c';
+    ctx.beginPath();
+    ctx.moveTo(x + birdR - 2, y - 1);
+    ctx.lineTo(x + birdR + 8, y + 2);
+    ctx.lineTo(x + birdR - 2, y + 5);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+  function drawPig(){
+    if (!pig.alive) return;
+    const x = pig.x, y = pig.y;
+    ctx.fillStyle = 'rgba(0,0,0,.13)';
+    ctx.beginPath(); ctx.ellipse(x, y + pig.r + 2, pig.r, 3, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#5cc46a';
+    ctx.beginPath(); ctx.arc(x, y, pig.r, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#3e7549';
+    ctx.beginPath(); ctx.arc(x - pig.r + 4, y - 6, 4, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + pig.r - 4, y - 6, 4, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(x - 5, y - 3, 3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + 5, y - 3, 3, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#333';
+    ctx.beginPath(); ctx.arc(x - 5, y - 3, 1.5, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + 5, y - 3, 1.5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#3e7549';
+    ctx.beginPath(); ctx.ellipse(x, y + 4, 5, 3.5, 0, 0, Math.PI*2); ctx.fill();
+  }
+  function drawTrail(){
+    if (trail.length < 2) return;
+    ctx.strokeStyle = 'rgba(214,138,62,.55)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 5]);
+    ctx.beginPath();
+    ctx.moveTo(trail[0].x, trail[0].y);
+    for (let i = 1; i < trail.length; i++) ctx.lineTo(trail[i].x, trail[i].y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  function drawPreview(){
+    if (state !== 'aim') return;
+    const pvx = (slingX - birdX) * 0.18;
+    const pvy = (slingTop - birdY) * 0.18;
+    let x = birdX, y = birdY, vX = pvx, vY = pvy;
+    ctx.fillStyle = 'rgba(214,138,62,.5)';
+    for (let i = 0; i < 28; i++){
+      vY += gravity;
+      x  += vX;
+      y  += vY;
+      if (y > groundY - birdR) break;
+      if (i % 2 === 0){
+        ctx.beginPath(); ctx.arc(x, y, 2.4, 0, Math.PI*2); ctx.fill();
+      }
+    }
+  }
+  function updateHud(){
+    if (state === 'aim'){
+      const dx = slingX - birdX;
+      const dy = slingTop - birdY;
+      const power = Math.min(maxDrag, Math.hypot(dx, dy)) * 0.18;
+      const angleDeg = Math.atan2(-dy, dx) * 180 / Math.PI;
+      const rad = angleDeg * Math.PI / 180;
+      hudAngle.textContent = Math.round(angleDeg);
+      hudPower.textContent = power.toFixed(1);
+      hudVx.textContent    = (power * Math.cos(rad)).toFixed(1);
+      hudVy.textContent    = (power * Math.sin(rad)).toFixed(1);
+    } else if (state === 'flying'){
+      hudVx.textContent = vx.toFixed(1);
+      hudVy.textContent = (-vy).toFixed(1);
+    } else if (state === 'ready'){
+      const rad = aimAngle * Math.PI / 180;
+      const power = aimPower * 0.18;
+      hudAngle.textContent = aimAngle;
+      hudPower.textContent = power.toFixed(1);
+      hudVx.textContent    = (power * Math.cos(rad)).toFixed(1);
+      hudVy.textContent    = (power * Math.sin(rad)).toFixed(1);
+      const r = Math.min(maxDrag, aimPower);
+      birdX = slingX - Math.cos(rad) * r;
+      birdY = slingTop + Math.sin(rad) * r;
+    }
+  }
+  function render(){
+    drawSky(); drawGround();
+    drawTrail();
+    drawSling();
+    drawPreview();
+    drawPig();
+    drawBird(birdX, birdY);
+  }
+  function loop(){
+    if (state !== 'flying'){ render(); return; }
+    vy += gravity;
+    birdX += vx;
+    birdY += vy;
+    trail.push({x: birdX, y: birdY});
+    if (trail.length > 80) trail.shift();
+    if (pig.alive){
+      const d = Math.hypot(birdX - pig.x, birdY - pig.y);
+      if (d < birdR + pig.r){
+        pig.alive = false;
+        hits++; hudHits.textContent = hits;
+      }
+    }
+    if (birdY > groundY - birdR){
+      birdY = groundY - birdR;
+      state = 'landed';
+    }
+    if (birdX > W + 50 || birdX < -50 || birdY < -200){
+      state = 'landed';
+    }
+    updateHud();
+    render();
+    if (state === 'flying') requestAnimationFrame(loop);
+  }
+  function reset(){
+    birdX = slingX; birdY = slingTop;
+    vx = 0; vy = 0;
+    trail = [];
+    pig.alive = true;
+    state = 'ready';
+    aimAngle = 45; aimPower = 60;
+    updateHud();
+    render();
+  }
+  function fire(){
+    if (state === 'aim'){
+      const dx = slingX - birdX;
+      const dy = slingTop - birdY;
+      vx = dx * 0.18;
+      vy = dy * 0.18;
+    } else if (state === 'ready'){
+      const rad = aimAngle * Math.PI / 180;
+      const power = aimPower * 0.18;
+      vx = power * Math.cos(rad);
+      vy = -power * Math.sin(rad);
+    } else {
+      return;
+    }
+    state = 'flying';
+    trail = [];
+    wrap.classList.remove('idle');
+    requestAnimationFrame(loop);
+  }
+
+  function canvasPos(e){
+    const r = canvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - r.left) * (W / r.width),
+      y: (e.clientY - r.top)  * (H / r.height)
+    };
+  }
+  wrap.addEventListener('mousedown', e => {
+    if (state === 'flying' || state === 'landed') return;
+    const p = canvasPos(e);
+    if (Math.hypot(p.x - birdX, p.y - birdY) < birdR + 8){
+      dragging = true;
+      state = 'aim';
+      wrap.classList.remove('idle');
+    }
+  });
+  wrap.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const p = canvasPos(e);
+    const dx = p.x - slingX, dy = p.y - slingTop;
+    const d = Math.hypot(dx, dy);
+    const clamp = d > maxDrag ? maxDrag / d : 1;
+    birdX = slingX + dx * clamp;
+    birdY = slingTop + dy * clamp;
+    if (birdY > groundY - birdR) birdY = groundY - birdR;
+    updateHud();
+    render();
+  });
+  window.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    if (state === 'aim'){
+      if (Math.hypot(slingX - birdX, slingTop - birdY) < 12){
+        state = 'ready';
+        birdX = slingX; birdY = slingTop;
+        render();
+      } else {
+        fire();
+      }
+    }
+  });
+
+  wrap.addEventListener('click', () => wrap.focus());
+  wrap.addEventListener('keydown', e => {
+    if (state === 'flying' || state === 'landed') return;
+    state = 'ready';
+    if (e.key === 'ArrowLeft')  { aimAngle = Math.min(180, aimAngle + 2); e.preventDefault(); }
+    if (e.key === 'ArrowRight') { aimAngle = Math.max(0,   aimAngle - 2); e.preventDefault(); }
+    if (e.key === 'ArrowUp')    { aimPower = Math.min(maxDrag, aimPower + 4); e.preventDefault(); }
+    if (e.key === 'ArrowDown')  { aimPower = Math.max(10,  aimPower - 4); e.preventDefault(); }
+    if (e.key === ' ')          { fire(); e.preventDefault(); return; }
+    updateHud();
+    render();
+  });
+
+  fireBtn.addEventListener('click', () => {
+    if (state === 'flying') return;
+    if (state === 'landed') reset();
+    fire();
+  });
+  resetBtn.addEventListener('click', reset);
+
+  reset();
+})();
+</script>
+
+<script>
+(function(){
+  var hs = document.querySelectorAll('section.card h2');
+  var list = document.getElementById('toc-list');
+  if(!hs.length || !list) return;
+  hs.forEach(function(h, i){
+    if(!h.id) h.id = 'toc-' + i;
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a); list.appendChild(li);
+  });
+  var links = list.querySelectorAll('a');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = list.querySelector('a[href="#' + e.target.id + '"]');
+        if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-8% 0px -80% 0px'});
+  hs.forEach(function(h){ io.observe(h); });
+})();
+</script>
+
+</body>
+</html>
