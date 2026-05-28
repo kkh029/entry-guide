@@ -116,6 +116,22 @@
   @media (max-width:520px){
     .try-controls .speed-row{margin-left:0;width:100%;justify-content:space-between;}
   }
+  .cta{
+    background:linear-gradient(180deg,#fdf0ef,#fafaf6);
+    border:1px solid var(--border-s);
+    border-radius:12px;padding:22px 20px;
+    text-align:center;margin:22px 0;
+  }
+  .cta h3{font-family:'Jua',sans-serif;font-size:20px;color:var(--ink);margin-bottom:6px;}
+  .cta p{font-size:15px;color:var(--soft);margin-bottom:12px;}
+  .cta a.go{
+    display:inline-block;background:var(--c2);color:#fff;
+    font-family:'Jua',sans-serif;font-size:16px;
+    padding:10px 22px;border-radius:30px;
+    box-shadow:0 3px 0 #38609a;
+    transition:transform .12s ease;text-decoration:none;
+  }
+  .cta a.go:hover{transform:translateY(-1px);}
 </style>
 </head>
 <body>
@@ -342,6 +358,12 @@
     <div class="next">📘 <b>다음 편 예고</b> — 게임을 더 진짜처럼 만드는 비밀, <b>이동·속도·가속도</b>를 배워봐요! 같은 ‘움직임’이지만 게임 속에서 어떻게 점점 빨라지고 느려지는지 알게 될 거예요.</div>
   </div>
 
+  <div class="cta">
+    <h3>📘 다음 단계로 넘어가볼까요?</h3>
+    <p>속도와 가속도로 캐릭터 움직임을 훨씬 자연스럽게 만들어요!</p>
+    <a class="go" href="entry-game-2-velocity.html">2편 속도와 가속도 →</a>
+  </div>
+
   <div style="text-align:center;margin-top:24px;">
     <a href="index.html" class="home-link-bottom">🏠 목차로 돌아가기</a>
   </div>
@@ -468,6 +490,38 @@
   });
 
   render();
+})();
+</script>
+
+<nav class="toc-sidebar">
+  <div class="toc-title">이 페이지 목차</div>
+  <ol id="toc-list"></ol>
+</nav>
+
+<script>
+(function(){
+  var hs = document.querySelectorAll('section.card h2');
+  var list = document.getElementById('toc-list');
+  if(!hs.length || !list) return;
+  hs.forEach(function(h, i){
+    if(!h.id) h.id = 'toc-' + i;
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a); list.appendChild(li);
+  });
+  var links = list.querySelectorAll('a');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = list.querySelector('a[href="#' + e.target.id + '"]');
+        if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-8% 0px -80% 0px'});
+  hs.forEach(function(h){ io.observe(h); });
 })();
 </script>
 

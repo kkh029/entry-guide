@@ -83,7 +83,14 @@ All pages preconnect to Google Fonts and load **Jua** (titles/UI labels), **Gowu
 
 ## When adding a new page
 
-1. Copy the `<head>` (fonts + `assets/styles.css` link) and the `home-link` / `home-link-bottom` / `footer` pattern from an existing episode.
-2. Pick or assign an accent token (`--c1`/`--c2`/`--c3`/`--green`/`--accent`) and apply via `section.card.c-{color}` and any page-specific styles.
-3. Add the page to `docs/index.html` — both the `.toc-grid` list (if it's a new episode) and the path strip if it changes the learning order.
-4. No router, no build — links are plain relative paths (`href="entry-game-X-foo.html"`).
+**Full guide (template + checklist):** `dev-docs/new-page-guide.html`
+
+Quick steps:
+
+1. Copy `docs/entry-game-2-velocity.html` as the base (most up-to-date structure).
+2. Fill in the `<!-- FILL -->` placeholders: title, badge, h1, sections, footer episode label.
+3. Pick or assign an accent token (`--c1`/`--c2`/`--c3`/`--green`/`--accent`) and apply via `section.card.c-{color}` and the page-specific `.cta` style.
+4. Add a `.cta` block (heading + description + colored `<a class="go">` button) just before `.home-link-bottom`. The last episode in the series should link to `index.html` with "🏠 목차로 돌아가기".
+5. Keep the `<nav class="toc-sidebar">` element + TOC script block at the very end of `<body>` — it auto-collects every `section.card h2` into a sticky right sidebar on wide screens (≥1240 px). No changes needed to the script itself.
+6. Add the page to `docs/index.html` `.toc-grid` and update the previous episode's CTA button to point to the new page.
+7. No router, no build — links are plain relative paths (`href="entry-game-X-foo.html"`).
