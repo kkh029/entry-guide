@@ -154,6 +154,28 @@
     </table>
   </div>
 
+  <h2>비교 기준 — 실제 엔트리 에디터 캡처</h2>
+
+  <p>모양·색·필드를 결정한 ground truth. production 엔트리 에디터(<a href="https://playentry.org/ws/new?type=normal&amp;mode=block&amp;lang=ko">playentry.org/ws</a>)에서 카테고리별로 캡처해 <code>captures/</code>에 보존. 새 SHAPE를 추가하거나 색 매핑을 의심할 때 여기와 비교한다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>카테고리</th><th>캡처</th><th>이 PR에서 새로 발견된 디자인 특징</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>시작 START</strong></td><td><a href="captures/entry-blocks-category-start.png">entry-blocks-category-start.png</a></td><td>hat에 왼쪽 큰 동그라미 아이콘 6종(재생/키보드/마우스/오브젝트/신호/장면)</td></tr>
+        <tr><td><strong>흐름 FLOW</strong></td><td><a href="captures/entry-blocks-category-flow.png">entry-blocks-category-flow.png</a></td><td>c-block 단일 슬롯 + 이중 슬롯(만일~아니면). 안쪽 들여쓰기 ~16px</td></tr>
+        <tr><td><strong>움직임 MOVING</strong></td><td><a href="captures/entry-blocks-category-moving.png">entry-blocks-category-moving.png</a></td><td>stack 오른쪽 끝 카테고리 마커(양방향 화살표). 노란 input 박스에 검정 글씨</td></tr>
+        <tr><td><strong>생김새 LOOKS</strong></td><td><a href="captures/entry-blocks-category-looks.png">entry-blocks-category-looks.png</a></td><td>stack + 다중 input ("안녕! 을(를) 4 초 동안 말하기")</td></tr>
+        <tr><td><strong>붓 BRUSH</strong></td><td><a href="captures/entry-blocks-category-brush.png">entry-blocks-category-brush.png</a></td><td>색상 선택 필드(현재 미구현 — 우선순위 낮음)</td></tr>
+        <tr><td><strong>소리 SOUND</strong></td><td><a href="captures/entry-blocks-category-sound.png">entry-blocks-category-sound.png</a></td><td>긴 dropdown(곡명) 시 본체 가로 자동 확장</td></tr>
+        <tr><td><strong>판단 JUDGE</strong></td><td><a href="captures/entry-blocks-category-judge.png">entry-blocks-category-judge.png</a></td><td>boolean 양옆 뾰족 육각형(notch = height/2). 안에 input/dropdown 모두 가능</td></tr>
+        <tr><td><strong>계산 CALC</strong></td><td><a href="captures/entry-blocks-category-calc.png">entry-blocks-category-calc.png</a></td><td>reporter 양옆 완전 캡슐. 산술 reporter 안에 reporter 끼움(현재 단순화)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
   <h2>데이터 모델</h2>
 
   <p>한 블록은 <code>{ shape, category, icon?, marker?, contents, statements?, middleContents? }</code>로 표현된다. <code>contents</code>는 필드 객체 배열이며, <code>contents[i].type === 'block'</code>이면 <code>block</code> 필드에 또 다른 블록 객체가 들어가 재귀 nesting된다.</p>
