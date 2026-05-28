@@ -6,8 +6,9 @@
 <title>엔트리 게임 만들기 ③ 관성과 마찰</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
+<script src="assets/entry-blocks/renderer.js" defer></script>
 <style>
   /* 3편 — 헤더 스테이지 (미끄러지며 멈추는 캐릭터) */
   .hero{
@@ -197,12 +198,12 @@
   <section class="card">
     <p class="big">🎉 1편에서 <b>걷기·점프·충돌</b>을, 2편에서 <b>속도·가속도</b>를 배웠죠? 그런데 2편 마지막에서 캐릭터가 <b>키를 떼도 멈추지 않아서</b> 답답했을 거예요. 오늘은 그 문제를 <b>관성과 마찰</b>로 자연스럽게 풀어볼 거예요!</p>
     <div class="legend">
-      <span style="background:var(--c-start)">시작</span>
-      <span style="background:var(--c-flow)">흐름(반복·만일)</span>
-      <span style="background:var(--c-move)">움직임</span>
-      <span style="background:var(--c-judge)">판단</span>
-      <span style="background:var(--c-data)">자료(변수)</span>
-      <span style="background:var(--c-calc)">계산</span>
+      <div class="entry-block" data-block='{"shape":"stack","category":"START",   "marker":false,"contents":[{"type":"text","value":"시작"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"FLOW",    "marker":false,"contents":[{"type":"text","value":"흐름(반복·만일)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"MOVING",  "marker":false,"contents":[{"type":"text","value":"움직임"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"JUDGE",   "marker":false,"contents":[{"type":"text","value":"판단"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"VARIABLE","marker":false,"contents":[{"type":"text","value":"자료(변수)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"CALC",    "marker":false,"contents":[{"type":"text","value":"계산"}]}'></div>
     </div>
   </section>
 
@@ -311,35 +312,41 @@
 
     <p style="font-weight:700;color:var(--soft);margin-top:18px;">📌 2편에서 만든 <b>‘걷는속도’</b> 변수를 그대로 사용해요!</p>
 
-    <div class="code">
-      <div class="eb hat">▶ 시작하기 버튼을 클릭했을 때</div>
-      <div class="eb cblk flow">
-        <div class="top">🔁 계속 반복하기</div>
-        <div class="body">
-
-          <div class="eb cblk flow">
-            <div class="top">만일 <span class="bool">오른쪽 화살표 ▾ 키가 눌러져 있는가?</span> 이라면</div>
-            <div class="body">
-              <div class="eb stack data">‘걷는속도’에 <span class="in">0.8</span> 만큼 더하기 <span class="note">눌수록 조금씩 빨라져요</span></div>
-            </div>
-            <div class="bot"></div>
-          </div>
-
-          <div class="eb cblk flow">
-            <div class="top">만일 <span class="bool">왼쪽 화살표 ▾ 키가 눌러져 있는가?</span> 이라면</div>
-            <div class="body">
-              <div class="eb stack data">‘걷는속도’에 <span class="in">-0.8</span> 만큼 더하기 <span class="note">왼쪽으로 조금씩 빨라져요</span></div>
-            </div>
-            <div class="bot"></div>
-          </div>
-
-          <div class="eb stack data">‘걷는속도’를 <span class="calc">걷는속도 × 0.85</span> 로 정하기 <span class="note">↑ 이게 바로 마찰! 매 프레임 속도를 조금 줄여줘요</span></div>
-          <div class="eb stack move">x 좌표를 <span class="in">걷는속도</span> 만큼 바꾸기 <span class="note">이 블록 하나로 좌우 이동 끝!</span></div>
-
-        </div>
-        <div class="bot"></div>
-      </div>
-    </div>
+    <div class="entry-code" data-blocks='[
+      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+      {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"오른쪽 화살표"},{"type":"text","value":"키가 눌러져 있는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"에"},
+            {"type":"input","value":"0.8"},{"type":"text","value":"만큼 더하기"}
+          ]}
+        ]},
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"왼쪽 화살표"},{"type":"text","value":"키가 눌러져 있는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"에"},
+            {"type":"input","value":"-0.8"},{"type":"text","value":"만큼 더하기"}
+          ]}
+        ]},
+        {"shape":"stack","category":"VARIABLE","note":"↑ 이게 바로 마찰! 매 프레임 속도를 조금 줄여줘요","contents":[
+          {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"를"},
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"걷는속도"},{"type":"text","value":"×"},{"type":"input","value":"0.85"}]}},
+          {"type":"text","value":"로 정하기"}
+        ]},
+        {"shape":"stack","category":"MOVING","note":"이 블록 하나로 좌우 이동 끝!","contents":[
+          {"type":"text","value":"x 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"걷는속도"}]}},
+          {"type":"text","value":"만큼 바꾸기"}
+        ]}
+      ]}
+    ]'></div>
 
     <div class="tip">
       <b>🧮 ‘걷는속도 × 0.85’는 어떻게 만들어요?</b><br>
@@ -351,18 +358,28 @@
     <div class="tip warn">
       <b>⚠️ 속도에 한도를 걸어두세요!</b><br>
       관성만 쓰면 계속 누를 때 속도가 끝없이 올라가요. 반복하기 안에 이 블록을 추가해요:<br><br>
-      <div class="code" style="margin:8px 0 0;">
-        <div class="eb cblk flow">
-          <div class="top">만일 <span class="bool">‘걷는속도’ &gt; 8</span> 이라면</div>
-          <div class="body"><div class="eb stack data">‘걷는속도’를 <span class="in">8</span> 로 정하기 <span class="note">최고속도 제한</span></div></div>
-          <div class="bot"></div>
-        </div>
-        <div class="eb cblk flow">
-          <div class="top">만일 <span class="bool">‘걷는속도’ &lt; -8</span> 이라면</div>
-          <div class="body"><div class="eb stack data">‘걷는속도’를 <span class="in">-8</span> 로 정하기 <span class="note">왼쪽 최고속도 제한</span></div></div>
-          <div class="bot"></div>
-        </div>
-      </div>
+      <div class="entry-code" style="margin:8px 0 0;" data-blocks='[
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"‘걷는속도’ > 8"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"를"},
+            {"type":"input","value":"8"},{"type":"text","value":"로 정하기"}
+          ]}
+        ]},
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"‘걷는속도’ < -8"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"를"},
+            {"type":"input","value":"-8"},{"type":"text","value":"로 정하기"}
+          ]}
+        ]}
+      ]'></div>
     </div>
   </section>
 
@@ -451,49 +468,60 @@
 
     <p style="font-weight:700;color:var(--soft);margin-top:6px;">📌 1편의 <s>‘떨어지는힘’</s> 대신 <b>‘y속도’</b> 변수를 새로 만들어요!</p>
 
-    <div class="code">
-      <div class="eb hat">▶ 시작하기 버튼을 클릭했을 때</div>
-      <div class="eb cblk flow">
-        <div class="top">🔁 계속 반복하기</div>
-        <div class="body">
-
-          <div class="eb stack data">‘y속도’에 <span class="in">-0.8</span> 만큼 더하기 <span class="note">↑ 중력! 마찰이 아니에요 — 절대 멈추지 않고 계속 끌어내려요</span></div>
-
-          <div class="eb cblk flow">
-            <div class="top">만일 <span class="bool">‘y속도’ &lt; -15</span> 이라면</div>
-            <div class="body">
-              <div class="eb stack data">‘y속도’를 <span class="in">-15</span> 로 정하기 <span class="note">종단속도 — 이 이상 빠르게는 안 떨어져요</span></div>
-            </div>
-            <div class="bot"></div>
-          </div>
-
-          <div class="eb stack move">y 좌표를 <span class="in">y속도</span> 만큼 바꾸기 <span class="note">x처럼 y도 속도 변수로 이동해요</span></div>
-
-          <div class="eb cblk flow">
-            <div class="top">만일 <span class="bool">위쪽 화살표 ▾ 키…</span> 그리고 <span class="bool">바닥 ▾ 에 닿았는가?</span> 이라면</div>
-            <div class="body">
-              <div class="eb stack data">‘y속도’를 <span class="in">15</span> 로 정하기 <span class="note">위로 출발! 이후 중력이 매 프레임 조금씩 줄여줘요 → 포물선!</span></div>
-            </div>
-            <div class="bot"></div>
-          </div>
-
-          <div class="eb cblk flow">
-            <div class="top">만일 <span class="bool">바닥 ▾ 에 닿았는가?</span> 이라면</div>
-            <div class="body">
-              <div class="eb cblk flow">
-                <div class="top">🔁 <span class="bool">바닥 ▾ 에 닿았는가? 이 아니다</span> 가 될 때까지 반복</div>
-                <div class="body"><div class="eb stack move">y 좌표를 <span class="in">1</span> 만큼 바꾸기 <span class="note">땅 위로 살살 밀어내기</span></div></div>
-                <div class="bot"></div>
-              </div>
-              <div class="eb stack data">‘y속도’를 <span class="in">0</span> 으로 정하기 <span class="note">착지! 속도 초기화</span></div>
-            </div>
-            <div class="bot"></div>
-          </div>
-
-        </div>
-        <div class="bot"></div>
-      </div>
-    </div>
+    <div class="entry-code" data-blocks='[
+      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+      {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+        {"shape":"stack","category":"VARIABLE","contents":[
+          {"type":"dropdown","value":"y속도"},{"type":"text","value":"에"},
+          {"type":"input","value":"-0.8"},{"type":"text","value":"만큼 더하기"}
+        ]},
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"‘y속도’ < -15"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"y속도"},{"type":"text","value":"를"},
+            {"type":"input","value":"-15"},{"type":"text","value":"로 정하기"}
+          ]}
+        ]},
+        {"shape":"stack","category":"MOVING","contents":[
+          {"type":"text","value":"y 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"y속도"}]}},
+          {"type":"text","value":"만큼 바꾸기"}
+        ]},
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"위쪽 화살표"},{"type":"text","value":"키…"}]}},
+          {"type":"text","value":"그리고"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"바닥"},{"type":"text","value":"에 닿았는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"y속도"},{"type":"text","value":"를"},
+            {"type":"input","value":"15"},{"type":"text","value":"로 정하기"}
+          ]}
+        ]},
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"바닥"},{"type":"text","value":"에 닿았는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"cblock","category":"FLOW","contents":[
+            {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"바닥에 닿았는가? 이 아니다"}]}},
+            {"type":"text","value":"가 될 때까지 반복"}
+          ],"statements":[
+            {"shape":"stack","category":"MOVING","contents":[
+              {"type":"text","value":"y 좌표를"},{"type":"input","value":"1"},{"type":"text","value":"만큼 바꾸기"}
+            ]}
+          ]},
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"y속도"},{"type":"text","value":"를"},
+            {"type":"input","value":"0"},{"type":"text","value":"으로 정하기"}
+          ]}
+        ]}
+      ]}
+    ]'></div>
 
     <div class="tip">
       <b>🔄 이제 x·y 방향이 깔끔하게 대칭이에요!</b>
@@ -559,53 +587,63 @@
     <p>해결 방법은 간단해요! <b>한 번에 크게 움직이는 대신, 1픽셀씩 조금조금 움직이면서 매 칸마다 충돌 검사</b>를 해요. 이게 <b>서브스텝(잘게 쪼개기)</b>이에요.</p>
 
     <p style="font-weight:700;color:var(--soft);margin-top:18px;">⬅➡ x 이동 블록 부분을 아래로 교체해요</p>
-    <div class="code">
-      <span class="note" style="font-size:14px;display:block;margin-bottom:8px;">↓ “x좌표를 <b>걷는속도</b>만큼 바꾸기” 대신 이 블록들로 바꿔요!</span>
-
-      <div class="eb cblk flow">
-        <div class="top">만일 <span class="bool">‘걷는속도’ &gt; 0</span> 이라면</div>
-        <div class="body">
-          <div class="eb cblk flow">
-            <div class="top">🔁 <span class="calc">걷는속도 의 절댓값</span> 번 반복하기 <span class="note" style="display:inline;color:#fff9;">← 속도만큼 반복해요</span></div>
-            <div class="body">
-              <div class="eb stack move">x 좌표를 <span class="in">1</span> 만큼 바꾸기 <span class="note">1픽셀씩만 이동</span></div>
-              <div class="eb cblk flow">
-                <div class="top">만일 <span class="bool">벽 ▾ 에 닿았는가?</span> 이라면</div>
-                <div class="body">
-                  <div class="eb stack move">x 좌표를 <span class="in">-1</span> 만큼 바꾸기 <span class="note">닿았으면 바로 물러나요</span></div>
-                  <div class="eb stack data">‘걷는속도’를 <span class="in">0</span> 으로 정하기 <span class="note">속도도 0!</span></div>
-                </div>
-                <div class="bot"></div>
-              </div>
-            </div>
-            <div class="bot"></div>
-          </div>
-        </div>
-        <div class="bot"></div>
-      </div>
-
-      <div class="eb cblk flow">
-        <div class="top">만일 <span class="bool">‘걷는속도’ &lt; 0</span> 이라면</div>
-        <div class="body">
-          <div class="eb cblk flow">
-            <div class="top">🔁 <span class="calc">걷는속도 의 절댓값</span> 번 반복하기</div>
-            <div class="body">
-              <div class="eb stack move">x 좌표를 <span class="in">-1</span> 만큼 바꾸기</div>
-              <div class="eb cblk flow">
-                <div class="top">만일 <span class="bool">벽 ▾ 에 닿았는가?</span> 이라면</div>
-                <div class="body">
-                  <div class="eb stack move">x 좌표를 <span class="in">1</span> 만큼 바꾸기</div>
-                  <div class="eb stack data">‘걷는속도’를 <span class="in">0</span> 으로 정하기</div>
-                </div>
-                <div class="bot"></div>
-              </div>
-            </div>
-            <div class="bot"></div>
-          </div>
-        </div>
-        <div class="bot"></div>
-      </div>
-    </div>
+    <span class="entry-note" style="font-size:14px;display:block;margin-bottom:8px;">↓ "x좌표를 <b>걷는속도</b>만큼 바꾸기" 대신 이 블록들로 바꿔요!</span>
+    <div class="entry-code" data-blocks='[
+      {"shape":"cblock","category":"FLOW","contents":[
+        {"type":"text","value":"만일"},
+        {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"‘걷는속도’ > 0"}]}},
+        {"type":"text","value":"이라면"}
+      ],"statements":[
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"걷는속도 의 절댓값"}]}},
+          {"type":"text","value":"번 반복하기"}
+        ],"statements":[
+          {"shape":"stack","category":"MOVING","contents":[
+            {"type":"text","value":"x 좌표를"},{"type":"input","value":"1"},{"type":"text","value":"만큼 바꾸기"}
+          ]},
+          {"shape":"cblock","category":"FLOW","contents":[
+            {"type":"text","value":"만일"},
+            {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"벽"},{"type":"text","value":"에 닿았는가?"}]}},
+            {"type":"text","value":"이라면"}
+          ],"statements":[
+            {"shape":"stack","category":"MOVING","contents":[
+              {"type":"text","value":"x 좌표를"},{"type":"input","value":"-1"},{"type":"text","value":"만큼 바꾸기"}
+            ]},
+            {"shape":"stack","category":"VARIABLE","contents":[
+              {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"를"},
+              {"type":"input","value":"0"},{"type":"text","value":"으로 정하기"}
+            ]}
+          ]}
+        ]}
+      ]},
+      {"shape":"cblock","category":"FLOW","contents":[
+        {"type":"text","value":"만일"},
+        {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"‘걷는속도’ < 0"}]}},
+        {"type":"text","value":"이라면"}
+      ],"statements":[
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"걷는속도 의 절댓값"}]}},
+          {"type":"text","value":"번 반복하기"}
+        ],"statements":[
+          {"shape":"stack","category":"MOVING","contents":[
+            {"type":"text","value":"x 좌표를"},{"type":"input","value":"-1"},{"type":"text","value":"만큼 바꾸기"}
+          ]},
+          {"shape":"cblock","category":"FLOW","contents":[
+            {"type":"text","value":"만일"},
+            {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"벽"},{"type":"text","value":"에 닿았는가?"}]}},
+            {"type":"text","value":"이라면"}
+          ],"statements":[
+            {"shape":"stack","category":"MOVING","contents":[
+              {"type":"text","value":"x 좌표를"},{"type":"input","value":"1"},{"type":"text","value":"만큼 바꾸기"}
+            ]},
+            {"shape":"stack","category":"VARIABLE","contents":[
+              {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"를"},
+              {"type":"input","value":"0"},{"type":"text","value":"으로 정하기"}
+            ]}
+          ]}
+        ]}
+      ]}
+    ]'></div>
 
     <div class="tip">
       <b>💡 ‘절댓값’은 계산 카테고리에 있어요!</b><br>
@@ -639,43 +677,61 @@
 
     <p style="font-weight:700;color:var(--soft);margin-top:6px;">📌 변수 <b>‘코요테타임’</b>을 만들어요 (1편의 ‘점프충전’ 옆에 추가!)</p>
 
-    <div class="code">
-      <span class="note" style="font-size:14px;display:block;margin-bottom:8px;">↓ 계속 반복하기 안, 중력 코드 바로 위에 넣어요</span>
+    <span class="entry-note" style="font-size:14px;display:block;margin-bottom:8px;">↓ 계속 반복하기 안, 중력 코드 바로 위에 넣어요</span>
+    <div class="entry-code" data-blocks='[
+      {"shape":"cblock","category":"FLOW","contents":[
+        {"type":"text","value":"만일"},
+        {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"바닥"},{"type":"text","value":"에 닿았는가?"}]}},
+        {"type":"text","value":"이라면"}
+      ],"statements":[
+        {"shape":"stack","category":"VARIABLE","contents":[
+          {"type":"dropdown","value":"코요테타임"},{"type":"text","value":"을"},
+          {"type":"input","value":"6"},{"type":"text","value":"으로 정하기"}
+        ]}
+      ]},
+      {"shape":"cblock","category":"FLOW","contents":[
+        {"type":"text","value":"만일"},
+        {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"‘코요테타임’ > 0"}]}},
+        {"type":"text","value":"이라면"}
+      ],"statements":[
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"바닥에 닿았는가? 이 아니다"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"코요테타임"},{"type":"text","value":"에"},
+            {"type":"input","value":"-1"},{"type":"text","value":"만큼 더하기"}
+          ]}
+        ]}
+      ]}
+    ]'></div>
 
-      <div class="eb cblk flow">
-        <div class="top">만일 <span class="bool">바닥 ▾ 에 닿았는가?</span> 이라면</div>
-        <div class="body">
-          <div class="eb stack data">‘코요테타임’을 <span class="in">6</span> 으로 정하기 <span class="note">땅에 있으면 6프레임 동안 충전!</span></div>
-        </div>
-        <div class="bot"></div>
-      </div>
-
-      <div class="eb cblk flow">
-        <div class="top">만일 <span class="bool">‘코요테타임’ &gt; 0</span> 이라면</div>
-        <div class="body">
-          <div class="eb cblk flow">
-            <div class="top">만일 <span class="bool">바닥 ▾ 에 닿았는가? 이 아니다</span> 이라면</div>
-            <div class="body">
-              <div class="eb stack data">‘코요테타임’에 <span class="in">-1</span> 만큼 더하기 <span class="note">공중이면 매 프레임 1씩 줄어요</span></div>
-            </div>
-            <div class="bot"></div>
-          </div>
-        </div>
-        <div class="bot"></div>
-      </div>
-
-      <span class="note" style="font-size:14px;display:block;margin:10px 0 6px;">↓ 1편의 점프 조건에서 “바닥에 닿았는가?” 자리를 이걸로 바꿔요!</span>
-
-      <div class="eb cblk flow">
-        <div class="top">만일 <span class="bool">위쪽 화살표 ▾ 키…</span> 그리고 <span class="bool">‘코요테타임’ &gt; 0</span> 그리고 <span class="bool">‘점프충전’ = 1</span> 이라면</div>
-        <div class="body">
-          <div class="eb stack data">‘떨어지는힘’을 <span class="in">15</span> 로 정하기 <span class="note">위로 통!</span></div>
-          <div class="eb stack data">‘점프충전’을 <span class="in">0</span> 으로 정하기</div>
-          <div class="eb stack data">‘코요테타임’을 <span class="in">0</span> 으로 정하기 <span class="note">한 번 쓰면 바로 0으로!</span></div>
-        </div>
-        <div class="bot"></div>
-      </div>
-    </div>
+    <span class="entry-note" style="font-size:14px;display:block;margin:10px 0 6px;">↓ 1편의 점프 조건에서 "바닥에 닿았는가?" 자리를 이걸로 바꿔요!</span>
+    <div class="entry-code" data-blocks='[
+      {"shape":"cblock","category":"FLOW","contents":[
+        {"type":"text","value":"만일"},
+        {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"위쪽 화살표"},{"type":"text","value":"키…"}]}},
+        {"type":"text","value":"그리고"},
+        {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"‘코요테타임’ > 0"}]}},
+        {"type":"text","value":"그리고"},
+        {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"‘점프충전’ = 1"}]}},
+        {"type":"text","value":"이라면"}
+      ],"statements":[
+        {"shape":"stack","category":"VARIABLE","contents":[
+          {"type":"dropdown","value":"떨어지는힘"},{"type":"text","value":"을"},
+          {"type":"input","value":"15"},{"type":"text","value":"로 정하기"}
+        ]},
+        {"shape":"stack","category":"VARIABLE","contents":[
+          {"type":"dropdown","value":"점프충전"},{"type":"text","value":"을"},
+          {"type":"input","value":"0"},{"type":"text","value":"으로 정하기"}
+        ]},
+        {"shape":"stack","category":"VARIABLE","contents":[
+          {"type":"dropdown","value":"코요테타임"},{"type":"text","value":"을"},
+          {"type":"input","value":"0"},{"type":"text","value":"으로 정하기"}
+        ]}
+      ]}
+    ]'></div>
 
     <div class="tip bonus">
       <b>🎮 왜 코요테 타임이 중요한가요?</b><br>

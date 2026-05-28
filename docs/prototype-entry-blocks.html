@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>엔트리 블록 프로토타입 — B-mini (Phase 2 전체)</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+<script src="assets/entry-blocks/renderer.js" defer></script>
+<style>
+  body { font-family: 'Nanum Gothic', '맑은 고딕', 'Malgun Gothic', sans-serif; padding: 24px; background:#f6f8fa; color:#222; max-width: 1100px; }
+  h1 { margin-top: 0; }
+  h2 { font-size:16px; color:#444; border-bottom:2px solid #e1e4e8; padding-bottom:6px; margin-top:28px; }
+  .panel { background:#fff; border:1px solid #e1e4e8; border-radius:8px; padding:16px; margin-bottom:14px; }
+  .panel h3 { margin: 0 0 12px; font-size:14px; color:#666; font-weight:700; }
+  pre { background:#0d1117; color:#c9d1d9; padding:12px; border-radius:6px; font-size:12px; overflow:auto; line-height:1.5; }
+  .stage { background:#fbfcfd; border:1px dashed #d0d7de; border-radius:6px; padding:14px; }
+  .stage .entry-block { display:block; margin-bottom:6px; }
+  .row { display:flex; flex-wrap:wrap; gap:14px; align-items:flex-start; }
+  .row .entry-block { display:inline-block; margin:0; }
+  .note { background:#fff3cd; border-left:3px solid #ffc107; padding:8px 12px; font-size:13px; margin:12px 0; border-radius:4px; }
+  code { font-family: 'SF Mono', Menlo, Consolas, monospace; background:#f1f3f5; padding:1px 5px; border-radius:3px; font-size:12px; }
+</style>
+</head>
+<body>
+
+<h1>엔트리 블록 프로토타입 — Phase 2 전체</h1>
+<p>지원 모양: <b>hat / stack / cap / reporter / boolean / cblock / cblock_double</b>. 지원 필드: <b>text / input / dropdown / icon / block (자식 끼움)</b>.</p>
+
+<h2>1) hat — 시작 카테고리</h2>
+<div class="panel"><div class="stage">
+  <div class="entry-block" data-block='{"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]}'></div>
+  <div class="entry-block" data-block='{"shape":"hat","category":"START","icon":"keyboard","contents":[{"type":"dropdown","value":"q"},{"type":"text","value":"키를 눌렀을 때"}]}'></div>
+  <div class="entry-block" data-block='{"shape":"hat","category":"START","icon":"mouse","contents":[{"type":"text","value":"마우스를 클릭했을 때"}]}'></div>
+  <div class="entry-block" data-block='{"shape":"hat","category":"START","icon":"signal","contents":[{"type":"dropdown","value":"대상 없음"},{"type":"text","value":"신호를 받았을 때"}]}'></div>
+  <div class="entry-block" data-block='{"shape":"hat","category":"START","icon":"scene","contents":[{"type":"text","value":"장면이 시작되었을 때"}]}'></div>
+</div></div>
+
+<h2>2) stack — 일반 명령</h2>
+<div class="panel"><div class="stage">
+  <div class="entry-block" data-block='{"shape":"stack","category":"MOVING","contents":[{"type":"text","value":"x 좌표를"},{"type":"input","value":"10"},{"type":"text","value":"만큼 바꾸기"}]}'></div>
+  <div class="entry-block" data-block='{"shape":"stack","category":"LOOKS","contents":[{"type":"input","value":"안녕!"},{"type":"text","value":"을(를)"},{"type":"input","value":"4"},{"type":"text","value":"초 동안 말하기"}]}'></div>
+  <div class="entry-block" data-block='{"shape":"stack","category":"SOUND","contents":[{"type":"text","value":"소리"},{"type":"dropdown","value":"강아지 짖는 소리"},{"type":"text","value":"재생하기"}]}'></div>
+  <div class="entry-block" data-block='{"shape":"stack","category":"VARIABLE","contents":[{"type":"dropdown","value":"걷는속도"},{"type":"text","value":"에"},{"type":"input","value":"0.8"},{"type":"text","value":"만큼 더하기"}]}'></div>
+</div></div>
+
+<h2>3) cap — 마무리</h2>
+<div class="panel"><div class="stage">
+  <div class="entry-block" data-block='{"shape":"cap","category":"FLOW","contents":[{"type":"dropdown","value":"모든"},{"type":"text","value":"코드 멈추기"}]}'></div>
+  <div class="entry-block" data-block='{"shape":"cap","category":"FLOW","contents":[{"type":"text","value":"처음부터 다시 실행하기"}]}'></div>
+</div></div>
+
+<h2>4) reporter — 값 블록</h2>
+<div class="panel"><div class="stage"><div class="row">
+  <div class="entry-block" data-block='{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"걷는속도"}]}'></div>
+  <div class="entry-block" data-block='{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"체력"}]}'></div>
+  <div class="entry-block" data-block='{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"초시계 값"}]}'></div>
+  <div class="entry-block" data-block='{"shape":"reporter","category":"CALC","contents":[{"type":"input","value":"10"},{"type":"text","value":"+"},{"type":"input","value":"10"}]}'></div>
+  <div class="entry-block" data-block='{"shape":"reporter","category":"CALC","contents":[{"type":"input","value":"0"},{"type":"text","value":"부터"},{"type":"input","value":"10"},{"type":"text","value":"사이의 무작위 수"}]}'></div>
+</div></div></div>
+
+<h2>5) boolean — 판단 블록 (양옆 뾰족 육각형)</h2>
+<div class="panel"><div class="stage"><div class="row">
+  <div class="entry-block" data-block='{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"마우스를 클릭했는가?"}]}'></div>
+  <div class="entry-block" data-block='{"shape":"boolean","category":"JUDGE","contents":[{"type":"input","value":"10"},{"type":"text","value":"="},{"type":"input","value":"10"}]}'></div>
+  <div class="entry-block" data-block='{"shape":"boolean","category":"JUDGE","contents":[{"type":"input","value":"10"},{"type":"text","value":">"},{"type":"input","value":"10"}]}'></div>
+</div></div></div>
+
+<h2>6) c-block — 흐름 (단일 슬롯)</h2>
+<div class="panel"><div class="stage">
+  <div class="entry-block" data-block='{
+    "shape":"cblock","category":"FLOW",
+    "contents":[{"type":"input","value":"10"},{"type":"text","value":"번 반복하기"}],
+    "statements":[
+      {"shape":"stack","category":"MOVING","contents":[{"type":"text","value":"x 좌표를"},{"type":"input","value":"10"},{"type":"text","value":"만큼 바꾸기"}]},
+      {"shape":"stack","category":"LOOKS","contents":[{"type":"text","value":"모양 보이기"}]}
+    ]
+  }'></div>
+
+  <div class="entry-block" data-block='{
+    "shape":"cblock","category":"FLOW",
+    "contents":[{"type":"text","value":"계속 반복하기"}],
+    "statements":[
+      {"shape":"stack","category":"MOVING","contents":[{"type":"text","value":"이동 방향으로"},{"type":"input","value":"10"},{"type":"text","value":"만큼 움직이기"}]}
+    ]
+  }'></div>
+</div></div>
+
+<h2>7) c-block 이중 슬롯 — 만일 ~ 아니면</h2>
+<div class="panel"><div class="stage">
+  <div class="entry-block" data-block='{
+    "shape":"cblock_double","category":"FLOW",
+    "contents":[{"type":"text","value":"만일"},{"type":"text","value":"(이)라면"}],
+    "middleContents":[{"type":"text","value":"아니면"}],
+    "statements":[
+      [{"shape":"stack","category":"LOOKS","contents":[{"type":"text","value":"모양 보이기"}]}],
+      [{"shape":"stack","category":"LOOKS","contents":[{"type":"text","value":"모양 숨기기"}]}]
+    ]
+  }'></div>
+</div></div>
+
+<h2>8) block 필드 — 자식 reporter / boolean 끼우기</h2>
+<div class="panel"><div class="stage">
+  <div class="entry-block" data-block='{
+    "shape":"stack","category":"MOVING",
+    "contents":[
+      {"type":"text","value":"x 좌표를"},
+      {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"걷는속도"}]}},
+      {"type":"text","value":"만큼 바꾸기"}
+    ]
+  }'></div>
+
+  <div class="entry-block" data-block='{
+    "shape":"stack","category":"VARIABLE",
+    "contents":[
+      {"type":"dropdown","value":"걷는속도"},
+      {"type":"text","value":"에"},
+      {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"input","value":"10"},{"type":"text","value":"+"},{"type":"input","value":"5"}]}},
+      {"type":"text","value":"만큼 더하기"}
+    ]
+  }'></div>
+
+  <div class="entry-block" data-block='{
+    "shape":"cblock","category":"FLOW",
+    "contents":[
+      {"type":"text","value":"만일"},
+      {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"마우스를 클릭했는가?"}]}},
+      {"type":"text","value":"(이)라면"}
+    ],
+    "statements":[
+      {"shape":"stack","category":"LOOKS","contents":[{"type":"input","value":"안녕!"},{"type":"text","value":"말하기"}]}
+    ]
+  }'></div>
+</div></div>
+
+<h2>사용법</h2>
+<div class="panel">
+  <h3>HTML data-block 속성 (JSON)</h3>
+<pre>&lt;script src="assets/entry-blocks/renderer.js" defer&gt;&lt;/script&gt;
+
+&lt;div class="entry-block" data-block='{
+  "shape": "stack",
+  "category": "MOVING",
+  "contents": [
+    { "type": "text",  "value": "x 좌표를" },
+    { "type": "block", "block": {
+        "shape":"reporter","category":"VARIABLE",
+        "contents":[{"type":"text","value":"걷는속도"}]
+    }},
+    { "type": "text",  "value": "만큼 바꾸기" }
+  ]
+}'&gt;&lt;/div&gt;</pre>
+
+  <h3 style="margin-top:20px;">JS 호출</h3>
+<pre>EntryBlocks.render('#my-block', {
+  shape: 'cblock', category: 'FLOW',
+  contents: [{type:'input',value:'10'},{type:'text',value:'번 반복하기'}],
+  statements: [
+    { shape:'stack', category:'MOVING', contents:[{type:'text',value:'x 좌표를'},{type:'input',value:'10'},{type:'text',value:'만큼 바꾸기'}] }
+  ],
+});</pre>
+
+  <div class="note">
+    옵션: <code>shape</code> · <code>category</code> · <code>icon</code>(hat 왼쪽) · <code>marker</code> · <code>contents</code>[text|input|dropdown|icon|block] · <code>statements</code>(c-block 자식) · <code>middleContents</code>(이중 슬롯 가운데 띠)
+  </div>
+</div>
+
+</body>
+</html>

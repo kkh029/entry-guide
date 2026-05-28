@@ -6,8 +6,9 @@
 <title>엔트리 게임 만들기 ② 이동·속도·가속도</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
+<script src="assets/entry-blocks/renderer.js" defer></script>
 <style>
   /* 2편 — 헤더 스테이지 (점점 빨라지는 캐릭터) */
   .hero{
@@ -111,7 +112,6 @@
   .vs-new{border-left:3px solid var(--green);}
   .vs-head{font-family:'Jua',sans-serif;font-size:14.5px;margin-bottom:8px;color:var(--ink);}
   .vs-line{font-size:13.5px;margin:5px 0;line-height:1.5;color:var(--soft);}
-  .vs-mini-code{font-family:'Gaegu',sans-serif;font-weight:700;background:#fff;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12.5px;margin-top:8px;display:block;color:var(--ink);}
 
   /* 변수 안내 박스 */
   .var-intro{
@@ -183,25 +183,25 @@
         <div class="vs-head">😅 1편의 움직임</div>
         <div class="vs-line">키를 누르는 순간 <b>바로 5칸</b></div>
         <div class="vs-line">키를 떼는 순간 <b>딱 멈춤</b></div>
-        <span class="vs-mini-code">x좌표를 5 만큼 바꾸기</span>
+        <div class="entry-block" style="margin-top:8px;" data-block='{"shape":"stack","category":"MOVING","contents":[{"type":"text","value":"x 좌표를"},{"type":"input","value":"5"},{"type":"text","value":"만큼 바꾸기"}]}'></div>
       </div>
       <div class="vs-card vs-new">
         <div class="vs-head">🏎️ 오늘 만들 움직임</div>
         <div class="vs-line">처음엔 천천히, <b>점점 빨라짐</b></div>
         <div class="vs-line">키를 떼도 <b>스르르 가다 멈춤</b></div>
-        <span class="vs-mini-code">x좌표를 [걷는속도] 만큼 바꾸기</span>
+        <div class="entry-block" style="margin-top:8px;" data-block='{"shape":"stack","category":"MOVING","contents":[{"type":"text","value":"x 좌표를"},{"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"걷는속도"}]}},{"type":"text","value":"만큼 바꾸기"}]}'></div>
       </div>
     </div>
 
     <p>마리오도, 자동차 게임도, 달리기 게임도 모두 <b>오른쪽처럼</b> 움직여요. 이 차이를 만드는 게 바로 <b>‘이동’, ‘속도’, ‘가속도’</b> 세 가지 개념이에요. 하나씩 이야기처럼 풀어볼게요!</p>
 
     <div class="legend">
-      <span style="background:var(--c-start)">시작</span>
-      <span style="background:var(--c-flow)">흐름(반복·만일)</span>
-      <span style="background:var(--c-move)">움직임</span>
-      <span style="background:var(--c-judge)">판단</span>
-      <span style="background:var(--c-data)">자료(변수)</span>
-      <span style="background:var(--c-calc)">계산</span>
+      <div class="entry-block" data-block='{"shape":"stack","category":"START",   "marker":false,"contents":[{"type":"text","value":"시작"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"FLOW",    "marker":false,"contents":[{"type":"text","value":"흐름(반복·만일)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"MOVING",  "marker":false,"contents":[{"type":"text","value":"움직임"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"JUDGE",   "marker":false,"contents":[{"type":"text","value":"판단"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"VARIABLE","marker":false,"contents":[{"type":"text","value":"자료(변수)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"CALC",    "marker":false,"contents":[{"type":"text","value":"계산"}]}'></div>
     </div>
   </section>
 
@@ -361,34 +361,36 @@
 
     <p style="font-weight:700;color:var(--soft);">▶ 시작 블록 안에 이렇게 쌓아주세요.</p>
 
-    <div class="code">
-      <div class="eb hat">▶ 시작하기 버튼을 클릭했을 때</div>
-      <div class="eb cblk flow">
-        <div class="top">🔁 계속 반복하기</div>
-        <div class="body">
-
-          <div class="eb cblk flow">
-            <div class="top">만일 <span class="bool">오른쪽 화살표 ▾ 키가 눌러져 있는가?</span> 이라면</div>
-            <div class="body">
-              <div class="eb stack data">‘걷는속도’에 <span class="in">0.8</span> 만큼 더하기 <span class="note">↑ 가속도! 키 누르면 속도가 0.8씩 늘어요</span></div>
-            </div>
-            <div class="bot"></div>
-          </div>
-
-          <div class="eb cblk flow">
-            <div class="top">만일 <span class="bool">왼쪽 화살표 ▾ 키가 눌러져 있는가?</span> 이라면</div>
-            <div class="body">
-              <div class="eb stack data">‘걷는속도’에 <span class="in">-0.8</span> 만큼 더하기 <span class="note">왼쪽 키는 가속도가 -0.8</span></div>
-            </div>
-            <div class="bot"></div>
-          </div>
-
-          <div class="eb stack move">x 좌표를 <span class="in">걷는속도</span> 만큼 바꾸기 <span class="note">매 프레임마다 속도만큼 위치 이동! (속도 → 위치)</span></div>
-
-        </div>
-        <div class="bot"></div>
-      </div>
-    </div>
+    <div class="entry-code" data-blocks='[
+      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+      {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"오른쪽 화살표"},{"type":"text","value":"키가 눌러져 있는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"에"},
+            {"type":"input","value":"0.8"},{"type":"text","value":"만큼 더하기"}
+          ]}
+        ]},
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"왼쪽 화살표"},{"type":"text","value":"키가 눌러져 있는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"에"},
+            {"type":"input","value":"-0.8"},{"type":"text","value":"만큼 더하기"}
+          ]}
+        ]},
+        {"shape":"stack","category":"MOVING","contents":[
+          {"type":"text","value":"x 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"걷는속도"}]}},
+          {"type":"text","value":"만큼 바꾸기"}
+        ]}
+      ]}
+    ]'></div>
 
     <p>실행해 보면 신기한 일이 일어나요! 키를 누르면 처음엔 <b>느리게 출발</b>하다가 점점 <b>빨라져요</b>. 그런데… 키를 떼도 캐릭터가 <b>멈추지 않고 계속 가요!</b> 🤔</p>
 

@@ -149,53 +149,8 @@ p{margin:12px 0;}
 .bonus{border-left-color:var(--c3);}
 .bonus b{color:var(--c3);}
 
-/* ───── 엔트리 블록 (교육 목적 — 색 유지) ───── */
-.code{
-  background:#dde4ea;
-  border-radius:10px;
-  padding:12px 14px 22px;
-  margin:18px 0;
-  overflow-x:auto;
-}
-.eb{
-  font-family:system-ui,-apple-system,'Malgun Gothic','Apple SD Gothic Neo',sans-serif;
-  font-weight:700;color:#fff;font-size:13px;line-height:1.4;
-}
-/* 햇(이벤트) */
-.hat{
-  display:inline-block;background:var(--c-start);
-  padding:9px 16px;border-radius:14px 14px 3px 3px;
-  position:relative;box-shadow:0 3px 0 rgba(0,0,0,.22);
-}
-.hat::after{content:"";position:absolute;bottom:-8px;left:12px;width:16px;height:8px;background:inherit;border-radius:0 0 4px 4px;filter:brightness(.82);}
-/* 스택 */
-.stack{
-  display:block;width:fit-content;max-width:100%;
-  padding:9px 13px 8px;border-radius:3px;margin:0;position:relative;
-  box-shadow:0 3px 0 rgba(0,0,0,.22);
-}
-.stack::before{content:"";position:absolute;top:0;left:12px;width:16px;height:8px;background:rgba(0,0,0,.2);border-radius:0 0 4px 4px;}
-.stack::after{content:"";position:absolute;bottom:-8px;left:12px;width:16px;height:8px;background:inherit;border-radius:0 0 4px 4px;filter:brightness(.82);}
-.move{background:var(--c-move);}
-.data{background:var(--c-data);}
-/* C 블록 (흐름·반복) */
-.cblk{margin:0;width:fit-content;max-width:100%;}
-.cblk .top{padding:9px 13px 8px;border-radius:3px 3px 0 0;color:#fff;position:relative;box-shadow:0 2px 0 rgba(0,0,0,.15);}
-.cblk .top::before{content:"";position:absolute;top:0;left:12px;width:16px;height:8px;background:rgba(0,0,0,.2);border-radius:0 0 4px 4px;}
-.cblk .top::after{content:"";position:absolute;bottom:-8px;left:26px;width:16px;height:8px;background:inherit;border-radius:0 0 4px 4px;filter:brightness(.82);}
-.cblk .body{padding:8px 0 8px 14px;min-height:20px;}
-.cblk .bot{height:12px;border-radius:0 0 3px 3px;width:110px;position:relative;}
-.cblk .bot::after{content:"";position:absolute;bottom:-8px;left:12px;width:16px;height:8px;background:inherit;border-radius:0 0 4px 4px;filter:brightness(.82);}
-.flow>.top,.flow>.bot{background:var(--c-flow);}
-.flow>.body{border-left:12px solid var(--c-flow);}
-/* 판단·계산 */
-.bool{display:inline-block;background:var(--c-judge);color:#fff;padding:3px 11px;font-size:12px;margin:0 2px;clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 50%,calc(100% - 8px) 100%,8px 100%,0 50%);}
-.calc{display:inline-block;background:var(--c-calc);color:#fff;padding:2px 9px;font-size:12px;margin:0 2px;border-radius:10px;}
-/* 입력 · 주석 */
-.in{display:inline-block;background:#fff;color:#3a4a55;border:1px solid rgba(0,0,0,.18);border-radius:10px;padding:1px 9px;margin:0 2px;font-size:12px;text-align:center;}
-.note{display:block;font-family:'Gowun Dodum',sans-serif;font-weight:normal;font-size:11.5px;color:#8a9eaa;margin:3px 0 3px 4px;}
-.legend{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;font-size:13.5px;}
-.legend span{padding:3px 12px;border-radius:20px;color:#fff;font-family:'Gaegu',sans-serif;font-weight:700;}
+/* ───── 카테고리 색상 가이드 (이제 .entry-block 컨테이너) ───── */
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;}
 
 /* ───── 마무리(체크리스트) ───── */
 .finish{
