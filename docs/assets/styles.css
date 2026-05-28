@@ -201,29 +201,6 @@ footer{text-align:center;color:var(--muted);font-size:13px;margin-top:36px;}
 }
 .home-link-bottom:hover{transform:translateY(-1px);border-color:var(--soft);}
 
-/* ───── 이전/다음 편 내비게이션 ───── */
-.page-nav{
-  display:flex;justify-content:space-between;align-items:center;
-  gap:10px;margin-top:24px;
-}
-.page-nav a{
-  display:inline-block;
-  background:#fff;color:var(--ink);
-  font-family:'Jua',sans-serif;
-  padding:10px 20px;border-radius:30px;
-  border:1px solid var(--border);
-  font-size:15px;text-decoration:none;
-  transition:transform .15s ease, border-color .15s ease;
-  white-space:nowrap;
-}
-.page-nav a:hover{transform:translateY(-1px);border-color:var(--soft);}
-.page-nav .nav-next{
-  background:var(--accent);color:#fff;
-  border-color:var(--accent);
-}
-.page-nav .nav-next:hover{border-color:var(--accent);}
-.page-nav .nav-spacer{flex:1;}
-
 /* ───── 작은 화면 ───── */
 @media (max-width: 520px){
   body{font-size:16px;}
