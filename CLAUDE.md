@@ -20,7 +20,15 @@ There is **no build step and no package manager**. The site is plain HTML/CSS/JS
 ## Two top-level folders — do not conflate
 
 - **`docs/`** = production deployable. Everything here is served by GitHub Pages at `/entry-guide/docs/`. Treat as user-facing.
-- **`dev-docs/`** = internal working notes. Session-level design docs, architecture analyses, refactor plans, etc. **Not deployed.** The `session-doc` skill (and any "이번 세션 내용 문서로 정리해줘" / "design doc 만들어줘" requests) must write here, never into `docs/`. The folder is kept in git via `.gitkeep` so the convention is visible even when empty.
+- **`dev-docs/`** = internal working notes. Session-level design docs, architecture analyses, refactor plans, etc. **Not deployed.** The `session-doc` skill (and any "이번 세션 내용 문서로 정리해줘" / "design doc 만들어줘" requests) must write here, never into `docs/`.
+
+  Inside `dev-docs/`:
+  - **`<topic-slug>.html`** — individual design docs, one per topic (kebab-case, English slug). Use `session-doc` boilerplate.
+  - **`fix-history.md`** — chronological index of all design changes (newest first, one line + link per item). **Update when adding any new design doc** — add a new entry at the top with a one-line summary and PR link.
+  - **`next-steps.md`** — consolidated TODO index pulled from every design doc's "후속 TODO" section. **Update when adding/revising a design doc** — move its outstanding TODOs here, and mark completed ones with the PR number.
+  - **`assets/{style.css,doc.js}`** — shared HTML doc styling (created by `session-doc` skill on first use; do not overwrite).
+
+  The folder is kept in git via `.gitkeep` so the convention is visible even when empty.
 
 `velocity-improvement-plan.md` at repo root is a pre-existing rewrite plan; new design-style docs should go under `dev-docs/` instead of being added to the root.
 

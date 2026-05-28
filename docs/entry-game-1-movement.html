@@ -6,8 +6,9 @@
 <title>엔트리 게임 만들기 ① 캐릭터 움직이기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
+<script src="assets/entry-blocks/renderer.js" defer></script>
 <style>
   /* 1편 — 헤더 스테이지 (점프하는 빨강 캐릭터) */
   .hero{
@@ -139,11 +140,11 @@
   <section class="card">
     <p class="big">🌟 안녕! 오늘은 게임 속 캐릭터를 <b>내 마음대로 움직이게</b> 만들 거예요. 그 전에, 게임을 이해하는 <b>아주 중요한 비밀</b>부터 알아볼까요? 아래 블록은 <b>엔트리 모양 그대로</b> 그렸으니 색과 모양을 보고 똑같이 찾으면 돼요!</p>
     <div class="legend">
-      <span style="background:var(--c-start)">시작</span>
-      <span style="background:var(--c-flow)">흐름(반복·만일)</span>
-      <span style="background:var(--c-move)">움직임</span>
-      <span style="background:var(--c-judge)">판단</span>
-      <span style="background:var(--c-data)">자료(변수)</span>
+      <div class="entry-block" data-block='{"shape":"stack","category":"START",   "marker":false,"contents":[{"type":"text","value":"시작"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"FLOW",    "marker":false,"contents":[{"type":"text","value":"흐름(반복·만일)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"MOVING",  "marker":false,"contents":[{"type":"text","value":"움직임"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"JUDGE",   "marker":false,"contents":[{"type":"text","value":"판단"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"VARIABLE","marker":false,"contents":[{"type":"text","value":"자료(변수)"}]}'></div>
     </div>
   </section>
 
@@ -190,25 +191,25 @@
     <div class="step-no">2</div>
     <h2>화살표로 걸어 다니기</h2>
     <p><b>오른쪽·왼쪽 화살표</b>를 누르면 그쪽으로 움직이게 해요. 키를 누르는 <b>동안 계속</b> 움직여야 하니까 <b>계속 반복하기</b> 안에 쏙 넣는 게 비밀이에요.</p>
-    <div class="code">
-      <div class="eb hat">▶ 시작하기 버튼을 클릭했을 때</div>
-      <div class="eb cblk flow">
-        <div class="top">🔁 계속 반복하기</div>
-        <div class="body">
-          <div class="eb cblk flow">
-            <div class="top">만일 <span class="bool">오른쪽 화살표 ▾ 키가 눌러져 있는가?</span> 이라면</div>
-            <div class="body"><div class="eb stack move">x 좌표를 <span class="in">5</span> 만큼 바꾸기</div></div>
-            <div class="bot"></div>
-          </div>
-          <div class="eb cblk flow">
-            <div class="top">만일 <span class="bool">왼쪽 화살표 ▾ 키가 눌러져 있는가?</span> 이라면</div>
-            <div class="body"><div class="eb stack move">x 좌표를 <span class="in">-5</span> 만큼 바꾸기</div></div>
-            <div class="bot"></div>
-          </div>
-        </div>
-        <div class="bot"></div>
-      </div>
-    </div>
+    <div class="entry-code" data-blocks='[
+      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+      {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"오른쪽 화살표"},{"type":"text","value":"키가 눌러져 있는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"MOVING","contents":[{"type":"text","value":"x 좌표를"},{"type":"input","value":"5"},{"type":"text","value":"만큼 바꾸기"}]}
+        ]},
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"왼쪽 화살표"},{"type":"text","value":"키가 눌러져 있는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"MOVING","contents":[{"type":"text","value":"x 좌표를"},{"type":"input","value":"-5"},{"type":"text","value":"만큼 바꾸기"}]}
+        ]}
+      ]}
+    ]'></div>
     <div class="tip"><b>💡 알아두기</b> 숫자 <b>5</b>(흰 칸)를 크게 하면 더 빨리 달려요. 5쯤이 딱 좋아요!</div>
 
     <div class="try-demo">
@@ -234,26 +235,48 @@
     <h2>점프와 ‘보이지 않는 손’(중력)</h2>
     <p>진짜 캐릭터는 점프하면 다시 <b>아래로 떨어지죠</b>? <b>보이지 않는 손</b>이 자꾸 땅으로 끌어내리기 때문이에요. 이게 바로 <b>중력</b>!</p>
     <p>먼저 <b>속성 → 변수</b>에서 <b>‘떨어지는힘’</b> 변수를 만들고, <b>계속 반복하기 안에</b> 이렇게 넣어요.</p>
-    <div class="code">
-      <div class="eb stack data">‘떨어지는힘’에 <span class="in">-1</span> 만큼 더하기 <span class="note">보이지 않는 손이 끌어내려요</span></div>
-      <div class="eb stack move">y 좌표를 <span class="in">떨어지는힘</span> 만큼 바꾸기 <span class="note">그만큼 아래로</span></div>
-    </div>
+    <div class="entry-code" data-blocks='[
+      {"shape":"stack","category":"VARIABLE","note":"보이지 않는 손이 끌어내려요","contents":[
+        {"type":"dropdown","value":"떨어지는힘"},{"type":"text","value":"에"},
+        {"type":"input","value":"-1"},{"type":"text","value":"만큼 더하기"}
+      ]},
+      {"shape":"stack","category":"MOVING","note":"그만큼 아래로","contents":[
+        {"type":"text","value":"y 좌표를"},
+        {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"떨어지는힘"}]}},
+        {"type":"text","value":"만큼 바꾸기"}
+      ]}
+    ]'></div>
     <p>이제 키를 <b>꾹 누르고 있어도</b> 통! 통! 통! 끝없이 튀지 않게, <b>‘점프충전’</b> 변수를 만들어요. 충전이 가득 찼을 때만 뛰고, 손을 떼야 다시 충전돼요.</p>
-    <div class="code">
-      <div class="eb cblk flow">
-        <div class="top">만일 <span class="bool">위쪽 화살표 ▾ 키…</span> 그리고 <span class="bool">바닥 ▾ 에 닿았는가?</span> 그리고 <span class="bool">‘점프충전’ = 1</span> 이라면</div>
-        <div class="body">
-          <div class="eb stack data">‘떨어지는힘’을 <span class="in">15</span> 로 정하기 <span class="note">위로 통!</span></div>
-          <div class="eb stack data">‘점프충전’을 <span class="in">0</span> 으로 정하기 <span class="note">충전 다 씀!</span></div>
-        </div>
-        <div class="bot"></div>
-      </div>
-      <div class="eb cblk flow">
-        <div class="top">만일 <span class="bool">〈위쪽 화살표 ▾ 키…〉 이 아니다</span> 이라면</div>
-        <div class="body"><div class="eb stack data">‘점프충전’을 <span class="in">1</span> 로 정하기 <span class="note">손 떼면 다시 충전</span></div></div>
-        <div class="bot"></div>
-      </div>
-    </div>
+    <div class="entry-code" data-blocks='[
+      {"shape":"cblock","category":"FLOW","contents":[
+        {"type":"text","value":"만일"},
+        {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"위쪽 화살표"},{"type":"text","value":"키…"}]}},
+        {"type":"text","value":"그리고"},
+        {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"바닥"},{"type":"text","value":"에 닿았는가?"}]}},
+        {"type":"text","value":"그리고"},
+        {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"‘점프충전’ = 1"}]}},
+        {"type":"text","value":"이라면"}
+      ],"statements":[
+        {"shape":"stack","category":"VARIABLE","note":"위로 통!","contents":[
+          {"type":"dropdown","value":"떨어지는힘"},{"type":"text","value":"을"},
+          {"type":"input","value":"15"},{"type":"text","value":"로 정하기"}
+        ]},
+        {"shape":"stack","category":"VARIABLE","note":"충전 다 씀!","contents":[
+          {"type":"dropdown","value":"점프충전"},{"type":"text","value":"을"},
+          {"type":"input","value":"0"},{"type":"text","value":"으로 정하기"}
+        ]}
+      ]},
+      {"shape":"cblock","category":"FLOW","contents":[
+        {"type":"text","value":"만일"},
+        {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"〈위쪽 화살표 키…〉 이 아니다"}]}},
+        {"type":"text","value":"이라면"}
+      ],"statements":[
+        {"shape":"stack","category":"VARIABLE","note":"손 떼면 다시 충전","contents":[
+          {"type":"dropdown","value":"점프충전"},{"type":"text","value":"을"},
+          {"type":"input","value":"1"},{"type":"text","value":"로 정하기"}
+        ]}
+      ]}
+    ]'></div>
     <div class="tip"><b>🔋 점프 충전 이야기</b> 한 번 뛰면 충전을 다 써버리고, 키에서 <b>손을 떼야</b> 다시 충전돼요. 그래서 꾹 누르고만 있으면 또 못 뛰어요!</div>
     <div class="tip warn"><b>💡 ‘이 아니다’는?</b> 판단 카테고리의 <b>‘아니다’</b> 블록 안에 〈…키가 눌러져 있는가?〉를 넣으면 “안 눌렀을 때”가 돼요.</div>
   </section>
@@ -263,28 +286,38 @@
     <h2>벽에 부딪히면 ‘쿵!’ 멈추기 (충돌 처리)</h2>
     <p>1단계에서 배운 것처럼, 두 상자가 겹치면 충돌이에요. 그럼 캐릭터가 벽 속으로 파고들었을 때 어떻게 할까요? <b>안 닿을 때까지 살살 밀어내면</b> 돼요. 그래야 벽 속에 안 갇혀요!</p>
     <p style="font-weight:700;color:var(--soft)">⬇ 떨어지다 땅에 닿았을 때</p>
-    <div class="code">
-      <div class="eb cblk flow">
-        <div class="top">만일 <span class="bool">바닥 ▾ 에 닿았는가?</span> 이라면</div>
-        <div class="body">
-          <div class="eb cblk flow">
-            <div class="top">🔁 <span class="bool">〈바닥 ▾ 에 닿았는가?〉 이 아니다</span> 가 될 때까지 반복하기</div>
-            <div class="body"><div class="eb stack move">y 좌표를 <span class="in">1</span> 만큼 바꾸기 <span class="note">땅 위로 살짝</span></div></div>
-            <div class="bot"></div>
-          </div>
-          <div class="eb stack data">‘떨어지는힘’을 <span class="in">0</span> 으로 정하기 <span class="note">이제 안 떨어져요</span></div>
-        </div>
-        <div class="bot"></div>
-      </div>
-    </div>
+    <div class="entry-code" data-blocks='[
+      {"shape":"cblock","category":"FLOW","contents":[
+        {"type":"text","value":"만일"},
+        {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"바닥"},{"type":"text","value":"에 닿았는가?"}]}},
+        {"type":"text","value":"이라면"}
+      ],"statements":[
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"〈바닥 에 닿았는가?〉 이 아니다"}]}},
+          {"type":"text","value":"가 될 때까지 반복하기"}
+        ],"statements":[
+          {"shape":"stack","category":"MOVING","note":"땅 위로 살짝","contents":[
+            {"type":"text","value":"y 좌표를"},{"type":"input","value":"1"},{"type":"text","value":"만큼 바꾸기"}
+          ]}
+        ]},
+        {"shape":"stack","category":"VARIABLE","note":"이제 안 떨어져요","contents":[
+          {"type":"dropdown","value":"떨어지는힘"},{"type":"text","value":"을"},
+          {"type":"input","value":"0"},{"type":"text","value":"으로 정하기"}
+        ]}
+      ]}
+    ]'></div>
     <p style="font-weight:700;color:var(--soft)">⬅➡ 옆으로 가다 벽에 부딪혔을 때</p>
-    <div class="code">
-      <div class="eb cblk flow">
-        <div class="top">만일 <span class="bool">벽 ▾ 에 닿았는가?</span> 이라면</div>
-        <div class="body"><div class="eb stack move">x 좌표를 <span class="in">반대로</span> 만큼 바꾸기 <span class="note">왔던 만큼 도로 물러나기</span></div></div>
-        <div class="bot"></div>
-      </div>
-    </div>
+    <div class="entry-code" data-blocks='[
+      {"shape":"cblock","category":"FLOW","contents":[
+        {"type":"text","value":"만일"},
+        {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"벽"},{"type":"text","value":"에 닿았는가?"}]}},
+        {"type":"text","value":"이라면"}
+      ],"statements":[
+        {"shape":"stack","category":"MOVING","note":"왔던 만큼 도로 물러나기","contents":[
+          {"type":"text","value":"x 좌표를"},{"type":"input","value":"반대로"},{"type":"text","value":"만큼 바꾸기"}
+        ]}
+      ]}
+    ]'></div>
     <div class="tip warn"><b>⚠️ 꼭 기억!</b> ‘멈추기’만 하고 <b>밀어내기를 안 하면</b> 상자가 계속 겹쳐 있어서 캐릭터가 벽 속에 끼어 못 나와요. 살살 밀어내는 게 핵심이에요!</div>
   </section>
 
