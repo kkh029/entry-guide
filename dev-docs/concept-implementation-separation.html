@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>물리 개념 ↔ 엔트리 구현 분리 (review.md 반영) — entry-guide</title>
+  <title>물리 개념 ↔ 엔트리 구현 분리 (외부 리뷰 반영) — entry-guide</title>
 
   <link rel="stylesheet" href="assets/style.css">
   <link rel="stylesheet"
@@ -21,13 +21,13 @@
 <main>
 
   <header class="doc-header">
-    <h1>물리 개념 ↔ 엔트리 구현 분리 <span style="font-weight:400;color:var(--fg-muted);">(review.md 반영)</span></h1>
+    <h1>물리 개념 ↔ 엔트리 구현 분리 <span style="font-weight:400;color:var(--fg-muted);">(외부 리뷰 반영)</span></h1>
     <div class="meta">
       <span>작성일 2026-05-29</span>
       <span>대상: 시리즈 전 편의 콘텐츠 구조·표현 정확성</span>
     </div>
     <p class="lede">
-      외부 콘텐츠 리뷰(<a href="review.md">review.md</a>)를 반영해, “배울 물리 개념”과 “엔트리로 흉내 낸 구현”을
+      외부 콘텐츠 리뷰(<a href="review_20260529.md">review_20260529.md</a>)를 반영해, “배울 물리 개념”과 “엔트리로 흉내 낸 구현”을
       <strong>구조적으로 분리</strong>하는 규칙을 도입한다. 규칙은 가이드 문서에 먼저 기록하고, 콘텐츠는 3편에 파일럿 적용했다.
     </p>
   </header>
@@ -44,7 +44,7 @@
 
   <h2>배경</h2>
   <p>
-    <a href="review.md">review.md</a>는 시리즈의 방향성을 호평하면서 네 가지 보완점을 제안했다 —
+    <a href="review_20260529.md">review_20260529.md</a>는 시리즈의 방향성을 호평하면서 네 가지 보완점을 제안했다 —
     (1) 물리 정확 표현과 게임 흉내의 구분, (2) 개념 읽기와 따라 만들기의 분리, (3) 난이도 단계화, (4) 오류 해결 코너.
     여기에 사용자가 세 가지 결정을 더했다.
   </p>
@@ -106,6 +106,7 @@
       <li><strong>가이드 4종</strong> — design-guide(D-1 기능색표·D-4 신설), authoring-editing-guide(A-3 정확성표), new-page-guide(§2 뼈대·§4 체크리스트·c4/c5 색상행), CLAUDE.md(콜아웃 목록·새 페이지 step).</li>
       <li><strong>3편</strong> <a href="../docs/entry-game-3-inertia.html">entry-game-3-inertia.html</a> — 구조 재편(파일럿) + 정확성 4건.</li>
       <li><strong>4편</strong> <a href="../docs/entry-game-4-projectile.html">entry-game-4-projectile.html</a> — 텍스트 정확성 3건(구조 변경 없음).</li>
+      <li><strong>1·2·4·5편</strong>(후속 확대) — <a href="../docs/entry-game-1-movement.html">1편</a>은 충돌·중력 개념을 앞으로 분리하고 걷기·점프·충돌처리·계단을 🧩 구현 존으로 재구성(발 오브젝트=⭐도전), <a href="../docs/entry-game-2-velocity.html">2편</a>·<a href="../docs/entry-game-4-projectile.html">4편</a>·<a href="../docs/entry-game-5-bounce.html">5편</a>은 <code>.goals</code>·🔬/🧩 프리픽스·<code>.tip.real</code>·<code>.fix</code>·⭐도전 추가. 이로써 1~5편 표준 구조 통일. 상세는 <a href="fix-history.md">fix-history.md</a>.</li>
     </ul>
   </div>
 
@@ -141,10 +142,8 @@
 
   <h2>후속 TODO</h2>
   <ul>
-    <li>표준 구조(개념↔구현 분리)·<code>.goals</code>·<code>.fix</code>·⭐도전을 <strong>1·2·4·5편</strong>으로 확대.</li>
     <li>후속 물리 주제: 힘·질량(6편 후보) → 운동량·충돌 → 에너지 → 경사면·마찰 → 공기저항·낙하산 → 스프링·진동 → 원운동 → 빛 반사.</li>
     <li>로드맵 의견: 6편=「힘과 질량」, 7편=「점수·게임 규칙」(index “6편 후보”의 단순 점수/게임오버보다 물리 흐름 유지).</li>
-    <li><code>review.md</code> 커밋 여부 정리(현재 untracked).</li>
   </ul>
 
   <footer class="doc-footer">
@@ -153,7 +152,7 @@
       <li><a href="design-guide.html">design-guide.html</a> — D-1 기능 색·D-4 「물리↔구현 분리」 표준 구조</li>
       <li><a href="authoring-editing-guide.html">authoring-editing-guide.html</a> — A-3 현실 vs 게임 정확성 표(정본)</li>
       <li><a href="new-page-guide.html">new-page-guide.html</a> — §2 뼈대·§4 체크리스트</li>
-      <li><a href="review.md">review.md</a> — 반영의 출처가 된 외부 리뷰</li>
+      <li><a href="review_20260529.md">review_20260529.md</a> — 반영의 출처가 된 외부 리뷰</li>
       <li><a href="fix-history.md">fix-history.md</a> — 변경 인덱스 · <a href="next-steps.md">next-steps.md</a> — 후속 TODO</li>
     </ul>
   </footer>
