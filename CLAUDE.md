@@ -70,7 +70,7 @@ All pages depend on these — changing them affects every page:
 - **Layout**: `<header>` → `.stage` (animated character stage) → `.wrap` (max-width container) → `section.card.c-{red|blue|purple|green|gold}` with `.step-no` numbered circles. Sections are separator-divided (not boxed) — `section.card + section.card` adds a thin top border.
 - **Tip/callout boxes**: `.tip`, `.tip.warn`, `.tip.bonus`.
 - **Entry block visuals**: `.hat` (event), `.stack.move`/`.stack.data` (stack blocks), `.cblk.flow` (C-shape flow blocks), `.bool` (judgment), `.calc` (number op), `.in` (input slot), `.note` (annotation). These deliberately use real Entry block colors (`--c-start`, `--c-flow`, `--c-move`, `--c-judge`, `--c-data`, `--c-calc`) because students will see the same colors in the actual Entry editor — **do not desaturate these even if the surrounding page tone is muted**.
-- **Navigation**: `.home-link` (fixed top-left "🏠 목차로") + `.home-link-bottom` at end of content. Every content page must include both.
+- **Navigation**: `.home-link` (fixed top-left, "🏠") at top. Bottom navigation is the `.cta` block's `<a class="go">` button — middle episodes link to the next episode ("다음 편 →"), the last episode links back to `index.html` ("🏠 목차로 돌아가기"). There is no `.home-link-bottom` class.
 
 ### Per-page footer (must match across all pages)
 
@@ -97,14 +97,17 @@ All pages preconnect to Google Fonts and load **Jua** (titles/UI labels), **Gowu
 
 ## When adding a new page
 
-**Full guide (template + checklist):** `dev-docs/new-page-guide.html`
+Three companion guides — keep their scopes distinct (내용 / 레이아웃 / 디자인):
+**Layout / skeleton (template + checklist):** `dev-docs/new-page-guide.html`
+**Content & editing (references, comments, accuracy, editing existing pages):** `dev-docs/authoring-editing-guide.html`
+**Design (color, icons, voice & tone, content order):** `dev-docs/design-guide.html`
 
 Quick steps:
 
 1. Copy `docs/entry-game-2-velocity.html` as the base (most up-to-date structure).
 2. Fill in the `<!-- FILL -->` placeholders: title, badge, h1, sections, footer episode label.
 3. Pick or assign an accent token (`--c1`/`--c2`/`--c3`/`--green`/`--accent`) and apply via `section.card.c-{color}` and the page-specific `.cta` style.
-4. Add a `.cta` block (heading + description + colored `<a class="go">` button) just before `.home-link-bottom`. The last episode in the series should link to `index.html` with "🏠 목차로 돌아가기".
+4. Add a `.cta` block (heading + description + colored `<a class="go">` button) at the end of the content as the bottom navigation. Middle episodes' `.go` button links to the next page; the last episode links to `index.html` with "🏠 목차로 돌아가기".
 5. Keep the `<nav class="toc-sidebar">` element + TOC script block at the very end of `<body>` — it auto-collects every `section.card h2` into a sticky right sidebar on wide screens (≥1240 px). No changes needed to the script itself.
 6. Add the page to `docs/index.html` `.toc-grid` and update the previous episode's CTA button to point to the new page.
 7. No router, no build — links are plain relative paths (`href="entry-game-X-foo.html"`).
