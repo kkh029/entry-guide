@@ -19,6 +19,11 @@
   <p>
     <strong>추천 베이스 파일:</strong> <code>docs/entry-game-2-velocity.html</code> (CTA·TOC·메타박스 구조가 가장 최신).
   </p>
+  <p>
+    이 문서는 세 가이드 중 <strong>레이아웃(구조)</strong> 담당이다. 나머지 둘과 함께 본다 —
+    <a href="authoring-editing-guide.html">authoring-editing-guide.html</a>(<strong>내용</strong>: 레퍼런스·주석·정확성·편집 절차),
+    <a href="design-guide.html">design-guide.html</a>(<strong>디자인</strong>: 색·아이콘·말투·전개 순서).
+  </p>
 </section>
 
 <section>
@@ -76,7 +81,7 @@
 &lt;body&gt;
 
 &lt;!-- 고정 홈 링크 --&gt;
-&lt;a href="index.html" class="home-link"&gt;🏠 목차로&lt;/a&gt;
+&lt;a href="index.html" class="home-link"&gt;🏠&lt;/a&gt;
 
 &lt;!-- 헤더 --&gt;
 &lt;header&gt;
@@ -122,10 +127,7 @@
     • &lt;a href="…" target="_blank"&gt;출처 제목&lt;/a&gt;&lt;br&gt;
   &lt;/div&gt;
 
-  &lt;!-- 홈 링크 (하단) --&gt;
-  &lt;div style="text-align:center;margin-top:24px;"&gt;
-    &lt;a href="index.html" class="home-link-bottom"&gt;🏠 목차로 돌아가기&lt;/a&gt;
-  &lt;/div&gt;
+  &lt;!-- 하단 내비는 위 .cta 의 .go 버튼이 담당 — 별도 홈 링크 div 없음 --&gt;
 
   &lt;footer&gt;
     엔트리로 만드는 나만의 게임 · &lt;!-- FILL: N편 「제목」 --&gt;&lt;br&gt;
@@ -208,9 +210,9 @@
   <ul>
     <li>☐ <code>&lt;head&gt;</code>에 3개 폰트 (Jua / Gowun Dodum / Gaegu 700) 모두 로드</li>
     <li>☐ <code>&lt;link rel="stylesheet" href="assets/styles.css"&gt;</code> 포함</li>
-    <li>☐ 고정 <code>.home-link</code> (좌상단) + <code>.home-link-bottom</code> (본문 끝) 모두 있음</li>
+    <li>☐ 고정 <code>.home-link</code> (좌상단, 🏠) 있음 — 하단 내비는 <code>.cta</code>의 <code>.go</code> 버튼이 담당(<code>.home-link-bottom</code> 안 씀)</li>
     <li>☐ 모든 <code>&lt;section class="card"&gt;</code>에 <code>&lt;h2&gt;</code> 있음 (사이드바 목차 자동 수집용)</li>
-    <li>☐ <code>.cta</code> 섹션이 <code>.home-link-bottom</code> 바로 위에 위치</li>
+    <li>☐ <code>.cta</code> 블록이 본문 끝 하단 내비 역할 — 중간 편 "다음 편 →", 마지막 편 <code>index.html</code> "🏠 목차로 돌아가기"</li>
     <li>☐ <code>&lt;nav class="toc-sidebar"&gt;</code> + TOC 스크립트가 <code>&lt;/body&gt;</code> 직전에 있음</li>
     <li>☐ <code>&lt;footer&gt;</code> 문구가 <code>© 2026 김경환 · CC BY-NC-SA 4.0</code> 형식과 일치</li>
     <li>☐ <code>docs/index.html</code> TOC 그리드에 신규 페이지 링크 추가</li>

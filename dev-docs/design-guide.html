@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>디자인 가이드 (표현 — 색·아이콘·말투·전개) — entry-guide</title>
+
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css"
+        media="(prefers-color-scheme: light)">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"
+        media="(prefers-color-scheme: dark)">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+  <script src="assets/doc.js" defer></script>
+</head>
+
+<body class="layout">
+<main>
+
+  <header class="doc-header">
+    <h1>디자인 가이드 <span style="font-weight:400;color:var(--fg-muted);">(표현 — 색·아이콘·말투·전개)</span></h1>
+    <div class="meta">
+      <span>작성일 2026-05-29</span>
+      <span>대상: <code>docs/</code> 페이지의 표현(색·말투·전개) 결정·변경</span>
+    </div>
+    <p class="lede">
+      페이지의 <strong>표현 층</strong>을 다룬다 — 같은 내용을 <em>어떤 색·아이콘·말투·순서</em>로 들려줄지.
+      <strong>“무엇을 말하는가(내용)”</strong>는 <a href="authoring-editing-guide.html">authoring-editing-guide.html</a>,
+      <strong>“어디에 놓는가(구조)”</strong>는 <a href="new-page-guide.html">new-page-guide.html</a>가 담당한다.
+    </p>
+  </header>
+
+  <div class="callout tldr">
+    <div class="callout-title">TL;DR</div>
+    <ul>
+      <li>이 문서 = <strong>표현(색·아이콘·말투·전개 순서)</strong>. “맞는 내용인가(내용)” · “구조가 맞는가(레이아웃)”와는 다른 층이다.</li>
+      <li><strong>색</strong> — 한 편 = 한 액센트 색으로 통일하고, 차분한 종이/잉크 팔레트 톤 안에서 인접 편과 구분되게 고른다. <strong>Entry 블록 색은 디자인 레버가 아니다</strong>(실제 에디터 색 고정).</li>
+      <li><strong>말투</strong> — 해요체 중심, 격려, 이모지를 시각 앵커로. 명령조·딱딱한 설명체(-ㅂ니다)·어려운 한자어는 피한다.</li>
+      <li><strong>전개 순서</strong> — <em>문제 먼저 → 개념 → 코드.</em> 인트로 hook → 섹션 브릿지 질문 → 활동형 마무리.</li>
+    </ul>
+  </div>
+
+  <h2>이 문서의 경계 — 내용 · 레이아웃 · 디자인</h2>
+  <p>
+    세 가이드는 같은 페이지를 <strong>다른 층</strong>에서 다룬다. 헷갈리기 쉬우니 아래로 구분한다 —
+    한 항목이 어디에 속하는지 애매하면 “질문”을 기준으로 고른다.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>층</th><th>핵심 질문</th><th>다루는 것</th><th>문서</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>내용</strong></td><td>무엇을 말하는가 — <em>맞는가</em></td><td>레퍼런스·출처/코드 주석·개념 정확성·대상 난이도·편집 절차</td><td><a href="authoring-editing-guide.html">authoring-editing-guide.html</a></td></tr>
+        <tr><td><strong>레이아웃</strong></td><td>어디에 놓는가 — <em>구조가 맞는가</em></td><td>HTML 뼈대·골격(<code>header→stage→wrap→card</code>)·네비·사이드바 TOC·색 토큰 <em>인벤토리</em></td><td><a href="new-page-guide.html">new-page-guide.html</a></td></tr>
+        <tr><td><strong>디자인</strong> (이 문서)</td><td>어떤 느낌으로 — <em>표현이 맞는가</em></td><td>색 <em>선택·의미</em>·아이콘/이모지·말투·콘텐츠 전개 순서·페이싱</td><td>design-guide.html</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout info">
+    <div class="callout-title">겹치기 쉬운 세 지점 (확실히 구분)</div>
+    <ul>
+      <li><strong>색</strong> — “토큰이 무엇이고 어디에 선언/적용되나”는 <strong>레이아웃</strong>. “어떤 색을 골라 어떤 의미로 쓰나”는 <strong>디자인</strong>(이 문서).</li>
+      <li><strong>순서</strong> — “섹션이 DOM에서 어떤 구조로 쌓이나”는 <strong>레이아웃</strong>. “문제→개념→코드처럼 어떤 리듬으로 전개하나”는 <strong>디자인</strong>.</li>
+      <li><strong>서술</strong> — “사실이 정확한가·대상 수준에 맞나”는 <strong>내용</strong>. “말투가 친근한가”는 <strong>디자인</strong>.</li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <h2>D-1. 색과 아이콘</h2>
+
+  <h3>액센트 색 — 한 편 = 한 색</h3>
+  <p>
+    각 페이지는 <strong>고유 액센트 색 하나</strong>로 통일된다. 독자는 색만 보고도 “지금 같은 편을 보고 있다”를 느낀다.
+    헤더·<code>.step-no</code> 번호 원·<code>.cta</code> 버튼·<code>section.card.c-{색}</code>이 모두 그 한 색을 쓴다
+    (적용 <em>메커니즘</em>은 레이아웃 가이드, 여기서는 <em>어떤 색을 왜</em>).
+  </p>
+  <div class="callout info">
+    <div class="callout-title">레거시: 1~3편은 “레인보우”</div>
+    <p>
+      1~3편은 섹션마다 색을 돌려쓰는(의미와 무관한 레인보우) 옛 방식이고, 4편은 혼합, <strong>5편부터 단색으로 통일</strong>됐다.
+      <strong>신규 페이지는 5편식 단색을 따른다</strong> — 헤더·CTA뿐 아니라 <code>section.card</code>도 에피소드 색 하나로.
+      기존 1~3편을 굳이 단색으로 되돌릴 필요는 없지만, 새로 만들 땐 색을 섞지 않는다.
+    </p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>페이지</th><th>색</th><th>토큰</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1편 · 이동·충돌</td><td>빨강</td><td><code>--c1</code></td></tr>
+        <tr><td>2편 · 속도·가속도</td><td>파랑</td><td><code>--c2</code></td></tr>
+        <tr><td>3편 · 관성·마찰</td><td>보라</td><td><code>--c3</code></td></tr>
+        <tr><td>4편 · 포물선·발사</td><td>주황</td><td><code>--c4</code></td></tr>
+        <tr><td>5편 · 튕김·탄성</td><td>청록(틸)</td><td><code>--c5</code></td></tr>
+        <tr><td>엔트리란? (소개)</td><td>초록</td><td><code>--green</code></td></tr>
+        <tr><td>강조 한 점 (절제용)</td><td>골드</td><td><code>--accent</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>새 주제 색을 고를 때:</strong></p>
+  <ul>
+    <li>앞뒤 편 색과 <strong>뚜렷이 구분</strong>되게 — 빨강·파랑·보라·주황·청록이 이미 쓰였으니 그 사이로 너무 비슷한 색은 피한다.</li>
+    <li>전체 <strong>종이/잉크의 차분한 팔레트 톤</strong>에 맞춘다 — 형광·고채도 원색은 페이지 분위기를 깬다.</li>
+    <li>고른 색은 <code>assets/styles.css</code> <code>:root</code>에 <code>--c6</code> 식으로 추가하고 헥스값을 등록한다(토큰 등록 절차는 <a href="new-page-guide.html">new-page-guide.html</a>).</li>
+  </ul>
+
+  <div class="callout warn">
+    <div class="callout-title">Entry 블록 색은 디자인 레버가 아니다</div>
+    <p>
+      블록 시각화의 색(<code>--c-start</code> 파랑, <code>--c-flow</code> 주황, <code>--c-move</code>, <code>--c-judge</code>,
+      <code>--c-data</code>, <code>--c-calc</code>)은 <strong>실제 엔트리 에디터 색과 1:1로 고정</strong>이다. 페이지 액센트가
+      무엇이든 블록은 원색을 유지하고 <strong>탈색하지 않는다</strong> — 학생이 에디터에서 같은 색을 보기 때문.
+      이건 표현 선택이 아니라 고정 규칙이라, 정식 위치는 레이아웃 가이드의 “공통 레이아웃 규칙” 표다.
+    </p>
+  </div>
+
+  <h3>아이콘 · 이모지</h3>
+  <p>이 사이트의 “아이콘”은 대부분 <strong>이모지</strong>다. 색을 바꿀 수 없으니, <em>고르는 것</em>이 곧 디자인이다.</p>
+  <ul>
+    <li><strong>시각 앵커로</strong> — 섹션 제목·팁 박스 앞에 주제를 대표하는 이모지 하나를 둬 시선을 잡는다.</li>
+    <li><strong>개념과 일관</strong> — 같은 개념엔 시리즈 전체에서 같은 이모지를 쓴다(예: 🚗 자동차 비유, 🦘 점프, 🚀 우주, 🎱 물리, 🧭 방향).</li>
+    <li><strong>절제</strong> — 모든 문장 끝에 붙이지 않는다. 한 단락 한 앵커 정도. 남발하면 앵커 기능을 잃는다.</li>
+    <li><strong>의미 있는 선택</strong> — 🐢/🐰로 느림/빠름처럼, 이모지가 내용을 보조하게 한다(장식이 아니라).</li>
+  </ul>
+
+  <h3>대비·가독성</h3>
+  <p>
+    차분한 배경 위에서 액센트와 본문 대비를 충분히 둔다. 액센트 색 위 흰 글자(<code>.cta</code> 버튼)·본문의
+    진한 잉크색 등 기존 대비를 따른다. 색만으로 정보를 전달하지 말고(예: “빨간 게 정답”) 텍스트·이모지를 함께 쓴다.
+  </p>
+
+  <hr>
+
+  <h2>D-2. 말투 (Voice &amp; Tone)</h2>
+  <p>
+    대상은 <strong>초등·중학생</strong>이다. 같은 사실도 <em>어떻게 들려주느냐</em>로 흡수가 갈린다.
+    (무엇을 말하느냐·정확한가는 <a href="authoring-editing-guide.html">내용 가이드</a> 소관.)
+  </p>
+  <ul>
+    <li><strong>해요체 중심</strong> — “~해요 / ~예요 / ~볼까요?”. 반말은 강조 한 줄에만 가끔.</li>
+    <li><strong>격려·친근</strong> — 독자를 옆에서 거드는 말투. “함께 해봐요”, “어렵지 않아요”.</li>
+    <li><strong>질문형으로 끌어들이기</strong> — “왜 그럴까요?”, “느껴지나요?”로 생각을 유도한다.</li>
+    <li><strong>이모지 앵커</strong>(D-1과 연동) — 감정·주제를 한 글자로 표시.</li>
+  </ul>
+
+  <div class="compare">
+    <div class="before">
+      <h4>아쉬운 예 — 딱딱한 설명체</h4>
+      <p>“속도는 방향을 포함하는 물리량입니다. 본 차시에서는 속도와 가속도의 개념을 학습합니다.”</p>
+      <p><small>→ 교과서 어투. 어리고 친근한 독자와 거리가 생긴다.</small></p>
+    </div>
+    <div class="after">
+      <h4>좋은 예 — 친근한 해요체</h4>
+      <p>“속도엔 방향도 들어있어요! 🧭 숫자가 +면 오른쪽, -면 왼쪽으로 가요. 같이 확인해 볼까요?”</p>
+      <p><small>→ 말 걸듯 풀어 쓰고, 이모지로 시선을 잡는다.</small></p>
+    </div>
+  </div>
+
+  <div class="callout danger">
+    <div class="callout-title">피할 말투</div>
+    <ul>
+      <li>딱딱한 <strong>-ㅂ니다 설명체</strong>(“~입니다 / ~합니다”)로 일관하기.</li>
+      <li><strong>명령조 남발</strong>(“하시오 / 입력하라”) — 따라하기 단계는 “~해 봐요”로.</li>
+      <li>학년 수준을 넘는 <strong>어려운 한자어·전문용어</strong>를 풀어 주지 않고 쓰기.</li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <h2>D-3. 콘텐츠 전개 순서</h2>
+  <p>
+    내용이 같아도 <strong>꺼내는 순서</strong>가 흡수를 가른다. 핵심 원칙은 <em>문제 먼저, 정의 나중</em> —
+    왜 필요한지 느끼기 전에 정답부터 주면 딱딱해진다(<a href="../velocity-improvement-plan.md">velocity-improvement-plan.md</a>의 핵심 진단).
+  </p>
+  <ol class="steps">
+    <li><strong>인트로 hook</strong> — 앞 편 경험·익숙한 장면으로 “어? 왜 이렇지?”를 <em>체험</em>시킨다.</li>
+    <li><strong>문제 제기 → 개념</strong> — 그 어색함의 정체로 개념을 꺼낸다.</li>
+    <li><strong>개념 → 코드</strong> — 개념을 엔트리 블록·실습으로 옮긴다.</li>
+    <li><strong>브릿지 질문</strong> — 섹션/편 끝에 다음으로 넘어가는 질문 한 줄(“그럼 멈추려면?”)을 둔다.</li>
+    <li><strong>활동형 마무리</strong> — 같은 그림을 반복하는 요약 대신 “코드에서 찾아봐요” 같은 활동으로 닫는다.</li>
+  </ol>
+
+  <div class="compare">
+    <div class="before">
+      <h4>아쉬운 흐름 — 결론부터</h4>
+      <p>인트로(결론 노출) → 개요/3단 계층 → 이동 → 속도 → … → 요약(개요 반복)</p>
+      <p><small>→ 왜 배우는지 느끼기 전에 정답이 먼저. 요약이 개요와 중복.</small></p>
+    </div>
+    <div class="after">
+      <h4>좋은 흐름 — 문제 먼저</h4>
+      <p>인트로+문제 제기 → 이동(브릿지) → 속도(왜 필요한가) → 가속도(왜) → 실습 → 정리 → 활동</p>
+      <p><small>→ 호기심으로 개념을 끌어내고, 마무리는 활동으로.</small></p>
+    </div>
+  </div>
+
+  <div class="callout link">
+    <div class="callout-title">전개 순서 ↔ 내용의 연결</div>
+    <p>
+      에피소드 순서는 load-bearing이다(2편이 1편의 “딱딱함”을 전제, 3편이 2편의 “안 멈춤”을 해결). 전개 <em>리듬</em>은 여기서,
+      그 브릿지가 <em>사실로서 맞물리는지</em>(내용 정합성)는 <a href="authoring-editing-guide.html">내용 가이드</a> PART B-3에서 점검한다.
+    </p>
+  </div>
+
+  <hr>
+
+  <h2>디자인을 바꿀 때</h2>
+  <p>표현 변경은 한 페이지에 갇히지 않는다 — 색·말투·전개는 <strong>시리즈 전체의 일관성</strong>과 직결된다.</p>
+  <ol class="steps">
+    <li><strong>목적 정의</strong> — 무엇을 왜 바꾸나(가독성? 톤 통일? 색 충돌 해소?).</li>
+    <li><strong>시리즈 일관성 점검</strong> — 한 페이지만 색·말투가 튀면 시리즈가 어색해진다. 인접 편과 나란히 두고 본다.</li>
+    <li><strong>색이면</strong> — 인접 편 색·<code>index.html</code>의 <code>.path</code> strip 색과 충돌하지 않는지, 한 편 안에서 한 색으로 통일됐는지 확인.</li>
+    <li><strong>전개·말투면</strong> — 앞뒤 편 브릿지가 여전히 자연스러운지(리듬), 사실 정합성은 <a href="authoring-editing-guide.html">내용 가이드</a>와 함께 확인.</li>
+    <li><strong>미리보기</strong> — <code>python3 -m http.server 8000 --directory docs</code>로 라이트/다크, 모바일 폭까지 본다.</li>
+  </ol>
+
+  <h2>자주 하는 실수</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>실수</th><th>왜 문제</th><th>올바른 방법</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>한 페이지에 액센트 색을 여러 개 섞음</td><td>“같은 편” 신호가 흐려짐</td><td>한 편 = 한 색으로 통일</td></tr>
+        <tr><td>이모지를 모든 문장에 남발</td><td>앵커 기능 상실·산만</td><td>한 단락 한 앵커로 절제</td></tr>
+        <tr><td>Entry 블록 색을 페이지 톤에 맞춰 탈색</td><td>실제 에디터 색과 불일치</td><td><code>--c-start</code> 등 원색 고정</td></tr>
+        <tr><td>딱딱한 -ㅂ니다 설명체로 일관</td><td>어린 독자와 거리감</td><td>해요체·친근한 톤</td></tr>
+        <tr><td>정의·결론부터 제시</td><td>왜 배우는지 못 느낌</td><td>문제 먼저 → 개념 → 코드</td></tr>
+        <tr><td>한 페이지만 색·말투가 튀게 변경</td><td>시리즈 일관성 깨짐</td><td>인접 편과 나란히 두고 통일</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="doc-footer">
+    <h2>관련 문서</h2>
+    <ul>
+      <li><a href="authoring-editing-guide.html">authoring-editing-guide.html</a> — <strong>내용</strong>(레퍼런스·주석·정확성·편집 절차)</li>
+      <li><a href="new-page-guide.html">new-page-guide.html</a> — <strong>레이아웃</strong>(HTML 뼈대·골격·색 토큰 인벤토리)</li>
+      <li><a href="../velocity-improvement-plan.md">velocity-improvement-plan.md</a> — 전개 순서 재배치 사례(2편) + 외부 출처 라이선스</li>
+      <li><a href="../CLAUDE.md">CLAUDE.md</a> — “Page architecture”(색 토큰)·“Content conventions”(말투 원칙)의 원본</li>
+      <li><a href="fix-history.md">fix-history.md</a> — 설계 변경 인덱스 · <a href="next-steps.md">next-steps.md</a> — 후속 TODO</li>
+    </ul>
+  </footer>
+
+</main>
+<aside id="toc"></aside>
+</body>
+</html>

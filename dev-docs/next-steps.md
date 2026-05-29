@@ -29,6 +29,12 @@
 - [ ] **정착 부등식 중첩 reporter 표현** — 아래 "복합 reporter" 항목과 동일 원인
   5편 정착 조건 `‘y속도’의 절댓값 < 1`을 boolean 안 텍스트 폴백으로 작성. 렌더러가 비교식 nesting을 지원하면 블록으로 교체.
 
+### 페이지 가이드
+출처: [new-page-guide.html](new-page-guide.html) · [design-guide.html](design-guide.html)
+
+- [ ] **new-page-guide.html 액센트 색상표에 `--c4`(4편 주황)·`--c5`(5편 틸) 행 추가**
+  색상표가 아직 c1/c2/c3/green/accent만 나열. 실제 styles.css·design-guide.html D-1 표는 c4·c5까지 포함 — 레이아웃 가이드만 누락.
+
 ### B-mini 렌더러
 출처: [entry-blocks-renderer.html](entry-blocks-renderer.html)
 
