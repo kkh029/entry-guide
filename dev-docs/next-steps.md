@@ -19,6 +19,16 @@
 
 ## 대기
 
+### 5편 튕기기와 탄성
+출처: [entry-game-5-bounce.html](entry-game-5-bounce.html)
+
+- [ ] **6편 후보 — 공끼리 충돌(당구/핀볼)**
+  이번에 보류한 운동량 교환. 같은 질량 1D는 속도 스왑, 일반식 `v1'=((m1-m2)v1+2m2·v2)/(m1+m2)`. index "6편 후보" 블록에 함께 검토.
+- [ ] **4편 새총에 튕김 적용 예시 보강**
+  5편 §4에서 "새총 코드에 튕기는 줄을 더하면 통통 튄다"고 언급만 함. 실제 변형 코드/데모를 추가 가능.
+- [ ] **정착 부등식 중첩 reporter 표현** — 아래 "복합 reporter" 항목과 동일 원인
+  5편 정착 조건 `‘y속도’의 절댓값 < 1`을 boolean 안 텍스트 폴백으로 작성. 렌더러가 비교식 nesting을 지원하면 블록으로 교체.
+
 ### B-mini 렌더러
 출처: [entry-blocks-renderer.html](entry-blocks-renderer.html)
 

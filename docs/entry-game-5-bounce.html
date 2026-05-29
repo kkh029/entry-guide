@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>엔트리 게임 만들기 ⑤ 튕기기와 탄성</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="assets/entry-blocks/renderer.js" defer></script>
+<style>
+  /* 5편 — 헤더 스테이지 (점점 낮게 튀는 공) */
+  .ball{
+    position:absolute;left:2%;bottom:12px;
+    width:34px;height:34px;border-radius:50%;
+    background:var(--c5);box-shadow:inset -6px -6px 0 #2c827d;
+    animation:ball-bounce 3.2s ease-in-out infinite;
+  }
+  .ball::after{content:"";position:absolute;top:7px;left:8px;width:8px;height:8px;background:rgba(255,255,255,.55);border-radius:50%;}
+  @keyframes ball-bounce{
+    0%{left:2%;bottom:64px}
+    14%{bottom:12px}
+    27%{bottom:46px}
+    39%{bottom:12px}
+    50%{bottom:30px}
+    60%{bottom:12px}
+    69%{bottom:20px}
+    77%{bottom:12px}
+    85%{bottom:15px}
+    92%{bottom:12px}
+    100%{left:90%;bottom:12px}
+  }
+
+  /* 튕김 = 방향 뒤집기 (바닥 vs 벽) */
+  .axis-split{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0;}
+  .axis-card{
+    flex:1;min-width:200px;
+    background:#fafaf6;
+    border:1px solid var(--border-s);
+    border-radius:10px;padding:14px;
+  }
+  .axis-card.floor{border-left:3px solid var(--warn);}
+  .axis-card.wall{border-left:3px solid var(--c2);}
+  .axis-title{font-family:'Jua',sans-serif;font-size:14.5px;margin-bottom:8px;}
+  .axis-card.floor .axis-title{color:var(--warn);}
+  .axis-card.wall .axis-title{color:var(--c2);}
+  .axis-vis{font-size:30px;text-align:center;letter-spacing:6px;margin:8px 0 4px;}
+  .axis-form{
+    font-family:'Gaegu',cursive;font-weight:700;font-size:15px;
+    background:#fff;border:1px solid var(--border);border-radius:8px;
+    padding:4px 10px;display:inline-block;margin-top:4px;
+  }
+  .axis-desc{font-size:13.5px;color:var(--soft);margin-top:6px;line-height:1.55;}
+
+  /* 탄성계수 미터 */
+  .bounce-meter{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0;}
+  .bm-item{
+    flex:1;min-width:120px;
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 10px;text-align:center;
+  }
+  .bm-item.best{border:1px solid var(--c5);background:#eef7f6;}
+  .bm-emoji{font-size:30px;}
+  .bm-val{font-family:'Jua',sans-serif;font-size:20px;color:var(--c5);margin:4px 0 2px;}
+  .bm-label{font-size:13px;color:var(--soft);line-height:1.45;}
+  .bm-label small{font-size:11.5px;}
+
+  /* 마찰 vs 탄성 비교 */
+  .cmp{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0;}
+  .cmp-card{
+    flex:1;min-width:200px;border-radius:10px;
+    padding:14px 16px;background:#fafaf6;border:1px solid var(--border-s);
+  }
+  .cmp-fric{border-left:3px solid var(--accent);}
+  .cmp-elas{border-left:3px solid var(--c5);}
+  .cmp-head{font-family:'Jua',sans-serif;font-size:15px;margin-bottom:8px;color:var(--ink);}
+  .cmp-fric .cmp-head{color:var(--accent);}
+  .cmp-elas .cmp-head{color:var(--c5);}
+  .cmp-line{font-size:13.5px;margin:5px 0;line-height:1.5;color:var(--soft);}
+  .cmp-line b{color:var(--ink);}
+
+  /* 변수 안내 박스 */
+  .var-intro{
+    background:#fafaf6;
+    border:1px dashed var(--c5);
+    border-radius:10px;padding:14px 16px;margin:16px 0;
+    display:flex;gap:12px;align-items:center;
+  }
+  .var-intro .vi-icon{font-size:26px;flex-shrink:0;}
+  .var-intro .vi-text{flex:1;font-size:14.5px;line-height:1.6;color:var(--ink);}
+  .var-intro .vi-text b{color:var(--c5);}
+
+  /* 코드 찾기 활동 */
+  .quiz-list{
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 18px;margin:16px 0;
+    font-size:14.5px;line-height:2.2;
+  }
+  .quiz-list .hint{color:var(--c5);font-size:13px;}
+  .quiz-list code{background:#fff;padding:1px 7px;border-radius:5px;font-size:13px;border:1px solid var(--border);}
+
+  /* 참고자료 */
+  .meta-box{
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 18px;margin-top:14px;
+    font-size:13px;color:var(--soft);line-height:1.95;
+  }
+  .meta-box b{font-size:13.5px;color:var(--ink);}
+  .meta-box a{color:var(--c5);text-decoration:underline;text-underline-offset:2px;}
+
+  /* CTA */
+  .cta{
+    background:linear-gradient(180deg,#e8f5f4,#fafaf6);
+    border:1px solid var(--border-s);
+    border-radius:12px;padding:22px 20px;
+    text-align:center;margin:22px 0;
+  }
+  .cta h3{font-family:'Jua',sans-serif;font-size:20px;color:var(--ink);margin-bottom:6px;}
+  .cta p{font-size:15px;color:var(--soft);margin-bottom:12px;}
+  .cta a.go{
+    display:inline-block;background:var(--c5);color:#fff;
+    font-family:'Jua',sans-serif;font-size:16px;
+    padding:10px 22px;border-radius:30px;
+    box-shadow:0 3px 0 #2c827d;
+    transition:transform .12s ease;text-decoration:none;
+  }
+  .cta a.go:hover{transform:translateY(-1px);}
+
+  /* 직접 해보기 — 인터랙티브 데모 */
+  .try-demo{
+    background:#fff;border:1px solid var(--border);
+    border-radius:12px;padding:16px 16px 14px;margin:16px 0 6px;
+  }
+  .try-demo .demo-title{
+    font-family:'Jua',sans-serif;font-size:16px;color:var(--ink);
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  }
+  .try-demo .demo-title .pill{
+    background:var(--c5);color:#fff;font-family:'Jua',sans-serif;
+    font-size:11px;padding:2px 9px;border-radius:20px;letter-spacing:.5px;
+  }
+  .try-canvas-wrap{
+    position:relative;background:linear-gradient(180deg,var(--sky1),var(--sky2));
+    border-radius:10px;overflow:hidden;outline:none;cursor:pointer;
+  }
+  .try-canvas-wrap:focus{box-shadow:0 0 0 3px rgba(58,166,160,.40);}
+  .try-canvas-wrap canvas{display:block;width:100%;height:auto;}
+  .try-hud{
+    position:absolute;top:8px;left:10px;
+    font-family:'Jua',sans-serif;font-size:13px;
+    background:rgba(255,255,255,.85);color:var(--ink);
+    padding:3px 10px;border-radius:14px;
+  }
+  .try-hud.vel{
+    top:8px;left:auto;right:10px;
+    background:rgba(58,166,160,.18);color:var(--ink);
+  }
+  .try-focus-msg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    text-align:center;padding:0 18px;
+    font-family:'Jua',sans-serif;font-size:14.5px;color:var(--ink);
+    background:rgba(255,255,255,.55);pointer-events:none;
+    opacity:0;transition:opacity .15s ease;
+  }
+  .try-canvas-wrap.idle .try-focus-msg{opacity:1;}
+  .try-controls{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;
+  }
+  .try-controls button{
+    font-family:'Jua',sans-serif;font-size:14px;
+    background:var(--c5);color:#fff;border:none;
+    padding:7px 16px;border-radius:20px;
+    box-shadow:0 2px 0 #2c827d;cursor:pointer;
+    transition:transform .1s ease;
+  }
+  .try-controls button:active{transform:translateY(1px);box-shadow:0 1px 0 #2c827d;}
+  .try-controls button.secondary{
+    background:#fff;color:var(--ink);
+    border:1px solid var(--border);box-shadow:0 2px 0 var(--border);
+  }
+  .try-controls button.secondary:active{box-shadow:0 1px 0 var(--border);}
+  .try-controls .speed-row{
+    display:flex;align-items:center;gap:8px;margin-left:auto;
+    font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);
+  }
+  .try-controls .speed-row input[type=range]{width:120px;}
+  .try-controls .speed-row b{color:var(--ink);min-width:34px;display:inline-block;text-align:center;}
+  .try-hint{
+    font-family:'Gowun Dodum',sans-serif;font-size:13.5px;
+    color:var(--soft);margin-top:8px;line-height:1.65;
+  }
+  .try-hint kbd{
+    display:inline-block;background:#fafaf6;
+    border:1px solid var(--border);border-bottom-width:2px;
+    border-radius:5px;padding:1px 8px;
+    font-family:'Jua',sans-serif;font-size:12px;color:var(--ink);
+  }
+  @media (max-width:520px){
+    .try-controls .speed-row{margin-left:0;width:100%;justify-content:space-between;}
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="home-link">🏠</a>
+
+<header>
+  <span class="badge">엔트리 게임 만들기 · 5편</span>
+  <h1>튕기기와 탄성<br>— 통통 튀는 공 만들기</h1>
+  <p class="sub">바닥에 닿으면 왜 다시 튀어 오를까? 통통 튀다가 스르르 멈추는 비밀 🏀</p>
+</header>
+
+<div class="stage">
+  <div class="ball"></div>
+  <div class="ground"></div>
+</div>
+
+<div class="wrap">
+
+  <section class="card">
+    <p class="big">🐦 4편에서 새를 날렸을 때, 바닥에 닿으면 그냥 <b>“쿵!” 하고 멈춰버렸어요.</b> 조금 아쉽지 않았나요? 진짜 공이라면 바닥에 닿는 순간 <b>다시 통통 튀어 올랐을</b> 거예요!</p>
+
+    <p>오늘은 그 <b>“튕기기”</b>의 비밀을 풀어볼 거예요. 공이 바닥을 만나면 <b>속도의 방향이 뒤집히고</b>, 튈 때마다 조금씩 힘을 잃어서 <b>점점 낮게 튀다가 결국 멈춰요.</b> 3편에서 마찰로 속도를 ×0.85 줄였던 거 기억나죠? 이번엔 그 아이디어를 <b>튕기는 순간</b>에 똑같이 써먹어요!</p>
+
+    <div class="legend">
+      <div class="entry-block" data-block='{"shape":"stack","category":"START",   "marker":false,"contents":[{"type":"text","value":"시작"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"FLOW",    "marker":false,"contents":[{"type":"text","value":"흐름(반복·만일)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"MOVING",  "marker":false,"contents":[{"type":"text","value":"움직임"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"JUDGE",   "marker":false,"contents":[{"type":"text","value":"판단"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"VARIABLE","marker":false,"contents":[{"type":"text","value":"자료(변수)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"CALC",    "marker":false,"contents":[{"type":"text","value":"계산"}]}'></div>
+    </div>
+  </section>
+
+  <section class="card c-teal">
+    <div class="step-no">1</div>
+    <h2>직접 공을 튕겨보자</h2>
+    <p>백 마디 설명보다 한 번 보는 게 빨라요! 아래 공을 직접 떨어뜨려 봐요. <b>탄성계수</b> 슬라이더를 움직이면 공이 <b>오래오래 통통</b> 튀기도 하고, <b>두세 번 튀고 금방</b> 멈추기도 해요. 🏀</p>
+
+    <div class="try-demo">
+      <div class="demo-title"><span class="pill">직접 해보기</span> 공을 떨어뜨려 통통 튕겨봐요!</div>
+      <div class="try-canvas-wrap idle" id="demoStage5" tabindex="0" aria-label="공을 떨어뜨려 튕기는 데모">
+        <canvas id="demoCanvas5" width="720" height="320"></canvas>
+        <div class="try-hud">튕긴 횟수: <b id="demoBounce5">0</b></div>
+        <div class="try-hud vel">y속도: <b id="demoVy5">0.0</b></div>
+        <div class="try-focus-msg">▶ 실행 버튼을 누르거나<br>이 화면을 클릭하면 공이 떨어져요</div>
+      </div>
+      <div class="try-controls">
+        <button id="demoRun5">▶ 실행</button>
+        <button id="demoReset5" class="secondary">↺ 처음으로</button>
+        <span class="speed-row">탄성계수 <b id="demoRestVal5">0.70</b>
+          <input type="range" id="demoRest5" min="0.5" max="1.0" step="0.05" value="0.7" aria-label="탄성계수">
+        </span>
+      </div>
+      <div class="try-hint">🎾 <b>탄성계수</b>를 <b>1.0</b>에 두면 공이 <b>영원히</b> 통통 튀고, <b>0.5</b>에 두면 금방 멈춰요. 바꾼 뒤 <kbd>↺ 처음으로</kbd>를 눌러 다시 떨어뜨려 봐요! 왜 그런지는 아래에서 알아봐요.</div>
+    </div>
+  </section>
+
+  <section class="card c-teal">
+    <div class="step-no">2</div>
+    <h2>튕김이란? — 속도 방향이 뒤집혀요</h2>
+    <p>공이 튕기는 건 사실 아주 간단한 규칙이에요. <b>벽이나 바닥에 닿는 순간, 속도의 방향이 정반대로 뒤집혀요.</b> 아래로 가던 공은 위로, 오른쪽으로 가던 공은 왼쪽으로요!</p>
+
+    <div class="tip bonus">
+      <b>📖 튕김의 핵심</b><br>
+      벽이나 바닥에 닿으면 <b>속도에 -1을 곱해서</b> 방향을 뒤집어요. 스크래치에도 “벽에 닿으면 튕기기” 블록이 있답니다!<br>
+      <small style="opacity:.7;">— 참고: <a href="https://en.scratch-wiki.info/wiki/Bounce" target="_blank" style="color:var(--c5);">Scratch Wiki, “If on Edge, Bounce”</a></small>
+    </div>
+
+    <div class="axis-split">
+      <div class="axis-card floor">
+        <div class="axis-title">⬇️ 바닥에 닿으면 (위아래·y)</div>
+        <div class="axis-vis">↓ 🟢 ↑</div>
+        <div class="axis-form">y속도 = y속도 × (-1)</div>
+        <div class="axis-desc">아래로 내려가던 속도가 <b>위로</b> 바뀌어요. 그래서 공이 다시 튀어 올라요!</div>
+      </div>
+      <div class="axis-card wall">
+        <div class="axis-title">➡️ 벽에 닿으면 (좌우·x)</div>
+        <div class="axis-vis">→ 🟢 ←</div>
+        <div class="axis-form">x속도 = x속도 × (-1)</div>
+        <div class="axis-desc">오른쪽으로 가던 속도가 <b>왼쪽</b>으로 바뀌어요. 벽에 맞고 되돌아오는 거죠!</div>
+      </div>
+    </div>
+
+    <p>그런데 방향만 뒤집으면 공이 <b>영원히 똑같은 높이로</b> 튀어요 (데모 슬라이더 1.0처럼요). 진짜 공은 튈 때마다 조금씩 낮아지죠? 그 비밀이 바로 다음 <b>탄성계수</b>예요!</p>
+  </section>
+
+  <section class="card c-teal">
+    <div class="step-no">3</div>
+    <h2>탄성계수 — 튈 때마다 잃는 힘</h2>
+    <p>똑같은 높이에서 떨어뜨려도 <b>농구공은 높이</b> 튀고 <b>야구공은 조금만</b> 튀죠? 공마다 <b>튕기는 정도</b>가 다른데, 이걸 숫자로 나타낸 게 <b>탄성계수</b>예요.</p>
+
+    <div class="tip">
+      <b>📖 반발 계수(탄성계수)란?</b><br>
+      “반발 계수는 <b>충돌 전후 속도의 비율</b>이에요.”<br>
+      <small style="opacity:.7;">— <a href="https://ko.wikipedia.org/wiki/%EB%B0%98%EB%B0%9C_%EA%B3%84%EC%88%98" target="_blank" style="color:var(--c5);">위키백과, “반발 계수”</a></small>
+    </div>
+
+    <p>튕기는 순간 속도에 <b>탄성계수</b>를 곱해요. <b>1.0</b>이면 힘을 하나도 안 잃어서 <b>영원히</b> 같은 높이로, <b>0.7</b>이면 매번 30%씩 잃어서 <b>점점 낮게</b> 튀다가 멈춰요.</p>
+
+    <div class="bounce-meter">
+      <div class="bm-item">
+        <div class="bm-emoji">⚾</div>
+        <div class="bm-val">0.5</div>
+        <div class="bm-label">야구공<br><small>조금만 튀고<br>금방 멈춰요</small></div>
+      </div>
+      <div class="bm-item best">
+        <div class="bm-emoji">🏀</div>
+        <div class="bm-val">0.7</div>
+        <div class="bm-label">농구공<br><small>기본값!<br>적당히 통통</small></div>
+      </div>
+      <div class="bm-item">
+        <div class="bm-emoji">🏐</div>
+        <div class="bm-val">0.9</div>
+        <div class="bm-label">탱탱볼<br><small>오래오래<br>통통통</small></div>
+      </div>
+      <div class="bm-item">
+        <div class="bm-emoji">🚀</div>
+        <div class="bm-val">1.0</div>
+        <div class="bm-label">완벽한 공<br><small>영원히 통통<br>(현실엔 없어요)</small></div>
+      </div>
+    </div>
+
+    <div class="tip bonus">
+      <b>🔗 3편 ‘마찰’이랑 똑같네요?</b><br>
+      맞아요! <b>마찰</b>은 매 프레임 속도에 ×0.85, <b>탄성</b>은 튕기는 순간 딱 한 번 속도에 ×0.7. 둘 다 <b>“속도에 1보다 작은 수를 곱해 힘을 줄인다”</b>는 똑같은 아이디어예요. 단지 <b>언제 곱하느냐</b>가 다를 뿐이에요!
+    </div>
+  </section>
+
+  <section class="card c-teal">
+    <div class="step-no">4</div>
+    <h2>엔트리로 튕기는 공 만들기</h2>
+    <p>이제 엔트리로 만들어봐요! <b>‘y속도’</b> 변수를 하나 만들고, 4편에서 배운 <b>떨어지는 코드</b>에 <b>튕기는 블록 한 줄</b>만 더하면 끝이에요.</p>
+
+    <div class="var-intro">
+      <div class="vi-icon">📦</div>
+      <div class="vi-text">
+        <b>‘y속도’</b> 변수 = 공이 지금 <b>위아래로 얼마나 빠르게</b> 움직이는지 적어두는 메모장이에요. 중력이 매 프레임 이 숫자를 끌어내리고, 바닥에 닿으면 이 숫자의 <b>방향을 뒤집어요!</b>
+      </div>
+    </div>
+
+    <p style="font-weight:700;color:var(--soft);">▶ 시작 블록 안에 이렇게 쌓아주세요.</p>
+
+    <div class="entry-code" data-blocks='[
+      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+      {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+        {"shape":"stack","category":"VARIABLE","note":"중력 — 매 프레임 아래로 끌어당겨요","contents":[
+          {"type":"dropdown","value":"y속도"},{"type":"text","value":"에"},
+          {"type":"input","value":"-0.8"},{"type":"text","value":"만큼 더하기"}
+        ]},
+        {"shape":"stack","category":"MOVING","contents":[
+          {"type":"text","value":"y 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"y속도"}]}},
+          {"type":"text","value":"만큼 바꾸기"}
+        ]},
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"바닥"},{"type":"text","value":"에 닿았는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","note":"← 튕김! 방향을 뒤집고(× 마이너스) 힘도 줄여요(× 0.7)","contents":[
+            {"type":"dropdown","value":"y속도"},{"type":"text","value":"를"},
+            {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"y속도"},{"type":"text","value":"×"},{"type":"input","value":"-0.7"}]}},
+            {"type":"text","value":"로 정하기"}
+          ]}
+        ]}
+      ]}
+    ]'></div>
+
+    <div class="tip">
+      <b>🧮 ‘y속도 × -0.7’은 어떻게 만들어요?</b><br>
+      자료 카테고리의 <b>“[변수]를 [값]으로 정하기”</b> 블록에서, 흰 칸 안에 <b>계산</b> 카테고리의 <b>곱하기(×) 블록</b>을 쏙 넣어요. 왼쪽 칸엔 ‘y속도’, 오른쪽 칸엔 <b>-0.7</b>을 적어요. 음수를 곱하니까 <b>방향이 뒤집히고</b>, 0.7이라 <b>힘도 조금 줄어요!</b>
+    </div>
+
+    <div class="tip warn">
+      <b>⚠️ 공이 바닥에서 달달 떨려요!</b><br>
+      탄성계수가 있어도 아주 작은 속도가 남아 미세하게 떨릴 수 있어요. 이럴 땐 속도가 충분히 작아지면 <b>딱 0으로</b> 정해서 재워줘요:<br><br>
+      <div class="entry-code" style="margin:0;" data-blocks='[
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"‘y속도’의 절댓값 < 1"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"y속도"},{"type":"text","value":"를"},
+            {"type":"input","value":"0"},{"type":"text","value":"로 정하기"}
+          ]}
+        ]}
+      ]'></div>
+    </div>
+
+    <div class="tip bonus">
+      <b>🧪 실험해 봐요!</b><br>
+      ① 탄성계수 <b>-0.7</b>을 <b>-1.0</b>으로 바꿔보세요. 공이 <b>영원히</b> 통통 튀어요!<br>
+      ② <b>-0.3</b>으로 바꾸면? 한 번 툭 튀고 바로 멈춰요. 찰흙공 같죠!<br>
+      ③ <b>4편 새총</b> 코드에 이 ‘튕기는 줄’을 더하면, 날아간 새가 바닥에서 <b>통통</b> 튀어요! 🐦
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🏁 마찰 vs 탄성 — 똑 닮은 두 친구</h2>
+    <p>3편의 <b>마찰</b>과 5편의 <b>탄성</b>은 똑 닮았어요. 둘 다 <b>“속도에 1보다 작은 수를 곱한다”</b>는 같은 원리지만, <b>언제</b> 곱하느냐가 달라요. 표로 정리해볼까요?</p>
+
+    <div class="cmp">
+      <div class="cmp-card cmp-fric">
+        <div class="cmp-head">🌿 마찰 (3편)</div>
+        <div class="cmp-line">⏱️ <b>매 프레임마다</b> 계속</div>
+        <div class="cmp-line">➡️ 방향은 <b>그대로</b> (× 0.85)</div>
+        <div class="cmp-line">🛑 스르르 느려져 멈춤</div>
+        <div class="cmp-line">↔️ 주로 <b>좌우(x)</b>에 사용</div>
+      </div>
+      <div class="cmp-card cmp-elas">
+        <div class="cmp-head">🏀 탄성 (5편)</div>
+        <div class="cmp-line">💥 <b>부딪히는 순간</b>에만</div>
+        <div class="cmp-line">🔄 방향을 <b>뒤집음</b> (× -0.7)</div>
+        <div class="cmp-line">🪀 통통 튀다가 멈춤</div>
+        <div class="cmp-line">↕️ <b>바닥·벽(y·x)</b> 모두 사용</div>
+      </div>
+    </div>
+
+    <div class="tip"><b>💡 한 줄로!</b> <b>마찰</b>은 “계속 조금씩”, <b>탄성</b>은 “부딪힐 때 확” 힘을 줄여요. 곱하는 수가 <b>음수면 튕김</b>, <b>양수면 마찰</b>이에요!</div>
+  </section>
+
+  <section class="card c-teal">
+    <div class="step-no">★</div>
+    <h2>🔍 배운 내용을 코드에서 찾아봐요!</h2>
+    <p>아까 만든 코드 블록을 떠올리면서 아래 질문에 답해봐요. 개념과 코드가 어떻게 연결되는지 직접 확인해보는 거예요!</p>
+
+    <div class="quiz-list">
+      <div>① 공의 <b>방향을 뒤집는</b> 부분은 어디예요? <span class="hint">(힌트: 곱하기 블록 안의 마이너스)</span></div>
+      <div>② 튕길 때마다 <b>힘이 줄게</b> 하는 숫자는 무엇인가요? <span class="hint">(힌트: 0.7)</span></div>
+      <div>③ -0.7을 <b>-1.0</b>으로 바꾸면 공이 어떻게 될까요?</div>
+      <div>④ 마찰과 탄성의 <b>가장 큰 차이</b>는 무엇일까요? <span class="hint">(힌트: 언제 곱하나)</span></div>
+    </div>
+
+    <div class="tip bonus">
+      <b>💬 답을 확인해봐요!</b><br>
+      ① <code>y속도를 (y속도 × -0.7) 로 정하기</code> — 여기 <b>마이너스</b>가 방향을 뒤집어요!<br>
+      ② <b>0.7</b> — 튕길 때마다 속도의 70%만 남아서 점점 낮게 튀어요.<br>
+      ③ 힘을 하나도 안 잃어서 <b>영원히 같은 높이</b>로 통통 튀어요!<br>
+      ④ 마찰은 <b>매 프레임</b>, 탄성은 <b>부딪히는 순간</b>에만 작용해요!
+    </div>
+  </section>
+
+  <div class="finish">
+    <h2>🎉 시리즈 완주! 정말 멋져요!</h2>
+    <p>이제 게임 물리의 핵심을 모두 배웠어요. 5편에서 배운 걸 확인해 볼까요?</p>
+    <div class="check">
+      <div>✅ 튕김 = 부딪히는 순간 속도의 <b>방향이 뒤집히는 것</b></div>
+      <div>✅ 바닥 → y속도 부호 뒤집기 / 벽 → x속도 부호 뒤집기</div>
+      <div>✅ 탄성계수 = 튈 때마다 <b>남는 힘의 비율</b> (× 0.7)</div>
+      <div>✅ 탄성계수 1.0이면 영원히, 작을수록 빨리 멈춤</div>
+      <div>✅ 마찰(매 프레임)과 탄성(충돌 순간)은 같은 원리, 다른 시점</div>
+      <div>✅ 엔트리로 통통 튀는 공 완성!</div>
+    </div>
+    <div class="next">🚀 <b>이제 여러분 차례예요!</b> 1~5편의 물리 블록 — 이동·속도·가속도·관성·마찰·중력·발사·탄성 — 을 자유롭게 조합하면 <b>거의 모든 게임</b>을 만들 수 있어요. 여러분만의 작품을 만들어보세요!</div>
+  </div>
+
+  <div class="meta-box">
+    <b>📚 참고 자료</b><br>
+    • <a href="https://en.scratch-wiki.info/wiki/Bounce" target="_blank">Scratch Wiki, “If on Edge, Bounce”</a> — 벽에 닿으면 튕기는 블록<br>
+    • <a href="https://ko.wikipedia.org/wiki/%EB%B0%98%EB%B0%9C_%EA%B3%84%EC%88%98" target="_blank">위키백과, “반발 계수”</a> — 탄성계수의 물리 의미
+  </div>
+
+  <div class="cta">
+    <h3>🏠 시리즈를 모두 마쳤어요!</h3>
+    <p>1~5편의 물리 블록을 조합해서 나만의 게임을 만들어봐요!</p>
+    <a class="go" href="index.html">🏠 목차로 돌아가기</a>
+  </div>
+
+  <footer>
+    엔트리로 만드는 나만의 게임 · 5편 「튕기기와 탄성」<br>
+    <span style="font-size:10px;opacity:.7;">
+      © 2026 김경환 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;">CC BY-NC-SA 4.0</a>
+    </span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const wrap       = document.getElementById('demoStage5');
+  const canvas     = document.getElementById('demoCanvas5');
+  const ctx        = canvas.getContext('2d');
+  const runBtn     = document.getElementById('demoRun5');
+  const resetBtn   = document.getElementById('demoReset5');
+  const restSlider = document.getElementById('demoRest5');
+  const restVal    = document.getElementById('demoRestVal5');
+  const vyLabel     = document.getElementById('demoVy5');
+  const bounceLabel = document.getElementById('demoBounce5');
+
+  const W = canvas.width, H = canvas.height;
+  const groundY  = H - 30;
+  const r        = 18;
+  const gravity  = 0.5;
+  const wallRest = 0.9;
+  const settleVy = 1.2;
+  const startX = W / 2, startY = 60, startVx = 2.2;
+  let x = startX, y = startY, vx = startVx, vy = 0;
+  let restitution = 0.7;
+  let bounceCount = 0;
+  let running = false;
+  let trail = [];
+
+  function drawGround(){
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#a17a52';
+    ctx.fillRect(0, groundY, W, H - groundY);
+    ctx.fillStyle = '#8e6c47';
+    for (let gx = 0; gx < W; gx += 28) ctx.fillRect(gx + 24, groundY, 4, H - groundY);
+    ctx.fillStyle = '#7ea884';
+    ctx.fillRect(0, groundY - 5, W, 5);
+  }
+  function drawTrail(){
+    for (let i = 0; i < trail.length; i++){
+      const t = trail[i];
+      ctx.fillStyle = 'rgba(58,166,160,' + (i / trail.length) * 0.40 + ')';
+      ctx.beginPath(); ctx.arc(t.x, t.y, r * 0.5, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  function drawBall(){
+    const sh = Math.max(0, 1 - (groundY - r - y) / 230);
+    ctx.fillStyle = 'rgba(0,0,0,.13)';
+    ctx.beginPath();
+    ctx.ellipse(x, groundY - 2, r * (0.7 + 0.5 * sh), 4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#2c827d';
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#3aa6a0';
+    ctx.beginPath(); ctx.arc(x - r * 0.10, y - r * 0.10, r * 0.82, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.55)';
+    ctx.beginPath(); ctx.arc(x - r * 0.32, y - r * 0.34, r * 0.22, 0, Math.PI * 2); ctx.fill();
+  }
+  function render(){
+    drawGround();
+    drawTrail();
+    drawBall();
+    vyLabel.textContent = (-vy).toFixed(1);
+    bounceLabel.textContent = bounceCount;
+  }
+  function loop(){
+    if (!running) return;
+    vy += gravity;
+    x += vx; y += vy;
+    let settled = false;
+    if (y + r > groundY){
+      y = groundY - r;
+      if (Math.abs(vy) < settleVy){ vy = 0; settled = true; }
+      else { vy = -vy * restitution; bounceCount++; }
+    }
+    if (settled){
+      vx *= 0.94;
+      if (Math.abs(vx) < 0.12) vx = 0;
+    }
+    if (x - r < 0){ x = r;     vx = -vx * wallRest; }
+    if (x + r > W){ x = W - r; vx = -vx * wallRest; }
+    trail.push({ x: x, y: y });
+    if (trail.length > 55) trail.shift();
+    render();
+    requestAnimationFrame(loop);
+  }
+  function isSettled(){
+    return vx === 0 && vy === 0 && Math.abs((groundY - r) - y) < 1;
+  }
+  function setRunning(on){
+    running = on;
+    runBtn.textContent = on ? '⏸ 정지' : '▶ 실행';
+    wrap.classList.toggle('idle', !on);
+    if (on) requestAnimationFrame(loop);
+  }
+  function reset(){
+    x = startX; y = startY; vx = startVx; vy = 0;
+    bounceCount = 0; trail = [];
+    render();
+  }
+  function startOrToggle(){
+    if (!running && isSettled()) reset();
+    setRunning(!running);
+  }
+
+  runBtn.addEventListener('click', startOrToggle);
+  resetBtn.addEventListener('click', reset);
+  restSlider.addEventListener('input', e => {
+    restitution = parseFloat(e.target.value);
+    restVal.textContent = restitution.toFixed(2);
+  });
+  wrap.addEventListener('click', () => {
+    wrap.focus();
+    if (!running){ if (isSettled()) reset(); setRunning(true); }
+  });
+
+  render();
+})();
+</script>
+
+<nav class="toc-sidebar">
+  <div class="toc-title">이 페이지 목차</div>
+  <ol id="toc-list"></ol>
+</nav>
+
+<script>
+(function(){
+  var hs = document.querySelectorAll('section.card h2');
+  var list = document.getElementById('toc-list');
+  if(!hs.length || !list) return;
+  hs.forEach(function(h, i){
+    if(!h.id) h.id = 'toc-' + i;
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a); list.appendChild(li);
+  });
+  var links = list.querySelectorAll('a');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = list.querySelector('a[href="#' + e.target.id + '"]');
+        if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-8% 0px -80% 0px'});
+  hs.forEach(function(h){ io.observe(h); });
+})();
+</script>
+
+</body>
+</html>

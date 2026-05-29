@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>5편 「튕기기와 탄성」 추가 — entry-guide</title>
+
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css"
+        media="(prefers-color-scheme: light)">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"
+        media="(prefers-color-scheme: dark)">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+  <script src="assets/doc.js" defer></script>
+</head>
+
+<body class="layout">
+<main>
+
+  <header class="doc-header">
+    <h1>5편 「튕기기와 탄성」 추가</h1>
+    <div class="meta">
+      <span>작성일 2026-05-29</span>
+      <span>대상 <code>docs/entry-game-5-bounce.html</code></span>
+      <span>PR 생성 예정</span>
+    </div>
+    <p class="lede">탄성 충돌(튕김·반사·탄성계수)을 가르치는 5편을 시리즈 마지막 편으로 추가하고, 통통 튀는 공 캔버스 데모를 새로 만들었다.</p>
+  </header>
+
+  <div class="callout tldr">
+    <div class="callout-title">TL;DR</div>
+    <ul>
+      <li>시리즈에 <strong>없던 개념</strong>(튕김/반사/탄성)을 5편으로 신규 추가 — 4편의 "쿵 멈춤"을 "통통 튕김"으로 잇는 브리지.</li>
+      <li>핵심 규칙: <strong>부딪히는 순간 속도에 음수를 곱한다</strong>(방향 뒤집기 × 힘 줄이기). 3편 마찰(×0.85, 매 프레임)과 같은 원리·다른 시점으로 연결.</li>
+      <li>인터랙티브 데모: 탄성계수 슬라이더(0.5~1.0)로 통통 정도를 체감. 헤드리스 검증에서 6회 튕기고 ~185프레임에 떨림 없이 정착.</li>
+      <li>새 액센트 <code>--c5</code>(틸 #3aa6a0) 토큰 + <code>.c-teal</code> 추가. 범위는 <strong>튕김·탄성 코어만</strong>(공끼리 충돌/당구는 6편 후보로 보류).</li>
+    </ul>
+  </div>
+
+  <h2>개요</h2>
+  <p>기존 시리즈는 1편(이동·충돌) → 2편(속도·가속도) → 3편(관성·마찰) → 4편(포물선·발사)로, 4편이 마지막이었다. 탐색 결과 <strong>어떤 편도 "튕김/반사/탄성"을 다루지 않았다</strong> — 1편 충돌은 밀어내기(push-out)뿐이고, 4편 발사체는 바닥에 닿으면 그냥 멈춘다. 게임에서 매우 흔한 "튕기는 공"을 가르칠 자리가 비어 있었고, 이를 5편으로 채웠다.</p>
+  <p>제목·범위는 사용자 결정으로 확정했다: 제목 「튕기기와 탄성 — 통통 튀는 공 만들기」, 범위는 <strong>튕김·탄성 코어만</strong>(공끼리 충돌은 제외).</p>
+
+  <div class="callout issue">
+    <div class="callout-title">이슈 — 채워지지 않은 빈틈</div>
+    <p>충돌 후 <strong>반사/튕김</strong>을 다루는 편이 없었다. 1편은 충돌을 "겹침 감지 + 밀어내기"로만 설명하고, 4편 발사체는 착지하면 정지한다. "공이 바닥에서 튀어 오른다"는 직관적이고 게임에 흔한 동작을 학습자가 만들 방법이 시리즈에 없었다.</p>
+  </div>
+
+  <div class="callout fix">
+    <div class="callout-title">해결 — 5편 신규 + 시리즈 배선</div>
+    <ul>
+      <li><strong>4개 코어 섹션</strong>: ① 데모 체험 → ② 튕김=방향 뒤집기(바닥 vy, 벽 vx) → ③ 탄성계수(튈 때마다 잃는 힘, ×0.7) → ④ 엔트리 구현. 마지막에 "마찰 vs 탄성" 정리 + 코드 찾기 퀴즈.</li>
+      <li><strong>통통 공 데모</strong>: 중력 낙하 + 바닥/벽 반사 + 탄성계수 슬라이더. 2편/4편 데모와 동일한 self-contained IIFE + <code>requestAnimationFrame</code> 패턴.</li>
+      <li><strong>3편 마찰과 명시적 연결</strong>: 둘 다 "속도에 1보다 작은 수를 곱한다"는 같은 아이디어, 단 마찰은 매 프레임·탄성은 충돌 순간.</li>
+      <li><strong>시리즈 배선</strong>: 4편 종료 CTA를 5편 브리지로 교체, index에 ep-5 카드·5스텝 path 추가, 기존 "5편 후보" 블록은 "6편 후보"로 전환.</li>
+    </ul>
+  </div>
+
+  <h2>영향 범위</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>파일</th><th>신규/편집</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td><code>docs/entry-game-5-bounce.html</code></td><td>신규</td><td>5편 본문 + 통통 공 데모 + TOC (2편 템플릿 베이스)</td></tr>
+      <tr><td><code>docs/assets/styles.css</code></td><td>편집</td><td><code>:root</code>에 <code>--c5:#3aa6a0</code>, <code>.c-teal .step-no</code> 규칙 추가</td></tr>
+      <tr><td><code>docs/entry-game-4-projectile.html</code></td><td>편집</td><td>종료 CTA → 5편 브리지 링크로 교체</td></tr>
+      <tr><td><code>docs/index.html</code></td><td>편집</td><td>ep-5 카드 + <code>.ep-5</code> 액센트 + path <code>s5</code> 스텝 + "5편 후보"→"6편 후보"</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>콘텐츠 구조</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>섹션</th><th>제목</th><th>가르치는 것</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>직접 공을 튕겨보자</td><td>데모 먼저 — 탄성계수 슬라이더로 통통 정도 체감</td></tr>
+      <tr><td>2</td><td>튕김이란? — 속도 방향이 뒤집혀요</td><td>바닥→vy 부호 뒤집기, 벽→vx 부호 뒤집기 (axis-split 비교)</td></tr>
+      <tr><td>3</td><td>탄성계수 — 튈 때마다 잃는 힘</td><td>×1.0=영원히, ×0.7=점점 낮게. 공별 탄성계수 미터. 3편 마찰과 연결</td></tr>
+      <tr><td>4</td><td>엔트리로 튕기는 공 만들기</td><td>중력 낙하 코드 + <code>y속도 = y속도 × -0.7</code> 한 줄, 정착 처리</td></tr>
+      <tr><td>—</td><td>🏁 마찰 vs 탄성</td><td>매 프레임 vs 충돌 순간 / 부호 유지 vs 뒤집기 비교표 + 퀴즈</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>데모 물리</h2>
+  <p>캔버스 좌표는 <strong>+y가 아래</strong>다(낙하 = vy 증가). 매 프레임 중력으로 vy를 키우고 위치를 적분한 뒤, 바닥/벽에 닿으면 해당 축 속도의 부호를 뒤집으며 탄성계수를 곱한다. 바닥에서 vy가 충분히 작아지면 0으로 고정해 미세 떨림을 없애고, 그 뒤 수평 속도에 마찰을 줘 굴러 멈추게 한다(3편 마찰 호출).</p>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>상수</th><th>값</th><th>의미</th></tr></thead>
+    <tbody>
+      <tr><td><code>gravity</code></td><td>0.5</td><td>매 프레임 vy 증가량</td></tr>
+      <tr><td><code>restitution</code></td><td>0.7 (슬라이더 0.5~1.0)</td><td>바닥 튕김 시 남는 속도 비율</td></tr>
+      <tr><td><code>wallRest</code></td><td>0.9</td><td>좌우 벽 반사 시 남는 속도 비율</td></tr>
+      <tr><td><code>settleVy</code></td><td>1.2</td><td>이보다 작은 vy면 0으로 고정(정착)</td></tr>
+      <tr><td>시작값</td><td>x=W/2, y=60, vx=2.2, vy=0</td><td>상단 중앙에서 살짝 옆으로</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <pre><code class="language-javascript">function loop(){
+  if (!running) return;
+  vy += gravity;                 // 중력
+  x += vx; y += vy;              // 위치 적분
+  let settled = false;
+  if (y + r > groundY){          // 바닥 충돌
+    y = groundY - r;
+    if (Math.abs(vy) < settleVy){ vy = 0; settled = true; }   // 정착
+    else { vy = -vy * restitution; bounceCount++; }           // 튕김: 부호 뒤집기 + 힘 줄이기
+  }
+  if (settled){                  // 바닥에서 굴러 멈춤 (3편 마찰)
+    vx *= 0.94;
+    if (Math.abs(vx) < 0.12) vx = 0;
+  }
+  if (x - r < 0){ x = r;     vx = -vx * wallRest; }   // 좌측 벽 반사
+  if (x + r > W){ x = W - r; vx = -vx * wallRest; }   // 우측 벽 반사
+  trail.push({ x, y }); if (trail.length > 55) trail.shift();
+  render();
+  requestAnimationFrame(loop);
+}</code></pre>
+
+  <div class="callout info">
+    <div class="callout-title">HUD 표기 — "위가 +"</div>
+    <p>HUD의 y속도는 <code>(-vy)</code>로 표기한다(4편 관습). 낙하 중엔 음수, 튕긴 직후엔 양수로 보여, <strong>튕기는 순간 부호가 뒤집히는 것</strong>이 숫자로 그대로 드러난다.</p>
+  </div>
+
+  <h2>엔트리 블록 표현</h2>
+  <p>튕김 핵심 줄은 <strong>계산 카테고리 곱하기 블록을 자료 "정하기" 블록에 중첩</strong>해 표현한다(3편 마찰 ×0.85와 동일 패턴).</p>
+  <pre><code class="language-text">계속 반복하기:
+  y속도에 -0.8 만큼 더하기            ← 중력
+  y 좌표를 (y속도) 만큼 바꾸기
+  만일 〈바닥에 닿았는가?〉 이라면:
+    y속도를 (y속도 × -0.7) 로 정하기   ← 튕김: 방향 뒤집기 + 힘 줄이기</code></pre>
+
+  <div class="callout warn">
+    <div class="callout-title">렌더러 한계 — 중첩 reporter는 텍스트 폴백</div>
+    <p>B-mini 렌더러는 boolean/calc 안의 깊은 중첩(예: <code>y속도의 절댓값 &lt; 1</code>)을 plain-text로만 그린다. 그래서 정착 조건 같은 부등식은 3편이 쓰는 <strong>텍스트 폴백</strong> 방식(<code>{"type":"text","value":"‘y속도’의 절댓값 &lt; 1"}</code>)으로 작성했다. 단순 <code>변수 × 숫자</code> 곱하기는 reporter로 정상 렌더된다.</p>
+  </div>
+
+  <h2>검증</h2>
+  <div class="callout success">
+    <div class="callout-title">브라우저 프리뷰 검증 통과 (1000/1400/375px)</div>
+    <ul>
+      <li><strong>물리 정착</strong>: 헤드리스 시뮬레이션 결과 6회 튕기고 ~185프레임(약 3초)에 바닥(<code>groundY-r</code>)에 떨림 없이 정착(vx=vy=0). 탄성계수 1.0이면 영원히 통통(의도대로).</li>
+      <li><strong>렌더링</strong>: 엔트리 블록 23개 SVG 렌더, 캔버스에 땅·틸 공 정상 드로잉, 콘솔 에러 0.</li>
+      <li><strong>TOC</strong>: 6개 섹션 수집. 와이드(≥1240px)에서 본문+사이드바 결합 중앙 정렬(중심=뷰포트 중심), 모바일에서 사이드바 숨김.</li>
+      <li><strong>반응형</strong>: 375px에서 캔버스가 래퍼 폭에 맞춰 축소, 컨트롤 슬라이더 행이 전체폭으로 줄바꿈.</li>
+      <li><strong>내비</strong>: 4편 CTA → 5편 링크 확인, index ep-5 카드(틸)·5스텝 path·"6편 후보" 반영.</li>
+    </ul>
+  </div>
+
+  <h2>설계 결정</h2>
+  <div class="callout link">
+    <div class="callout-title">범위 — 코어만</div>
+    <p>"탄성 충돌"은 (a) 튕김/반사와 (b) 공끼리 운동량 교환(당구/핀볼)으로 나뉜다. 한 개념을 깔끔하게 전달하고 3편 마찰과 직접 잇기 위해 <strong>(a) 코어만</strong> 채택했다. (b)는 6편 후보로 보류.</p>
+  </div>
+  <div class="callout link">
+    <div class="callout-title">마지막 편 CTA</div>
+    <p>5편이 새 마지막 편이므로 CTA는 "시리즈를 모두 마쳤어요!" 완주 변형으로 두되, <code>new-page-guide.html</code> 권고대로 <strong>목차(index)로 돌아가는 링크</strong>를 달아 막다른 길을 피했다.</p>
+  </div>
+
+  <h2>후속 TODO</h2>
+  <ul>
+    <li><strong>6편 후보 — 공끼리 충돌(당구/핀볼)</strong>: 이번에 보류한 운동량 교환. 같은 질량 1D는 속도 스왑, 일반식은 <code>v1'=((m1-m2)v1+2m2·v2)/(m1+m2)</code>.</li>
+    <li><strong>4편 새총에 튕김 적용 예시</strong>: 5편 §4에서 언급만 함. 4편 발사체가 착지 후 통통 튀는 변형 코드/데모를 보강할 수 있음.</li>
+    <li><strong>중첩 reporter 렌더링</strong>(기존 이슈): 정착 부등식이 텍스트 폴백 상태. 렌더러가 boolean 안 비교식을 블록으로 그리면 교체.</li>
+  </ul>
+
+  <footer class="doc-footer">
+    <h2>관련 문서</h2>
+    <ul>
+      <li><a href="fix-history.md">fix-history.md</a> — 수정 히스토리 인덱스</li>
+      <li><a href="next-steps.md">next-steps.md</a> — 후속 TODO 통합 인덱스</li>
+      <li><a href="new-page-guide.html">new-page-guide.html</a> — 새 페이지 제작 템플릿·체크리스트</li>
+      <li><a href="entry-blocks-renderer.html">entry-blocks-renderer.html</a> — 엔트리 블록 SVG 렌더러(중첩 reporter 한계 출처)</li>
+    </ul>
+  </footer>
+
+</main>
+<aside id="toc"></aside>
+</body>
+</html>
