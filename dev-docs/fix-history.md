@@ -15,6 +15,10 @@ PR 번호는 머지 전이라도 PR 생성 시점에 채운다.
 
 ## 2026
 
+### 2026-05-30
+- **Zerie 도트 캐릭터(군인·오크) 스프라이트 도입 — 헤더 캐릭터 + 1·2편 캔버스 주인공** — [character-sprites.html](character-sprites.html)
+  CSS 네모/canvas 도형으로만 그리던 캐릭터를 무료 픽셀아트 스프라이트로 교체. `docs/assets/characters/`에 타이트 크롭(100×100 프레임 → 캐릭터 군인 15×19·오크 22×16)한 4개 시트(soldier/orc × idle/walk, 각 ~1KB). **헤더**: 편별 개념 모션(점프·가속·미끄러짐·포물선·튕김)은 유지하고 비주얼만 스프라이트로 교체 + `steps()` 걷기 사이클을 동시 적용 — 1·2·3편 = 걷는 군인(3편은 잔상도 군인 고스트), 4편 = 표적 돼지→오크(왼쪽 보기로 날아오는 새를 향함), 5편 = 공만(추가 캐릭터 없음), index = 군인·오크 추격 퍼레이드. about-entry는 엔트리 브랜드 로고라 제외. **캔버스**: 1·2편 `drawHero()`를 `drawImage` 스프라이트로 교체(정지=idle·이동=walk, 방향 반전, 로드 전 네모 폴백, `imageSmoothingEnabled=false`) — `heroW/heroH`·이동·clamp·라벨 등 물리 로직은 불변. 4편 캔버스는 새가 도형이라 스타일 혼합 방지 위해 도형 유지(헤더에만 오크). **라이선스**(Zerie: 사용·수정 OK, 재배포 금지): 필요 프레임만 포함 + 전 페이지 푸터 "도트 캐릭터 © Zerie" 링크 + `assets/characters/CREDITS.txt`.
+
 ### 2026-05-29
 - **개념↔구현 분리 구조를 4·5편으로 확대 (1~5편 전부 완료)** — [concept-implementation-separation.html](concept-implementation-separation.html) · [PR #25](https://github.com/kkh029/entry-guide/pull/25)
   3편 파일럿 패턴을 4편(포물선)·5편(탄성)에도 적용 — `.goals`, 🔬개념/🧩구현 h2 프리픽스, `.tip.real`(4편 공기저항·45° / 5편 튕김·탄성계수 = 현실 vs 게임), `.fix`, ⭐도전(4편 "더 멋지게 만들기"→승격, 5편 "벽 튕김+새총 적용" 신설). 1·2편에 이어 이로써 1~5편 표준 구조 통일. `data-blocks`·데모 `id` 불변, 로컬 프리뷰 렌더 검증(블록 SVG·TOC·콘솔 에러 0).

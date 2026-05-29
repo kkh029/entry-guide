@@ -1,0 +1,18 @@
+Character pixel art
+===================
+
+"Tiny RPG Character Asset Pack" by Zerie
+https://zerie.itch.io/tiny-rpg-character-asset-pack
+
+Files in this folder (soldier-*.png, orc-*.png) are individual animation
+sprite sheets from that pack, included here only as needed to display the
+characters on this educational site.
+
+License (per the author's itch.io page):
+  - Personal and commercial use: allowed
+  - Editing / modifying to fit the project: allowed
+  - Reselling / redistributing the asset pack: NOT allowed
+
+These sprites are NOT covered by this site's own CC BY-NC-SA 4.0 license;
+they remain under Zerie's terms above. Credit is shown in each page footer
+("도트 캐릭터 © Zerie").

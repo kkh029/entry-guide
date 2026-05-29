@@ -13,17 +13,20 @@
   /* 3편 — 헤더 스테이지 (미끄러지며 멈추는 캐릭터) */
   .hero{
     position:absolute;bottom:24px;
-    width:42px;height:42px;background:var(--red);
-    border-radius:12px 12px 8px 8px;
-    box-shadow:inset -5px -5px 0 #d9483d,0 5px 0 #b53b32;
-    animation:slide-stop 2.8s ease-out infinite;
+    width:45px;height:57px;
+    background:url(assets/characters/soldier-walk.png) 0 0/auto 57px no-repeat;
+    image-rendering:pixelated;
+    animation:slide-stop 2.8s ease-out infinite, walkcycle .7s steps(8) infinite;
   }
-  .hero::before{content:"";position:absolute;top:10px;right:8px;width:9px;height:9px;background:#fff;border-radius:50%;}
-  .hero::after{content:"";position:absolute;top:13px;right:10px;width:4px;height:4px;background:#333;border-radius:50%;}
-  .trail{position:absolute;bottom:30px;border-radius:10px;background:var(--red);}
-  .t1{width:34px;height:34px;opacity:.20;animation:slide-stop 2.8s ease-out infinite;animation-delay:-0.04s;}
-  .t2{width:26px;height:26px;opacity:.12;animation:slide-stop 2.8s ease-out infinite;animation-delay:-0.08s;}
-  .t3{width:18px;height:18px;opacity:.06;animation:slide-stop 2.8s ease-out infinite;animation-delay:-0.13s;}
+  @keyframes walkcycle{to{background-position-x:-360px}}
+  .trail{
+    position:absolute;bottom:24px;width:45px;height:57px;
+    background:url(assets/characters/soldier-walk.png) 0 0/auto 57px no-repeat;
+    image-rendering:pixelated;
+  }
+  .t1{opacity:.22;animation:slide-stop 2.8s ease-out infinite;animation-delay:0.05s;}
+  .t2{opacity:.13;animation:slide-stop 2.8s ease-out infinite;animation-delay:0.1s;}
+  .t3{opacity:.07;animation:slide-stop 2.8s ease-out infinite;animation-delay:0.16s;}
   @keyframes slide-stop{
     0%{left:4%} 45%{left:31%} 65%{left:36.5%} 78%{left:38%} 88%{left:38.5%} 100%{left:38.5%}
   }
@@ -829,7 +832,8 @@
   <footer>
     엔트리로 만드는 나만의 게임 · 3편 「관성과 마찰」<br>
     <span style="font-size:10px;opacity:.7;">
-      © 2026 김경환 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;">CC BY-NC-SA 4.0</a>
+      © 2026 김경환 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;">CC BY-NC-SA 4.0</a><br>
+      도트 캐릭터 © <a href="https://zerie.itch.io/tiny-rpg-character-asset-pack" target="_blank" style="color:inherit;">Zerie</a>
     </span>
   </footer>
 </div>
