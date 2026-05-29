@@ -108,3 +108,25 @@ Quick steps:
 5. Keep the `<nav class="toc-sidebar">` element + TOC script block at the very end of `<body>` — it auto-collects every `section.card h2` into a sticky right sidebar on wide screens (≥1240 px). No changes needed to the script itself.
 6. Add the page to `docs/index.html` `.toc-grid` and update the previous episode's CTA button to point to the new page.
 7. No router, no build — links are plain relative paths (`href="entry-game-X-foo.html"`).
+
+---
+
+## Conventions (프로젝트 공통)
+
+- **문서 작성은 `session-doc` 스킬 경유** — 세션 정리·기능 설계·구조 분석·아키텍처/정책 결정·모듈 설계처럼 향후 참조할 가치가 있는 문서를 `dev-docs/` 에 새로 만들거나 갱신할 때는 `/session-doc` 스킬을 사용한다.
+- **`dev-docs/fix-history.md`** — 의미 있는 수정·동작 변화 후 파일 최상단에 항목 추가. 예외: 오타·주석·포매터 수정만 있거나 별도 phase 문서를 이미 작성한 대형 도입 작업.
+- **설계 문서가 SSOT** — 문서와 코드가 다르면 문서 쪽이 우선이라고 가정하고 작업한다.
+
+---
+
+## PR 생성 전 절차
+
+PR을 올리기 전에 아래 순서를 반드시 완료한다.
+
+1. **세션 문서 작성** — `/session-doc` 스킬을 실행해 이번 세션에서 변경한 내용을 `dev-docs/` 에 문서로 남긴다.
+2. **변경 로그 갱신** — `dev-docs/fix-history.md` 최상단에 이번 변경 항목을 추가한다 (트리거 조건·포맷은 기존 항목 참고).
+3. **다음 단계 갱신** — `dev-docs/next-steps.md` 를 검토해 이번 사이클에서 완료된 항목은 제거하고 새로 발견된 follow-up / 개선안 / 미해결 이슈를 적절한 카테고리에 추가한다.
+4. **main 머지** — `git fetch origin && git merge origin/main` 으로 최신 main 을 로컬 브랜치에 반영하고 충돌을 해결한다.
+5. **PR 생성** — 위 파일들도 같은 커밋 또는 PR에 포함한다.
+
+> fix-history 갱신 면제 조건: 오타·주석·포매터 수정만 있는 경우, 또는 별도 phase 문서를 이미 작성한 대형 도입 작업.

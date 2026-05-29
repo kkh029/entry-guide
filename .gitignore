@@ -6,3 +6,6 @@
 # 작업용 캡처 (분석·검증용 — 저장소에 포함하지 않음)
 /스크린샷*.png
 
+# Local-only entryjs experiments (large bundle files, not for commit)
+docs/dist/
+docs/examples/_local/
