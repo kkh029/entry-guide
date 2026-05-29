@@ -152,6 +152,50 @@ p{margin:12px 0;}
 .warn b{color:var(--warn);}
 .bonus{border-left-color:var(--c3);}
 .bonus b{color:var(--c3);}
+/* 「현실 vs 게임」 구분 콜아웃 — 현실 물리(초록)와 게임 흉내를 구분 */
+.real{border-left-color:var(--green);}
+.real b{color:var(--green);}
+
+/* ───── 학습 목표 박스 (물리 개념 🔬 ↔ 엔트리 구현 🧩) ───── */
+.goals{
+  display:flex;flex-wrap:wrap;gap:14px;
+  margin:20px 0 4px;
+}
+.goals .goal-col{
+  flex:1 1 240px;
+  background:#fff;
+  border:1px solid var(--border-s);
+  border-radius:10px;
+  padding:14px 16px;
+}
+.goals .goal-col.phys{border-top:3px solid var(--green);}   /* 현실 물리 = 초록 */
+.goals .goal-col.code{border-top:3px solid var(--c2);}      /* 엔트리 구현 = 파랑 */
+.goals .goal-head{
+  font-family:'Jua',sans-serif;font-size:15px;margin-bottom:8px;
+}
+.goals .goal-col.phys .goal-head{color:var(--green);}
+.goals .goal-col.code .goal-head{color:var(--c2);}
+.goals ul{margin:0;padding-left:18px;}
+.goals li{margin:4px 0;font-size:14.5px;line-height:1.6;}
+
+/* ───── 「안 될 때 확인!」 오류 해결 박스 ───── */
+.fix{
+  background:#fbf7f0;
+  border:1px solid var(--border-s);
+  border-left:3px solid var(--warn);
+  border-radius:6px;
+  padding:13px 16px;
+  margin:18px 0;
+  font-size:15px;
+  line-height:1.7;
+}
+.fix .fix-title{
+  font-family:'Jua',sans-serif;color:var(--warn);
+  font-size:15.5px;margin-bottom:4px;
+}
+.fix ul{margin:6px 0 0;padding-left:18px;}
+.fix li{margin:5px 0;}
+.fix li b{color:var(--ink);}
 
 /* ───── 카테고리 색상 가이드 (이제 .entry-block 컨테이너) ───── */
 .legend{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;}

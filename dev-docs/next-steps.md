@@ -19,6 +19,19 @@
 
 ## 대기
 
+### review.md 반영 (개념↔구현 분리)
+출처: [concept-implementation-separation.html](concept-implementation-separation.html)
+
+- [ ] **표준 구조(개념↔구현 분리)를 1·2·4·5편으로 확대**
+  3편 파일럿 패턴(`.goals`·🔬개념/🧩구현 섹션·`.fix`·⭐도전)을 나머지 편에 적용.
+- [ ] **후속 물리 주제 편 추가**
+  우선순위: 힘·질량(6편 후보) → 운동량·충돌 → 에너지 → 경사면·마찰 → 공기저항·낙하산 → 스프링·진동 → 원운동 → 빛 반사.
+  각 주제의 게임 아이디어·배울 개념·코딩 요소 상세는 [review.md](review.md) "추가로 다루면 좋은 주제 제안"(1~8순위) 참조.
+- [ ] **6/7편 로드맵 — index "6편 후보" 재검토**
+  리뷰 의견: 6편=「힘과 질량」, 7편=「점수·게임 규칙」. 단순 점수/게임오버보다 물리 학습 흐름 유지 권장.
+- [ ] **review.md 커밋 여부 정리**
+  현재 untracked. PR 포함/제외 결정.
+
 ### 5편 튕기기와 탄성
 출처: [entry-game-5-bounce.html](entry-game-5-bounce.html)
 
@@ -28,12 +41,6 @@
   5편 §4에서 "새총 코드에 튕기는 줄을 더하면 통통 튄다"고 언급만 함. 실제 변형 코드/데모를 추가 가능.
 - [ ] **정착 부등식 중첩 reporter 표현** — 아래 "복합 reporter" 항목과 동일 원인
   5편 정착 조건 `‘y속도’의 절댓값 < 1`을 boolean 안 텍스트 폴백으로 작성. 렌더러가 비교식 nesting을 지원하면 블록으로 교체.
-
-### 페이지 가이드
-출처: [new-page-guide.html](new-page-guide.html) · [design-guide.html](design-guide.html)
-
-- [ ] **new-page-guide.html 액센트 색상표에 `--c4`(4편 주황)·`--c5`(5편 틸) 행 추가**
-  색상표가 아직 c1/c2/c3/green/accent만 나열. 실제 styles.css·design-guide.html D-1 표는 c4·c5까지 포함 — 레이아웃 가이드만 누락.
 
 ### B-mini 렌더러
 출처: [entry-blocks-renderer.html](entry-blocks-renderer.html)
@@ -51,4 +58,4 @@
 
 ## 완료
 
-(완료된 항목은 PR 번호와 함께 여기로 이동)
+- [x] **new-page-guide.html 액센트 색상표에 `--c4`·`--c5` 행 추가** — review.md 반영 변경에 포함 (PR 시 번호 기입)

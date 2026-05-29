@@ -16,6 +16,8 @@ PR 번호는 머지 전이라도 PR 생성 시점에 채운다.
 ## 2026
 
 ### 2026-05-29
+- **review.md 반영 — 「물리 개념 ↔ 엔트리 구현」 구분 도입 + 표현 정확성 보정** — [concept-implementation-separation.html](concept-implementation-separation.html)
+  새 프리미티브 `.goals`/`.tip.real`/`.fix`(styles.css) + 가이드 4종 갱신(design-guide D-1 기능색표·D-4 신설, authoring-editing-guide A-3 정확성 참조표, new-page-guide §2 뼈대·§4 체크리스트·c4/c5 색상행, CLAUDE.md 콜아웃 목록·새 페이지 step). 콘텐츠는 3편 파일럿(관성·마찰·중력 = 🔬개념 블록 ↔ 🧩엔트리 구현 블록으로 코드 통합, 서브스텝·코요테=⭐도전, 관성 힘→성질 등 정확성 4건) + 4편 텍스트 정확성 3건(vy 부호 +y 통일·45° 조건·발사힘 두 배→훨씬). 교사용 자료·수업 메타는 제외(학습자 본인 대상). 1·2·4·5편 구조 확대는 후속.
 - **5편 「튕기기와 탄성」 추가 (튕김·반사·탄성계수 + 통통 공 데모)** — [entry-game-5-bounce.html](entry-game-5-bounce.html)
   시리즈에 없던 반사/탄성을 마지막 편으로 추가. 4편의 "쿵 멈춤"→"통통 튕김" 브리지. `--c5`(틸) 토큰 + `.c-teal` 추가, 4편 CTA·index `ep-5`·path·"6편 후보" 배선. 데모는 탄성계수 슬라이더(0.5~1.0)로 통통 정도 체감 — 헤드리스 검증 6회 튕기고 ~185프레임 정착. 범위는 코어만(공끼리 충돌은 6편 후보).
 - **디자인 가이드 문서 추가 + 세 가이드 경계 정리** — [design-guide.html](design-guide.html)

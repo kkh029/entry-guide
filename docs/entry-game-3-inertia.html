@@ -223,6 +223,25 @@
     </div>
   </section>
 
+  <div class="goals">
+    <div class="goal-col phys">
+      <div class="goal-head">🔬 오늘 배우는 물리 개념</div>
+      <ul>
+        <li><b>관성</b> — 원래 상태(정지·운동)를 유지하려는 성질</li>
+        <li><b>마찰</b> — 관성을 이기고 멈추게 하는 저항</li>
+        <li><b>중력</b> — 아래로 끌어당기는 일정한 가속</li>
+      </ul>
+    </div>
+    <div class="goal-col code">
+      <div class="goal-head">🧩 엔트리로 만드는 것</div>
+      <ul>
+        <li><b>‘걷는속도’</b>로 스르륵 출발·정지 (가속 +0.8, 마찰 ×0.85)</li>
+        <li><b>‘y속도’</b>로 자연스러운 점프와 낙하</li>
+        <li><b>서브스텝</b>으로 벽 통과 버그 막기 <small>(⭐도전)</small></li>
+      </ul>
+    </div>
+  </div>
+
   <section class="card">
     <h2>🔬 그런데… ‘물리 엔진’이 뭐예요?</h2>
     <p>1편에서 중력을 만들 때 <b>‘떨어지는힘’</b> 변수를 직접 만들었죠? 그게 사실 <b>미니 물리 엔진</b>이었어요! 물리 엔진이란, 게임 속 세상이 <b>현실처럼 움직이도록 해 주는 규칙 모음</b>이에요.</p>
@@ -289,7 +308,7 @@
 
   <section class="card c-green">
     <div class="step-no">1</div>
-    <h2>관성 — 원래 상태를 계속 유지하려는 힘</h2>
+    <h2>🔬 관성 — 원래 상태를 유지하려는 성질</h2>
     <p>관성은 딱 한 문장이에요: <b>“움직이는 것은 계속 움직이려 하고, 멈춰있는 것은 계속 멈춰있으려 해요.”</b> 이게 뉴턴의 제1법칙이에요!</p>
     <p>버스가 갑자기 출발하면 몸이 뒤로 쏠리고, 갑자기 브레이크를 밟으면 앞으로 쏠리죠? 내 몸이 <b>원래 상태(정지 or 운동)를 유지하려는 관성</b> 때문이에요. 게임 캐릭터도 마찬가지로 두 순간에 관성이 느껴져요:</p>
 
@@ -320,84 +339,19 @@
       </div>
     </div>
 
-    <p>코드에서 <b>+0.8</b>은 관성을 이기고 가속시키는 <b>입력 힘</b>이고, <b>×0.85</b>는 관성에 맞서 속도를 줄이는 <b>마찰</b>이에요. 이 둘이 함께 있어야 자연스러운 움직임이 돼요!</p>
+    <p>그럼 키를 누르는 건 뭘까요? 키 입력은 멈춰있으려는 관성을 이기고 <b>속도를 조금씩 더해 주는 역할(가속)</b>이고, 마찰은 반대로 속도를 조금씩 깎아요. 잠시 뒤 「🧩 엔트리로 만들기」에서 <b>가속은 +0.8</b>, <b>마찰은 ×0.85</b>라는 간단한 숫자로 만들 거예요.</p>
 
-    <p style="font-weight:700;color:var(--soft);margin-top:18px;">📌 2편에서 만든 <b>‘걷는속도’</b> 변수를 그대로 사용해요!</p>
-
-    <div class="entry-code" data-blocks='[
-      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
-      {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
-        {"shape":"cblock","category":"FLOW","contents":[
-          {"type":"text","value":"만일"},
-          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"오른쪽 화살표"},{"type":"text","value":"키가 눌러져 있는가?"}]}},
-          {"type":"text","value":"이라면"}
-        ],"statements":[
-          {"shape":"stack","category":"VARIABLE","contents":[
-            {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"에"},
-            {"type":"input","value":"0.8"},{"type":"text","value":"만큼 더하기"}
-          ]}
-        ]},
-        {"shape":"cblock","category":"FLOW","contents":[
-          {"type":"text","value":"만일"},
-          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"왼쪽 화살표"},{"type":"text","value":"키가 눌러져 있는가?"}]}},
-          {"type":"text","value":"이라면"}
-        ],"statements":[
-          {"shape":"stack","category":"VARIABLE","contents":[
-            {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"에"},
-            {"type":"input","value":"-0.8"},{"type":"text","value":"만큼 더하기"}
-          ]}
-        ]},
-        {"shape":"stack","category":"VARIABLE","note":"↑ 이게 바로 마찰! 매 프레임 속도를 조금 줄여줘요","contents":[
-          {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"를"},
-          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"걷는속도"},{"type":"text","value":"×"},{"type":"input","value":"0.85"}]}},
-          {"type":"text","value":"로 정하기"}
-        ]},
-        {"shape":"stack","category":"MOVING","note":"이 블록 하나로 좌우 이동 끝!","contents":[
-          {"type":"text","value":"x 좌표를"},
-          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"걷는속도"}]}},
-          {"type":"text","value":"만큼 바꾸기"}
-        ]}
-      ]}
-    ]'></div>
-
-    <div class="tip">
-      <b>🧮 ‘걷는속도 × 0.85’는 어떻게 만들어요?</b><br>
-      자료 카테고리의 <b>“[변수]를 [값]으로 정하기”</b> 블록에서, 흰 칸 안에 <b>계산</b> 카테고리의 <b>곱하기(×) 블록</b>을 쏙 넣어요. 왼쪽 칸엔 ‘걷는속도’, 오른쪽 칸엔 0.85를 적어요!
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 관성은 ‘힘’이 아니라 물체가 <b>운동 상태를 유지하려는 성질</b>이에요. +0.8·×0.85 같은 값도 진짜 힘을 계산한 게 아니고요.<br>
+      <b>🎮 게임에서는</b> 그 성질이 “힘처럼 느껴지게” 보이도록, 속도를 조금 더하고(+0.8) 조금 깎는(×0.85) <b>간단한 규칙</b>으로 흉내 내요.
     </div>
 
-    <div class="tip"><b>📘 코드 속 ×0.85가 ‘마찰’이에요!</b> 마찰이 뭔지, 숫자를 바꾸면 어떻게 달라지는지는 바로 다음 섹션에서 자세히 배울 거예요!</div>
-
-    <div class="tip warn">
-      <b>⚠️ 속도에 한도를 걸어두세요!</b><br>
-      관성만 쓰면 계속 누를 때 속도가 끝없이 올라가요. 반복하기 안에 이 블록을 추가해요:<br><br>
-      <div class="entry-code" style="margin:8px 0 0;" data-blocks='[
-        {"shape":"cblock","category":"FLOW","contents":[
-          {"type":"text","value":"만일"},
-          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"‘걷는속도’ > 8"}]}},
-          {"type":"text","value":"이라면"}
-        ],"statements":[
-          {"shape":"stack","category":"VARIABLE","contents":[
-            {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"를"},
-            {"type":"input","value":"8"},{"type":"text","value":"로 정하기"}
-          ]}
-        ]},
-        {"shape":"cblock","category":"FLOW","contents":[
-          {"type":"text","value":"만일"},
-          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"‘걷는속도’ < -8"}]}},
-          {"type":"text","value":"이라면"}
-        ],"statements":[
-          {"shape":"stack","category":"VARIABLE","contents":[
-            {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"를"},
-            {"type":"input","value":"-8"},{"type":"text","value":"로 정하기"}
-          ]}
-        ]}
-      ]'></div>
-    </div>
+    <p>이 개념을 엔트리 블록으로 만드는 건 잠시 뒤 <b>「🧩 엔트리로 만들기」</b>에서 좌우 이동·점프를 한꺼번에 정리할게요. 먼저 마찰과 중력 개념을 마저 볼까요?</p>
   </section>
 
   <section class="card c-gold">
     <div class="step-no">2</div>
-    <h2>마찰 — 관성을 이겨내고 멈추게 하는 힘</h2>
+    <h2>🔬 마찰 — 관성을 이겨내고 멈추게 하는 힘</h2>
     <p>마찰은 <b>물체가 움직이는 방향과 정반대로</b> 작용하는 힘이에요. 신발 밑창이 바닥을 누르면서 생기고, 바닥이 거칠수록 마찰이 커져요. 마찰이 있어야 관성을 이기고 결국 멈출 수 있어요!</p>
 
     <div class="fric-force">
@@ -447,15 +401,15 @@
       </div>
     </div>
 
-    <div class="tip">
-      <b>💡 마찰은 수평(x) 방향에만 써요!</b><br>
-      마찰은 바닥과 맞닿아서 생기는 힘이에요. 그래서 <b>좌우(x 방향)</b> 이동에만 ×0.85를 적용해요. 위아래(y 방향) — 점프하고 떨어지는 건 — 마찰이 아니라 <b>중력</b>이 담당해요. 바로 다음 섹션에서 배워요!
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 공기 저항처럼 위아래(y)로도 저항이 생길 수 있어요.<br>
+      <b>🎮 이번 게임에서는</b> 좌우로 미끄러지다 멈추는 느낌만 있으면 돼서 <b>x(좌우) 방향에만</b> ×0.85를 적용해요. 위아래(점프·낙하)는 마찰이 아니라 <b>중력</b>이 맡아요 — 바로 다음에 배워요!
     </div>
   </section>
 
   <section class="card c-blue">
     <div class="step-no">3</div>
-    <h2>중력 — y 방향 물리 제대로 쓰기</h2>
+    <h2>🔬 중력 — 왜 점프하면 다시 떨어질까?</h2>
     <p>1편에서 <b>‘떨어지는힘’</b> 변수에 매 프레임 -1씩 더해서 중력을 흉내 냈죠? 개념은 맞았어요! 이번엔 x 방향에서 ‘걷는속도’를 쓴 것처럼, y 방향에도 <b>‘y속도’</b> 변수를 제대로 써봐요.</p>
     <p>진짜 중력은 <b>일정한 아래쪽 가속도</b>예요. 지구에선 초당 9.8m/s²이지만, 게임에서는 프레임마다 y속도에 <b>-0.8</b>씩 더하는 걸로 흉내 내요. 마찰이 x속도를 줄이듯, 중력이 y속도를 꾸준히 끌어내려요 — 단, 마찰과 달리 <b>절대로 멈추지 않아요</b>!</p>
 
@@ -478,8 +432,111 @@
       </div>
     </div>
 
-    <p style="font-weight:700;color:var(--soft);margin-top:6px;">📌 1편의 <s>‘떨어지는힘’</s> 대신 <b>‘y속도’</b> 변수를 새로 만들어요!</p>
+    <p>점프와 낙하를 ‘y속도’로 만드는 <b>실제 블록</b>도 잠시 뒤 「🧩 엔트리로 만들기」에서 좌우 이동과 함께 정리할게요. 아래 표로 x와 y가 어떻게 짝을 이루는지 먼저 정리해 봐요.</p>
 
+    <div class="tip">
+      <b>🔄 이제 x·y 방향이 깔끔하게 대칭이에요!</b>
+      <table class="axis-table">
+        <tr>
+          <th>방향</th><th>속도 변수</th><th>속도를 바꾸는 것</th><th>멈추게 하는 것</th>
+        </tr>
+        <tr>
+          <td><b>x (좌우)</b></td>
+          <td>걷는속도</td>
+          <td>키 입력 ±0.8</td>
+          <td>마찰 ×0.85</td>
+        </tr>
+        <tr>
+          <td><b>y (위아래)</b></td>
+          <td>y속도</td>
+          <td>점프 =+15</td>
+          <td>중력 -0.8 (종단속도 -15)</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 떨어지는 물체가 공기 저항 때문에 어느 속도 이상 빨라지지 않아요 — 이걸 <b>종단속도</b>라고 해요.<br>
+      <b>🎮 게임에서는</b> 진짜 공기 저항을 계산하지 않고, <b>y속도가 -15보다 더 빨라지지 않게 막는 제한값</b>으로 간단히 흉내 내요. (너무 빨리 떨어져 땅을 뚫는 버그도 막아줘요.)
+    </div>
+  </section>
+
+  <section class="card c-purple">
+    <div class="step-no">4</div>
+    <h2>🧩 엔트리로 만들기 — 좌우 이동과 점프</h2>
+    <p>이제 위 개념을 엔트리 블록으로 옮겨요. <b>2편의 ‘걷는속도’</b>와 새로 만들 <b>‘y속도’</b> 두 변수를 써요. 좌우(x)와 위아래(y)로 나눠서 볼게요 — 실제로는 둘 다 <b>“계속 반복하기”</b> 안에서 매 순간 함께 돌아가요.</p>
+
+    <p style="font-weight:700;color:var(--soft);margin-top:18px;">① 좌우 이동 — 가속(+0.8)과 마찰(×0.85)</p>
+    <div class="entry-code" data-blocks='[
+      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+      {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"오른쪽 화살표"},{"type":"text","value":"키가 눌러져 있는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"에"},
+            {"type":"input","value":"0.8"},{"type":"text","value":"만큼 더하기"}
+          ]}
+        ]},
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"왼쪽 화살표"},{"type":"text","value":"키가 눌러져 있는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"에"},
+            {"type":"input","value":"-0.8"},{"type":"text","value":"만큼 더하기"}
+          ]}
+        ]},
+        {"shape":"stack","category":"VARIABLE","note":"↑ 이게 바로 마찰! 매 프레임 속도를 조금 줄여줘요","contents":[
+          {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"를"},
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"걷는속도"},{"type":"text","value":"×"},{"type":"input","value":"0.85"}]}},
+          {"type":"text","value":"로 정하기"}
+        ]},
+        {"shape":"stack","category":"MOVING","note":"이 블록 하나로 좌우 이동 끝!","contents":[
+          {"type":"text","value":"x 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"걷는속도"}]}},
+          {"type":"text","value":"만큼 바꾸기"}
+        ]}
+      ]}
+    ]'></div>
+
+    <div class="tip">
+      <b>🧮 ‘걷는속도 × 0.85’는 어떻게 만들어요?</b><br>
+      자료 카테고리의 <b>“[변수]를 [값]으로 정하기”</b> 블록에서, 흰 칸 안에 <b>계산</b> 카테고리의 <b>곱하기(×) 블록</b>을 쏙 넣어요. 왼쪽 칸엔 ‘걷는속도’, 오른쪽 칸엔 0.85를 적어요!
+    </div>
+
+    <div class="tip warn">
+      <b>⚠️ 속도에 한도를 걸어두세요!</b><br>
+      관성만 쓰면 계속 누를 때 속도가 끝없이 올라가요. 반복하기 안에 이 블록을 추가해요:<br><br>
+      <div class="entry-code" style="margin:8px 0 0;" data-blocks='[
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"‘걷는속도’ > 8"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"를"},
+            {"type":"input","value":"8"},{"type":"text","value":"로 정하기"}
+          ]}
+        ]},
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"text","value":"‘걷는속도’ < -8"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"걷는속도"},{"type":"text","value":"를"},
+            {"type":"input","value":"-8"},{"type":"text","value":"로 정하기"}
+          ]}
+        ]}
+      ]'></div>
+    </div>
+
+    <p style="font-weight:700;color:var(--soft);margin-top:22px;">② 점프와 낙하 — ‘y속도’에 중력 더하기</p>
+    <p>1편의 <s>‘떨어지는힘’</s> 대신 <b>‘y속도’</b> 변수를 새로 만들어요. 위쪽 화살표로 점프(+15)하고, 매 프레임 중력 -0.8이 y속도를 천천히 끌어내려요.</p>
     <div class="entry-code" data-blocks='[
       {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
       {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
@@ -535,36 +592,27 @@
       ]}
     ]'></div>
 
-    <div class="tip">
-      <b>🔄 이제 x·y 방향이 깔끔하게 대칭이에요!</b>
-      <table class="axis-table">
-        <tr>
-          <th>방향</th><th>속도 변수</th><th>속도를 바꾸는 것</th><th>멈추게 하는 것</th>
-        </tr>
-        <tr>
-          <td><b>x (좌우)</b></td>
-          <td>걷는속도</td>
-          <td>키 입력 ±0.8</td>
-          <td>마찰 ×0.85</td>
-        </tr>
-        <tr>
-          <td><b>y (위아래)</b></td>
-          <td>y속도</td>
-          <td>점프 =+15</td>
-          <td>중력 -0.8 (종단속도 -15)</td>
-        </tr>
-      </table>
-    </div>
+    <div class="tip"><b>▶ 실행해서 확인!</b> 키를 떼면 스르륵 미끄러지다 멈추고, 점프하면 자연스럽게 올라갔다 내려오면 성공이에요! 잘 안 되면 바로 아래 「안 될 때 확인!」을 봐요.</div>
+  </section>
 
-    <div class="tip warn">
-      <b>⚠️ ‘종단속도’가 뭐예요?</b><br>
-      실제로 떨어지는 물체는 공기 저항 때문에 무한정 빨라지지 않아요. 게임에서도 마찬가지로 <b>y속도의 최솟값을 -15</b>로 제한해요. 너무 빠르게 떨어지면 땅을 뚫고 들어가는 버그도 생기거든요!
+  <section class="card">
+    <h2>🔧 안 될 때 확인!</h2>
+    <p>따라 하다 막히면 대부분 물리가 아니라 <b>블록 실수</b>예요. 아래를 확인해 봐요.</p>
+    <div class="fix">
+      <div class="fix-title">🔧 이렇게 안 되나요?</div>
+      <ul>
+        <li><b>키를 떼도 안 멈춰요</b> → 반복 안에 <b>‘걷는속도’ × 0.85</b>(마찰) 블록이 들어갔는지 확인</li>
+        <li><b>속도가 끝없이 빨라져요</b> → 최고속도 제한(±8) 블록이 있는지 확인</li>
+        <li><b>공중에서도 점프가 계속돼요</b> → 점프를 <b>바닥에 닿았을 때만</b> 허용했는지 확인</li>
+        <li><b>바닥을 뚫고 내려가요</b> → <b>y속도 제한(-15)</b>과 착지 검사 순서를 확인</li>
+        <li><b>벽에 끼여서 못 움직여요</b> → 벽에 닿으면 살짝 밀어내고 속도를 0으로 했는지 확인 (자세한 해결은 ⭐도전!)</li>
+      </ul>
     </div>
   </section>
 
   <section class="card c-red">
-    <div class="step-no">4</div>
-    <h2>서브스텝 — 벽을 유령처럼 통과하는 버그 막기</h2>
+    <div class="step-no">⭐</div>
+    <h2>⭐ 도전 1: 서브스텝 — 벽 통과 버그 막기</h2>
     <p>관성을 쓰면 속도가 쑥 커질 수 있어요. 그런데 한 프레임에 <b>15픽셀을 훅 이동하면</b> 어떻게 될까요? 게임이 그 사이사이 위치를 전혀 검사하지 않아서, 캐릭터가 <b>얇은 벽을 유령처럼 통과</b>해버려요! 이걸 <b>터널링</b>이라고 해요.</p>
 
     <div class="compare">
@@ -670,7 +718,7 @@
 
   <section class="card c-purple">
     <div class="step-no">⭐</div>
-    <h2>보너스: 코요테 타임 — 절벽 끝을 지나도 점프!</h2>
+    <h2>⭐ 도전 2: 코요테 타임 — 절벽 끝을 지나도 점프!</h2>
     <p>만화에서 코요테가 낭떠러지 끝을 지나도 <b>잠깐 공중에 떠 있다가</b> 아래를 내려다보고 나서야 떨어지는 장면, 본 적 있어요? 게임에서도 이 아이디어를 써요!</p>
     <p>발이 플랫폼 끝을 막 지나친 순간, <b>아주 짧은 시간 동안만 점프를 허용</b>해줘요. 이걸 개발자들이 <b>‘코요테 타임’</b>이라고 불러요. 이게 있으면 점프를 딱 맞게 못 눌렀을 때도 찰나의 기회가 생겨서 훨씬 편하게 느껴져요!</p>
 

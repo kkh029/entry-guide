@@ -104,14 +104,39 @@
     &lt;p class="big"&gt;&lt;!-- FILL: 흥미 유발 한 문단 --&gt;&lt;/p&gt;
   &lt;/section&gt;
 
-  &lt;!-- 본문 섹션들 --&gt;
-  &lt;section class="card c-red"&gt;  &lt;!-- c-red | c-blue | c-purple | c-green | c-gold --&gt;
+  &lt;!-- 🎯 학습 목표: 배울 물리 개념 ↔ 엔트리 구현 (의미·규칙은 design-guide D-4) --&gt;
+  &lt;div class="goals"&gt;
+    &lt;div class="goal-col phys"&gt;
+      &lt;div class="goal-head"&gt;🔬 오늘 배우는 물리 개념&lt;/div&gt;
+      &lt;ul&gt;&lt;li&gt;&lt;!-- FILL: 현실 개념 --&gt;&lt;/li&gt;&lt;/ul&gt;
+    &lt;/div&gt;
+    &lt;div class="goal-col code"&gt;
+      &lt;div class="goal-head"&gt;🧩 엔트리로 만드는 것&lt;/div&gt;
+      &lt;ul&gt;&lt;li&gt;&lt;!-- FILL: 변수·블록·코딩 요소 --&gt;&lt;/li&gt;&lt;/ul&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 본문: 🔬 물리 개념(개념 읽기) → 🧩 엔트리로 만들기(따라 만들기) 순서 --&gt;
+  &lt;!-- 색상 클래스: c-red | c-blue | c-purple | c-green | c-gold | c-orange | c-teal --&gt;
+  &lt;section class="card c-red"&gt;
     &lt;div class="step-no"&gt;1&lt;/div&gt;
-    &lt;h2&gt;&lt;!-- FILL: 섹션 제목 (사이드바 목차에 자동 표시됨) --&gt;&lt;/h2&gt;
-    &lt;p&gt;&lt;!-- FILL --&gt;&lt;/p&gt;
+    &lt;h2&gt;🔬 &lt;!-- FILL: 물리 개념 제목 --&gt;&lt;/h2&gt;
+    &lt;p&gt;&lt;!-- FILL: 현실 개념 설명 --&gt;&lt;/p&gt;
+    &lt;div class="tip real"&gt;&lt;b&gt;🌍 현실에서는&lt;/b&gt; … &lt;b&gt;🎮 게임에서는&lt;/b&gt; 이렇게 간단히 흉내 내요.&lt;/div&gt;
   &lt;/section&gt;
 
-  &lt;!-- 섹션을 더 추가할 때는 위 패턴 반복 --&gt;
+  &lt;section class="card c-red"&gt;
+    &lt;div class="step-no"&gt;2&lt;/div&gt;
+    &lt;h2&gt;🧩 &lt;!-- FILL: 엔트리로 만들기 제목 --&gt;&lt;/h2&gt;
+    &lt;p&gt;&lt;!-- FILL: 오브젝트·변수 → 블록 따라 만들기 → 실행 확인 --&gt;&lt;/p&gt;
+    &lt;div class="fix"&gt;
+      &lt;div class="fix-title"&gt;🔧 안 될 때 확인!&lt;/div&gt;
+      &lt;ul&gt;&lt;li&gt;&lt;b&gt;증상&lt;/b&gt; → 확인할 것&lt;/li&gt;&lt;/ul&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+
+  &lt;!-- 섹션을 더 추가할 때는 위 패턴 반복. 고난도 내용은 ⭐ 도전으로 분리: --&gt;
+  &lt;!--   &lt;div class="tip bonus"&gt;&lt;b&gt;⭐ 도전&lt;/b&gt; …&lt;/div&gt;                        --&gt;
 
   &lt;!-- 다음 편 CTA --&gt;
   &lt;div class="cta"&gt;
@@ -185,6 +210,8 @@
       <tr><td><code>--c1</code></td><td>#c95a4f</td><td>1편 (이동·충돌)</td><td><code>c-red</code></td></tr>
       <tr><td><code>--c2</code></td><td>#4a78b8</td><td>2편 (속도·가속도)</td><td><code>c-blue</code></td></tr>
       <tr><td><code>--c3</code></td><td>#7a5fb0</td><td>3편 (관성·마찰)</td><td><code>c-purple</code></td></tr>
+      <tr><td><code>--c4</code></td><td>#d68a3e</td><td>4편 (포물선·발사)</td><td><code>c-orange</code></td></tr>
+      <tr><td><code>--c5</code></td><td>#3aa6a0</td><td>5편 (튕김·탄성)</td><td><code>c-teal</code></td></tr>
       <tr><td><code>--green</code></td><td>#5a9e6a</td><td>about-entry 소개</td><td><code>c-green</code></td></tr>
       <tr><td><code>--accent</code></td><td>#b78a3a</td><td>골드 강조 (소도구)</td><td><code>c-gold</code></td></tr>
     </tbody>
@@ -200,8 +227,22 @@
     <li>--c1(빨강): <code>#fdf0ef</code></li>
     <li>--c2(파랑): <code>#eef3fb</code></li>
     <li>--c3(보라): <code>#f3eff9</code></li>
+    <li>--c4(주황): <code>#fdf3e8</code></li>
+    <li>--c5(청록): <code>#e8f5f4</code></li>
     <li>--green: <code>#eef6ee</code></li>
   </ul>
+
+  <h3>학습·구분 박스 프리미티브</h3>
+  <p>액센트와 별개로, 개념/구현 구분과 오류 해결에 쓰는 공통 박스가 <code>assets/styles.css</code>에 있다 (색의 <em>의미</em>는 <a href="design-guide.html">design-guide D-1·D-4</a>):</p>
+  <table>
+    <thead><tr><th>클래스</th><th>용도</th><th>색</th></tr></thead>
+    <tbody>
+      <tr><td><code>.goals</code> (<code>.goal-col.phys</code> / <code>.code</code>)</td><td>편 상단 학습 목표 — 🔬물리 / 🧩구현 2칼럼</td><td>초록 / 파랑</td></tr>
+      <tr><td><code>.tip.real</code></td><td>「🌍 현실 vs 🎮 게임」 구분 콜아웃</td><td>초록 보더</td></tr>
+      <tr><td><code>.fix</code> (<code>.fix-title</code>)</td><td>「🔧 안 될 때 확인!」 오류 해결 박스</td><td>주황 보더</td></tr>
+      <tr><td><code>.tip.bonus</code></td><td>⭐ 도전(고난도) 분리 — 기존 클래스 재활용</td><td>보라 보더</td></tr>
+    </tbody>
+  </table>
 </section>
 
 <section>
@@ -212,6 +253,11 @@
     <li>☐ <code>&lt;link rel="stylesheet" href="assets/styles.css"&gt;</code> 포함</li>
     <li>☐ 고정 <code>.home-link</code> (좌상단, 🏠) 있음 — 하단 내비는 <code>.cta</code>의 <code>.go</code> 버튼이 담당(<code>.home-link-bottom</code> 안 씀)</li>
     <li>☐ 모든 <code>&lt;section class="card"&gt;</code>에 <code>&lt;h2&gt;</code> 있음 (사이드바 목차 자동 수집용)</li>
+    <li>☐ 도입부 직후 <code>.goals</code> 학습 목표 박스 — 🔬물리 개념 / 🧩엔트리 구현 2칼럼 (수업용 메타 없이)</li>
+    <li>☐ 본문이 🔬 개념 읽기 → 🧩 따라 만들기로 분리됨 (design-guide D-4 표준 구조)</li>
+    <li>☐ 비유가 현실과 어긋나는 지점에 <code>.tip.real</code> 「현실 vs 게임」 콜아웃 (정확성 표는 내용 가이드 A-3)</li>
+    <li>☐ 따라 하다 막히는 지점에 <code>.fix</code> 「안 될 때 확인!」 박스</li>
+    <li>☐ 고난도 요소(수식·고급 버그 방지 등)는 <code>.tip.bonus</code> ⭐도전으로 분리</li>
     <li>☐ <code>.cta</code> 블록이 본문 끝 하단 내비 역할 — 중간 편 "다음 편 →", 마지막 편 <code>index.html</code> "🏠 목차로 돌아가기"</li>
     <li>☐ <code>&lt;nav class="toc-sidebar"&gt;</code> + TOC 스크립트가 <code>&lt;/body&gt;</code> 직전에 있음</li>
     <li>☐ <code>&lt;footer&gt;</code> 문구가 <code>© 2026 김경환 · CC BY-NC-SA 4.0</code> 형식과 일치</li>

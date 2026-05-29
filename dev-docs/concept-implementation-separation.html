@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>물리 개념 ↔ 엔트리 구현 분리 (review.md 반영) — entry-guide</title>
+
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css"
+        media="(prefers-color-scheme: light)">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"
+        media="(prefers-color-scheme: dark)">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+  <script src="assets/doc.js" defer></script>
+</head>
+
+<body class="layout">
+<main>
+
+  <header class="doc-header">
+    <h1>물리 개념 ↔ 엔트리 구현 분리 <span style="font-weight:400;color:var(--fg-muted);">(review.md 반영)</span></h1>
+    <div class="meta">
+      <span>작성일 2026-05-29</span>
+      <span>대상: 시리즈 전 편의 콘텐츠 구조·표현 정확성</span>
+    </div>
+    <p class="lede">
+      외부 콘텐츠 리뷰(<a href="review.md">review.md</a>)를 반영해, “배울 물리 개념”과 “엔트리로 흉내 낸 구현”을
+      <strong>구조적으로 분리</strong>하는 규칙을 도입한다. 규칙은 가이드 문서에 먼저 기록하고, 콘텐츠는 3편에 파일럿 적용했다.
+    </p>
+  </header>
+
+  <div class="callout tldr">
+    <div class="callout-title">TL;DR</div>
+    <ul>
+      <li><strong>핵심 도입</strong>: 🔬 물리 개념(개념 읽기)과 🧩 엔트리 구현(따라 만들기)을 별도 섹션으로 가른다. 새 프리미티브 <code>.goals</code>·<code>.tip.real</code>·<code>.fix</code> + 표준 편 구조(design-guide D-4).</li>
+      <li><strong>정확성 보정</strong>: 관성=‘성질’(힘 아님), vy는 +y(위쪽), 45° 최대 사거리는 조건부 등 — 영구 참조표를 내용 가이드 A-3에 둔다.</li>
+      <li><strong>정보 먼저, 적용은 점진</strong>: 모든 규칙을 가이드에 기록 → 3편만 파일럿. 1·2·4·5편 확대는 후속.</li>
+      <li><strong>제외</strong>: 교사/부모용 자료·수업 운영 메타 — 독자는 학습자 본인이므로 반영하지 않음.</li>
+    </ul>
+  </div>
+
+  <h2>배경</h2>
+  <p>
+    <a href="review.md">review.md</a>는 시리즈의 방향성을 호평하면서 네 가지 보완점을 제안했다 —
+    (1) 물리 정확 표현과 게임 흉내의 구분, (2) 개념 읽기와 따라 만들기의 분리, (3) 난이도 단계화, (4) 오류 해결 코너.
+    여기에 사용자가 세 가지 결정을 더했다.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>축</th><th>결정</th></tr></thead>
+      <tbody>
+        <tr><td>대상 독자</td><td>학습자(초등·중학생) 본인. <strong>교사/부모용 자료는 제외</strong>.</td></tr>
+        <tr><td>핵심 도입</td><td>“배울 물리 개념 ↔ 엔트리 구현”을 <strong>구조적으로 분리</strong>.</td></tr>
+        <tr><td>적용 순서</td><td>규칙을 <strong>가이드에 먼저 기록</strong>(정보 손실 방지) → 콘텐츠는 <strong>3편 파일럿</strong>.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>채택 안 — 분리 장치</h2>
+  <div class="callout fix">
+    <div class="callout-title">새 프리미티브 (<code>docs/assets/styles.css</code>)</div>
+    <ul>
+      <li><code>.goals</code> — 편 상단 학습 목표 박스. 🔬 물리 개념 / 🧩 엔트리 구현 2칼럼(초록/파랑). 수업 운영용 메타는 넣지 않는다.</li>
+      <li><code>.tip.real</code> — 「🌍 현실 vs 🎮 게임」 콜아웃(초록 보더). 비유가 현실과 어긋나기 쉬운 지점에 사용.</li>
+      <li><code>.fix</code> — 「🔧 안 될 때 확인!」 오류 해결 박스(주황 보더). 따라 하다 막히는 지점.</li>
+      <li>기존 <code>.tip.bonus</code>(보라)는 ⭐ 도전(고난도 분리)으로 재활용.</li>
+    </ul>
+  </div>
+
+  <p><strong>표준 편 구조</strong>(개념↔구현 분리형) — 정본은 <a href="design-guide.html">design-guide.html</a> D-4:</p>
+  <ol class="steps">
+    <li><strong>인트로 hook</strong> — 앞 편 경험·불편함에서 “왜?”를 체험</li>
+    <li><strong>🎯 학습 목표</strong>(<code>.goals</code>) — 🔬물리 / 🧩구현</li>
+    <li><strong>🖼️ 미리보기</strong> — 오늘 만들 장면(데모)</li>
+    <li><strong>🔬 물리 개념</strong>(개념 읽기) — 현실 개념 + 「현실 vs 게임」</li>
+    <li><strong>🧩 엔트리로 만들기</strong>(따라 만들기) — 오브젝트·변수 → 블록 → 실행</li>
+    <li><strong>🔧 안 될 때 확인!</strong>(<code>.fix</code>)</li>
+    <li><strong>🧪 숫자 바꿔 실험 → 🔁 코드에서 찾기 → ⭐ 도전 → ✅ 마무리</strong></li>
+  </ol>
+
+  <h2>정확성 원칙 — 현실 물리 vs 게임 흉내</h2>
+  <p>리뷰가 짚은 “쉽게 쓰려다 어긋난” 표현을 영구 참조표로 남겼다. 정본은 <a href="authoring-editing-guide.html">authoring-editing-guide.html</a> A-3.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>개념</th><th>흔한 오류</th><th>정확한 표현</th></tr></thead>
+      <tbody>
+        <tr><td>관성</td><td>“유지하려는 <strong>힘</strong>”</td><td>힘이 아니라 운동 상태를 유지하려는 <strong>성질</strong></td></tr>
+        <tr><td>+0.8 / ×0.85</td><td>“입력 힘 / 마찰”로 단정</td><td>진짜 힘이 아니라 <strong>게임용 간단 규칙</strong>임을 덧붙임</td></tr>
+        <tr><td>마찰 방향</td><td>“마찰은 x에만”</td><td>“<strong>이번 게임에서는</strong> x에만” (현실엔 y 저항도)</td></tr>
+        <tr><td>종단속도</td><td>현실 종단속도 = 게임 낙하 제한</td><td>둘을 구분(현실 vs 제한값)</td></tr>
+        <tr><td>최대 사거리</td><td>“45°가 무조건 최대”</td><td>“평평한 바닥·같은 높이·공기 저항 없음”일 때</td></tr>
+        <tr><td>발사힘↔사거리</td><td>“2배 → 2배”</td><td>사거리 ∝ 속도² → “<strong>훨씬</strong> 멀리”</td></tr>
+        <tr><td>좌표계 부호</td><td>vy 부호가 페이지 안에서 엇갈림</td><td>엔트리는 <strong>위쪽 +y</strong> → 위로 쏘면 vy는 +값</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>적용 범위</h2>
+  <div class="callout impact">
+    <div class="callout-title">이번 변경이 건드린 것</div>
+    <ul>
+      <li><strong>공통 CSS</strong> — <code>docs/assets/styles.css</code>에 <code>.goals</code>·<code>.tip.real</code>·<code>.fix</code> 추가(전 페이지 영향, 기존 클래스 불변).</li>
+      <li><strong>가이드 4종</strong> — design-guide(D-1 기능색표·D-4 신설), authoring-editing-guide(A-3 정확성표), new-page-guide(§2 뼈대·§4 체크리스트·c4/c5 색상행), CLAUDE.md(콜아웃 목록·새 페이지 step).</li>
+      <li><strong>3편</strong> <a href="../docs/entry-game-3-inertia.html">entry-game-3-inertia.html</a> — 구조 재편(파일럿) + 정확성 4건.</li>
+      <li><strong>4편</strong> <a href="../docs/entry-game-4-projectile.html">entry-game-4-projectile.html</a> — 텍스트 정확성 3건(구조 변경 없음).</li>
+    </ul>
+  </div>
+
+  <h3>3편 재구성 (파일럿)</h3>
+  <div class="compare">
+    <div class="before">
+      <h4>이전 — 주제별 혼합</h4>
+      <p>관성(개념+x코드) → 마찰(개념) → 중력(개념+y코드) → 서브스텝 → 코요테</p>
+      <p><small>※ 마찰 코드(×0.85)가 마찰 개념 설명보다 먼저 등장.</small></p>
+    </div>
+    <div class="after">
+      <h4>이후 — 개념↔구현 분리</h4>
+      <p>🎯목표 → 🔬관성·🔬마찰·🔬중력(개념) → 🧩엔트리로 만들기(x·y 코드 통합) → 🔧안 될 때 → ⭐도전(서브스텝·코요테)</p>
+      <p><small>※ 개념을 먼저 한 덩어리로, 코드는 한 곳에 모음.</small></p>
+    </div>
+  </div>
+
+  <div class="callout danger">
+    <div class="callout-title">반영하지 않은 것 (사용자 지시)</div>
+    <ul>
+      <li>교사용 자료 — 수업 지도안·활동지 PDF·완성 <code>.ent</code> 예제·빈 프로젝트·평가 루브릭·발표 질문.</li>
+      <li>수업 운영용 메타 — 예상 시간·대상 학년(학습 목표 박스는 물리/구현 2분할만).</li>
+      <li>선수 개념·결과물 필드 — 박스에 넣지 않음(“오늘 만들 장면”은 별도 미리보기 섹션).</li>
+    </ul>
+  </div>
+
+  <h2>검증</h2>
+  <ul>
+    <li>3편 9개 섹션 태그 균형 + <code>data-blocks</code> JSON 12개 전부 파싱 OK(렌더러 입력 무손상).</li>
+    <li>편 간 일관성: 3편 관성 “성질” 통일, 4편 vy 부호(<code>+y</code>) 페이지 전체 일치.</li>
+    <li>엔트리 블록 색(<code>.hat</code>/<code>.stack</code>/<code>.cblk</code> 등)은 미변경 — 교육용 원색 유지 원칙.</li>
+  </ul>
+
+  <h2>후속 TODO</h2>
+  <ul>
+    <li>표준 구조(개념↔구현 분리)·<code>.goals</code>·<code>.fix</code>·⭐도전을 <strong>1·2·4·5편</strong>으로 확대.</li>
+    <li>후속 물리 주제: 힘·질량(6편 후보) → 운동량·충돌 → 에너지 → 경사면·마찰 → 공기저항·낙하산 → 스프링·진동 → 원운동 → 빛 반사.</li>
+    <li>로드맵 의견: 6편=「힘과 질량」, 7편=「점수·게임 규칙」(index “6편 후보”의 단순 점수/게임오버보다 물리 흐름 유지).</li>
+    <li><code>review.md</code> 커밋 여부 정리(현재 untracked).</li>
+  </ul>
+
+  <footer class="doc-footer">
+    <h2>관련 문서</h2>
+    <ul>
+      <li><a href="design-guide.html">design-guide.html</a> — D-1 기능 색·D-4 「물리↔구현 분리」 표준 구조</li>
+      <li><a href="authoring-editing-guide.html">authoring-editing-guide.html</a> — A-3 현실 vs 게임 정확성 표(정본)</li>
+      <li><a href="new-page-guide.html">new-page-guide.html</a> — §2 뼈대·§4 체크리스트</li>
+      <li><a href="review.md">review.md</a> — 반영의 출처가 된 외부 리뷰</li>
+      <li><a href="fix-history.md">fix-history.md</a> — 변경 인덱스 · <a href="next-steps.md">next-steps.md</a> — 후속 TODO</li>
+    </ul>
+  </footer>
+
+</main>
+<aside id="toc"></aside>
+</body>
+</html>

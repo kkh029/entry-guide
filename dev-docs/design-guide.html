@@ -40,6 +40,7 @@
       <li><strong>색</strong> — 한 편 = 한 액센트 색으로 통일하고, 차분한 종이/잉크 팔레트 톤 안에서 인접 편과 구분되게 고른다. <strong>Entry 블록 색은 디자인 레버가 아니다</strong>(실제 에디터 색 고정).</li>
       <li><strong>말투</strong> — 해요체 중심, 격려, 이모지를 시각 앵커로. 명령조·딱딱한 설명체(-ㅂ니다)·어려운 한자어는 피한다.</li>
       <li><strong>전개 순서</strong> — <em>문제 먼저 → 개념 → 코드.</em> 인트로 hook → 섹션 브릿지 질문 → 활동형 마무리.</li>
+      <li><strong>물리 ↔ 구현 분리</strong> — “배우는 물리 개념(🔬 초록)”과 “엔트리로 만드는 것(🧩 파랑)”을 갈라서 보여 준다. 학습 목표 박스 + 「현실 vs 게임」 콜아웃(D-4).</li>
     </ul>
   </div>
 
@@ -135,6 +136,24 @@
     진한 잉크색 등 기존 대비를 따른다. 색만으로 정보를 전달하지 말고(예: “빨간 게 정답”) 텍스트·이모지를 함께 쓴다.
   </p>
 
+  <h3>기능 색 — 현실(물리) ↔ 엔트리(구현), 도전, 오류</h3>
+  <p>
+    액센트(편 색)와 <strong>별개로</strong>, 의미가 고정된 기능 색을 쓴다. 편마다 바뀌지 않고 시리즈 전체에서 같은 뜻이라,
+    독자가 색만 보고 “이건 현실 물리 / 이건 엔트리로 만드는 얘기”를 구분한다.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>의미</th><th>색·토큰</th><th>쓰임</th><th>아이콘</th></tr></thead>
+      <tbody>
+        <tr><td><strong>현실·물리 개념</strong></td><td>초록 <code>--green</code></td><td><code>.goals .phys</code> 칼럼 · <code>.tip.real</code> 콜아웃</td><td>🔬 / 🌍</td></tr>
+        <tr><td><strong>엔트리·구현(코드)</strong></td><td>파랑 <code>--c2</code></td><td><code>.goals .code</code> 칼럼</td><td>🧩 / 🎮</td></tr>
+        <tr><td><strong>오류 해결</strong></td><td>주황 <code>--warn</code></td><td><code>.fix</code> “안 될 때 확인!” 박스</td><td>🔧</td></tr>
+        <tr><td><strong>도전(고난도)</strong></td><td>보라 <code>--c3</code></td><td><code>.tip.bonus</code> 재활용</td><td>⭐</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><small>색의 <em>의미</em>만 여기서 고정한다. 토큰 선언·적용 <em>메커니즘</em>과 박스 마크업은 <a href="new-page-guide.html">레이아웃 가이드</a>, 어떤 표현이 부정확한지는 <a href="authoring-editing-guide.html">내용 가이드</a> 소관.</small></p>
+
   <hr>
 
   <h2>D-2. 말투 (Voice &amp; Tone)</h2>
@@ -209,6 +228,39 @@
 
   <hr>
 
+  <h2>D-4. 「물리 개념 ↔ 엔트리 구현」 분리</h2>
+  <p>
+    이 시리즈는 <strong>“현실의 물리 개념”</strong>과 <strong>“엔트리로 그걸 흉내 내는 코드”</strong>를 동시에 가르친다.
+    둘이 한 문단에 섞이면 독자는 “지금 배우는 게 진짜 물리인지, 게임용 규칙인지”를 헷갈린다.
+    그래서 <strong>읽는 흐름에서 둘을 갈라</strong> 준다 — D-3의 “문제 먼저”를 깨지 않으면서.
+  </p>
+  <ul>
+    <li><strong>개념 읽기 ↔ 따라 만들기 분리</strong> — 물리 개념을 먼저 한 덩어리로 이해시키고(🔬), 그 다음 엔트리 블록을 따라 만든다(🧩). 한 섹션 안에서도 “개념 설명”과 “블록 조립”을 시각적으로 가른다.</li>
+    <li><strong>학습 목표 박스</strong>(<code>.goals</code>) — 편 맨 위에서 “오늘 배우는 물리 개념 / 오늘 엔트리로 만드는 것”을 두 칼럼으로 먼저 보여 준다. (수업 운영용 메타 — 예상 시간·대상 학년 등 — 는 넣지 않는다. 독자는 학습자 본인.)</li>
+    <li><strong>「현실 vs 게임」 콜아웃</strong>(<code>.tip.real</code>) — 비유가 현실 물리와 어긋나기 쉬운 지점에 “🌍 현실에서는 … 🎮 게임에서는 이렇게 간단히 흉내 내요”를 넣는다. <em>어떤 표현이 부정확한지</em>의 목록은 <a href="authoring-editing-guide.html">내용 가이드</a>가 관리.</li>
+  </ul>
+  <p><strong>표준 편 구조</strong> — 전개 리듬(개념/구현을 가른 형태):</p>
+  <ol class="steps">
+    <li>인트로 hook — 앞 편 경험·불편함에서 “왜?”를 체험</li>
+    <li>🎯 학습 목표(<code>.goals</code>) — 🔬물리 개념 / 🧩엔트리 구현</li>
+    <li>🖼️ 오늘 만들 장면 미리보기(데모)</li>
+    <li>🔬 <strong>물리 개념</strong> (개념 읽기) — 현실 개념 + 「현실 vs 게임」</li>
+    <li>🧩 <strong>엔트리로 만들기</strong> (따라 만들기) — 오브젝트·변수 → 블록 → 실행 확인</li>
+    <li>🔧 안 될 때 확인!(<code>.fix</code>)</li>
+    <li>🧪 숫자 바꿔 실험하기</li>
+    <li>🔁 배운 내용을 코드에서 찾아보기</li>
+    <li>⭐ 도전 과제(고난도 분리) → ✅ 마무리 체크리스트(<code>.finish</code>)</li>
+  </ol>
+  <div class="callout info">
+    <div class="callout-title">레퍼런스 구현은 3편</div>
+    <p>
+      이 구조의 첫 적용(파일럿)은 <a href="../docs/entry-game-3-inertia.html">3편 관성·마찰</a>이다. 나머지 편(1·2·4·5)으로의 확대는
+      <a href="next-steps.md">next-steps.md</a>의 후속 항목. 새 페이지는 처음부터 이 구조로 시작한다.
+    </p>
+  </div>
+
+  <hr>
+
   <h2>디자인을 바꿀 때</h2>
   <p>표현 변경은 한 페이지에 갇히지 않는다 — 색·말투·전개는 <strong>시리즈 전체의 일관성</strong>과 직결된다.</p>
   <ol class="steps">
@@ -231,6 +283,7 @@
         <tr><td>Entry 블록 색을 페이지 톤에 맞춰 탈색</td><td>실제 에디터 색과 불일치</td><td><code>--c-start</code> 등 원색 고정</td></tr>
         <tr><td>딱딱한 -ㅂ니다 설명체로 일관</td><td>어린 독자와 거리감</td><td>해요체·친근한 톤</td></tr>
         <tr><td>정의·결론부터 제시</td><td>왜 배우는지 못 느낌</td><td>문제 먼저 → 개념 → 코드</td></tr>
+        <tr><td>물리 개념과 게임 규칙을 한 문단에 섞음</td><td>진짜 물리인지 게임용인지 혼동</td><td><code>.goals</code>·<code>.tip.real</code>로 분리(D-4)</td></tr>
         <tr><td>한 페이지만 색·말투가 튀게 변경</td><td>시리즈 일관성 깨짐</td><td>인접 편과 나란히 두고 통일</td></tr>
       </tbody>
     </table>
