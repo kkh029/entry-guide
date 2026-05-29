@@ -13,18 +13,18 @@
   /* 2편 — 헤더 스테이지 (점점 빨라지는 캐릭터) */
   .hero{
     position:absolute;bottom:24px;left:0;
-    width:42px;height:42px;background:var(--red);
-    border-radius:12px 12px 8px 8px;
-    box-shadow:inset -5px -5px 0 #d9483d,0 5px 0 #b53b32;
-    animation:accel 3.2s cubic-bezier(.4,0,1,1) infinite;
+    width:45px;height:57px;
+    background:url(assets/characters/soldier-walk.png) 0 0/auto 57px no-repeat;
+    image-rendering:pixelated;
+    animation:accel 3.2s cubic-bezier(.4,0,1,1) infinite, walkcycle .7s steps(8) infinite;
   }
-  .hero::before{content:"";position:absolute;top:10px;right:8px;width:9px;height:9px;background:#fff;border-radius:50%;}
-  .hero::after{content:"";position:absolute;top:13px;right:10px;width:4px;height:4px;background:#333;border-radius:50%;}
+  @keyframes walkcycle{to{background-position-x:-360px}}
   @keyframes accel{0%{left:4%} 100%{left:88%}}
   .speedline{
-    position:absolute;bottom:46px;left:6%;
+    position:absolute;bottom:86px;left:6%;
     font-family:'Jua',sans-serif;font-size:13px;color:#fff;
     background:var(--c-data);padding:2px 9px;border-radius:12px;
+    white-space:nowrap;
     animation:accel 3.2s cubic-bezier(.4,0,1,1) infinite;
   }
 
@@ -673,7 +673,8 @@
   <footer>
     엔트리로 만드는 나만의 게임 · 2편 「이동·속도·가속도」<br>
     <span style="font-size:10px;opacity:.7;">
-      © 2026 김경환 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;">CC BY-NC-SA 4.0</a>
+      © 2026 김경환 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;">CC BY-NC-SA 4.0</a><br>
+      도트 캐릭터 © <a href="https://zerie.itch.io/tiny-rpg-character-asset-pack" target="_blank" style="color:inherit;">Zerie</a>
     </span>
   </footer>
 </div>
@@ -700,6 +701,14 @@
   let running = false;
   const keys = { left:false, right:false };
 
+  // 군인 스프라이트 (왼쪽 기본, 속도 부호에 따라 좌우 반전)
+  const sprIdle = new Image(); sprIdle.src = 'assets/characters/soldier-idle.png';
+  const sprWalk = new Image(); sprWalk.src = 'assets/characters/soldier-walk.png';
+  const SPR = { idle:{img:sprIdle, frames:6}, walk:{img:sprWalk, frames:8} };
+  const FW = 15, FH = 19, SCALE = 3;            // 프레임 15×19 → 45×57
+  let sprFrame = 0, sprTick = 0, facing = 1;    // facing: 1 오른쪽(기본·원본 방향), -1 왼쪽(반전)
+  sprIdle.onload = render; sprWalk.onload = render;
+
   function roundRect(x, y, w, h, r){
     ctx.beginPath();
     ctx.moveTo(x + r, y);
@@ -719,20 +728,26 @@
     ctx.fillRect(0, groundY - 5, W, 5);
   }
   function drawHero(){
-    const x = heroX, y = groundY - heroH;
+    const moving = Math.abs(vel) > 0.3;
+    if (vel > 0.3) facing = 1; else if (vel < -0.3) facing = -1;
+    const set = moving ? SPR.walk : SPR.idle;
+    // 그림자
     ctx.fillStyle = 'rgba(0,0,0,.13)';
     ctx.beginPath();
-    ctx.ellipse(x + heroW/2, groundY - 1, heroW/2 + 2, 4, 0, 0, Math.PI*2);
+    ctx.ellipse(heroX + heroW/2, groundY - 1, heroW/2 + 2, 4, 0, 0, Math.PI*2);
     ctx.fill();
-    ctx.fillStyle = '#ff6b5e';
-    roundRect(x, y, heroW, heroH, 10); ctx.fill();
-    ctx.fillStyle = '#d9483d';
-    roundRect(x + heroW - 5, y + 5, 5, heroH - 9, 4); ctx.fill();
-    roundRect(x + 5, y + heroH - 5, heroW - 10, 5, 4); ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(x + heroW - 12, y + 14, 5, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#333';
-    ctx.beginPath(); ctx.arc(x + heroW - 11, y + 15, 2.2, 0, Math.PI*2); ctx.fill();
+    const dw = FW*SCALE, dh = FH*SCALE, cx = heroX + heroW/2, dy = groundY - dh + 3;
+    if (!set.img.complete || set.img.naturalWidth === 0){   // 로드 전 폴백
+      ctx.fillStyle = '#ff6b5e';
+      roundRect(heroX, groundY - heroH, heroW, heroH, 10); ctx.fill();
+      return;
+    }
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.translate(cx, dy);
+    ctx.scale(facing, 1);                    // 원본=오른쪽, 왼쪽 이동 시 -1로 반전
+    ctx.drawImage(set.img, (sprFrame % set.frames)*FW, 0, FW, FH, -dw/2, 0, dw, dh);
+    ctx.restore();
   }
   function render(){
     drawGround();
@@ -747,6 +762,7 @@
     heroX += vel;
     if (heroX < 0)         { heroX = 0;         vel = 0; }
     if (heroX > W - heroW) { heroX = W - heroW; vel = 0; }
+    if (++sprTick % 5 === 0) sprFrame++;
     render();
     requestAnimationFrame(loop);
   }

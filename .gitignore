@@ -9,3 +9,6 @@
 # Local-only entryjs experiments (large bundle files, not for commit)
 docs/dist/
 docs/examples/_local/
+
+# 원본 도트 에셋 팩 (Zerie, 재배포 금지) — 크롭한 프레임만 docs/assets/characters/에 포함
+dev-docs/Tiny RPG Character Asset Pack*/

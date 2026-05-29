@@ -19,6 +19,20 @@
 
 ## 대기
 
+### 도트 캐릭터 스프라이트 (Zerie)
+출처: [character-sprites.html](character-sprites.html)
+
+- [ ] **4편 시각 일관성 — 새(발사체)도 스프라이트화 검토**
+  현재 4편은 새가 도형(CSS/canvas), 오크만 픽셀 스프라이트(헤더). 새 스프라이트(또는 화살 발사체)를 구하면 스타일 통일 + 캔버스 오크 표적도 함께 추가 가능.
+- [ ] **2편 캔버스 — 걷기 속도를 vel에 연동**
+  현재 다리 사이클은 고정 cadence(`tick%5`). 속도 편이니 |vel|에 비례해 빨라지면 개념 강화.
+- [ ] **3편 헤더 잔상 — 걷기 프레임 동기화**
+  `.trail` 고스트가 frame 0 고정. hero와 같은 walkcycle을 지연과 함께 주면 더 자연스러움(현재도 옅어 큰 문제 아님).
+- [ ] **추가 애니(Attack/Hurt/Death) 활용 여지**
+  팩에 공격·피격·사망 시트 존재. 충돌 피드백(벽 부딪힘=Hurt 등) 연출에 후속 활용 가능.
+- [ ] **픽셀아트 톤 vs 파스텔 — 지속 점검**
+  붕 뜨면 "with shadows" 버전 또는 채도 조정 검토.
+
 ### review_20260529.md 반영 (개념↔구현 분리)
 출처: [concept-implementation-separation.html](concept-implementation-separation.html)
 

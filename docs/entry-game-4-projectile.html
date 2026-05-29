@@ -52,13 +52,13 @@
     opacity:.45;
   }
   .target-pig{
-    position:absolute;bottom:24px;right:6%;
-    width:28px;height:24px;background:var(--green-d);
-    border-radius:50% 50% 45% 45%;
-    box-shadow:inset -3px -3px 0 #3e7549;
+    position:absolute;bottom:24px;right:4%;
+    width:66px;height:48px;
+    background:url(assets/characters/orc-idle.png) 0 0/auto 48px no-repeat;
+    image-rendering:pixelated;transform:scaleX(-1);   /* 오크 원본 오른쪽 → 왼쪽(날아오는 새)으로 반전 */
+    animation:orc-idle 1s steps(6) infinite;
   }
-  .target-pig::before{content:"";position:absolute;top:7px;right:5px;width:5px;height:5px;background:#fff;border-radius:50%;}
-  .target-pig::after{content:"";position:absolute;top:9px;right:6px;width:2.5px;height:2.5px;background:#333;border-radius:50%;}
+  @keyframes orc-idle{to{background-position-x:-396px}}
 
   /* 두 축이 독립적으로 움직이는 비교 */
   .axis-split{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0;}
@@ -583,7 +583,8 @@
   <footer>
     엔트리로 만드는 나만의 게임 · 4편 「포물선과 발사」<br>
     <span style="font-size:10px;opacity:.7;">
-      © 2026 김경환 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;">CC BY-NC-SA 4.0</a>
+      © 2026 김경환 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;">CC BY-NC-SA 4.0</a><br>
+      도트 캐릭터 © <a href="https://zerie.itch.io/tiny-rpg-character-asset-pack" target="_blank" style="color:inherit;">Zerie</a>
     </span>
   </footer>
 </div>
