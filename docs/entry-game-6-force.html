@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>엔트리 게임 만들기 ⑥ 힘과 질량</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="assets/entry-blocks/renderer.js" defer></script>
+<style>
+  /* 6편 — 헤더 스테이지 (캐릭터가 상자를 밀고 지나감) */
+  .push-scene{position:absolute;bottom:24px;left:-15%;white-space:nowrap;
+    animation:push-move 6s linear infinite;}
+  .push-scene .sol{
+    display:inline-block;vertical-align:bottom;
+    width:45px;height:57px;image-rendering:pixelated;
+    background:url(assets/characters/soldier-walk.png) 0 0/auto 57px no-repeat;
+    animation:push-cyc .7s steps(8) infinite;}
+  .push-scene .bx{
+    display:inline-block;vertical-align:bottom;margin-left:1px;
+    width:30px;height:30px;border-radius:3px;
+    background:var(--c6);box-shadow:inset -6px -6px 0 #8a4570;}
+  @keyframes push-move{from{left:-15%}to{left:105%}}
+  @keyframes push-cyc{to{background-position-x:-360px}}
+  .h-target{position:absolute;bottom:26px;right:7%;font-size:22px;opacity:.85;}
+
+  /* 질량 비교 비주얼 (같은 힘, 다른 가속도) */
+  .mass-cmp{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0;}
+  .mass-cmp .force-cap{
+    width:100%;text-align:center;font-family:'Gaegu',cursive;font-weight:700;
+    font-size:15.5px;color:var(--c6);margin-bottom:2px;}
+  .mc-item{
+    flex:1;min-width:140px;
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 12px;text-align:center;}
+  .mc-item.best{border:1px solid var(--c6);background:#f7eaf1;}
+  .mc-emoji{font-size:30px;}
+  .mc-mass{font-family:'Jua',sans-serif;font-size:18px;color:var(--c6);margin:4px 0 2px;}
+  .mc-acc{font-family:'Gaegu',cursive;font-weight:700;font-size:14px;color:var(--ink);}
+  .mc-arrow{color:var(--c6);letter-spacing:-1px;margin:4px 0 2px;font-weight:700;}
+  .mc-label{font-size:13px;color:var(--soft);line-height:1.45;}
+
+  /* 변수 안내 박스 */
+  .var-intro{
+    background:#fafaf6;
+    border:1px dashed var(--c6);
+    border-radius:10px;padding:14px 16px;margin:16px 0;
+    display:flex;gap:12px;align-items:center;}
+  .var-intro .vi-icon{font-size:26px;flex-shrink:0;}
+  .var-intro .vi-text{flex:1;font-size:14.5px;line-height:1.6;color:var(--ink);}
+  .var-intro .vi-text b{color:var(--c6);}
+
+  /* 코드 찾기 활동 */
+  .quiz-list{
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 18px;margin:16px 0;
+    font-size:14.5px;line-height:2.2;}
+  .quiz-list .hint{color:var(--c6);font-size:13px;}
+  .quiz-list code{background:#fff;padding:1px 7px;border-radius:5px;font-size:13px;border:1px solid var(--border);}
+
+  /* 참고자료 */
+  .meta-box{
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 18px;margin-top:14px;
+    font-size:13px;color:var(--soft);line-height:1.95;}
+  .meta-box b{font-size:13.5px;color:var(--ink);}
+  .meta-box a{color:var(--c6);text-decoration:underline;text-underline-offset:2px;}
+
+  /* CTA */
+  .cta{
+    background:linear-gradient(180deg,#f7eaf1,#fafaf6);
+    border:1px solid var(--border-s);
+    border-radius:12px;padding:22px 20px;
+    text-align:center;margin:22px 0;}
+  .cta h3{font-family:'Jua',sans-serif;font-size:20px;color:var(--ink);margin-bottom:6px;}
+  .cta p{font-size:15px;color:var(--soft);margin-bottom:12px;}
+  .cta a.go{
+    display:inline-block;background:var(--c6);color:#fff;
+    font-family:'Jua',sans-serif;font-size:16px;
+    padding:10px 22px;border-radius:30px;
+    box-shadow:0 3px 0 #8a4570;
+    transition:transform .12s ease;text-decoration:none;}
+  .cta a.go:hover{transform:translateY(-1px);}
+
+  /* 직접 해보기 — 인터랙티브 데모 */
+  .try-demo{
+    background:#fff;border:1px solid var(--border);
+    border-radius:12px;padding:16px 16px 14px;margin:16px 0 6px;}
+  .try-demo .demo-title{
+    font-family:'Jua',sans-serif;font-size:16px;color:var(--ink);
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .try-demo .demo-title .pill{
+    background:var(--c6);color:#fff;font-family:'Jua',sans-serif;
+    font-size:11px;padding:2px 9px;border-radius:20px;letter-spacing:.5px;}
+  .try-canvas-wrap{
+    position:relative;background:linear-gradient(180deg,var(--sky1),var(--sky2));
+    border-radius:10px;overflow:hidden;outline:none;cursor:pointer;}
+  .try-canvas-wrap:focus{box-shadow:0 0 0 3px rgba(176,90,142,.40);}
+  .try-canvas-wrap canvas{display:block;width:100%;height:auto;}
+  .try-hud{
+    position:absolute;top:8px;left:10px;
+    font-family:'Jua',sans-serif;font-size:13px;
+    background:rgba(255,255,255,.85);color:var(--ink);
+    padding:3px 10px;border-radius:14px;}
+  .try-hud.vel{
+    top:8px;left:auto;right:10px;
+    background:rgba(176,90,142,.18);color:var(--ink);}
+  .try-focus-msg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    text-align:center;padding:0 18px;
+    font-family:'Jua',sans-serif;font-size:14.5px;color:var(--ink);
+    background:rgba(255,255,255,.55);pointer-events:none;
+    opacity:0;transition:opacity .15s ease;}
+  .try-canvas-wrap.idle .try-focus-msg{opacity:1;}
+  .try-controls{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;}
+  .try-controls button{
+    font-family:'Jua',sans-serif;font-size:14px;
+    background:var(--c6);color:#fff;border:none;
+    padding:7px 16px;border-radius:20px;
+    box-shadow:0 2px 0 #8a4570;cursor:pointer;
+    transition:transform .1s ease;}
+  .try-controls button:active{transform:translateY(1px);box-shadow:0 1px 0 #8a4570;}
+  .try-controls button.secondary{
+    background:#fff;color:var(--ink);
+    border:1px solid var(--border);box-shadow:0 2px 0 var(--border);}
+  .try-controls button.secondary:active{box-shadow:0 1px 0 var(--border);}
+  .try-controls .speed-row{
+    display:flex;align-items:center;gap:8px;margin-left:auto;
+    font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);}
+  .try-controls .speed-row input[type=range]{width:120px;}
+  .try-controls .speed-row b{color:var(--ink);min-width:24px;display:inline-block;text-align:center;}
+  .try-hint{
+    font-family:'Gowun Dodum',sans-serif;font-size:13.5px;
+    color:var(--soft);margin-top:8px;line-height:1.65;}
+  .try-hint kbd{
+    display:inline-block;background:#fafaf6;
+    border:1px solid var(--border);border-bottom-width:2px;
+    border-radius:5px;padding:1px 8px;
+    font-family:'Jua',sans-serif;font-size:12px;color:var(--ink);}
+  @media (max-width:520px){
+    .try-controls .speed-row{margin-left:0;width:100%;justify-content:space-between;}
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="home-link">🏠</a>
+
+<header>
+  <span class="badge">엔트리 게임 만들기 · 6편</span>
+  <h1>힘과 질량<br>— 무거운 상자를 밀어 퍼즐을 풀자!</h1>
+  <p class="sub">같은 힘으로 밀어도 왜 무거운 상자는 느릴까? 힘÷질량의 비밀을 풀어요 📦</p>
+</header>
+
+<div class="stage">
+  <div class="push-scene"><span class="sol"></span><span class="bx"></span></div>
+  <div class="h-target">🎯</div>
+  <div class="ground"></div>
+</div>
+
+<div class="wrap">
+
+  <section class="card">
+    <p class="big">📦 지금까지 만든 캐릭터는 키를 누르면 <b>무엇을 밀든 똑같은 빠르기로</b> 움직였죠? 그런데 현실에서 <b>가벼운 공</b>과 <b>무거운 바위</b>를 똑같은 힘으로 밀면 어떨까요? 공은 쑥 굴러가지만 바위는 꿈쩍도 안 하죠!</p>
+
+    <p>오늘은 그 차이의 정체를 풀어볼 거예요. 비밀은 바로 <b>질량(무거운 정도)</b>이에요. 같은 힘으로 밀어도 <b>가벼우면 빨리, 무거우면 천천히</b> 움직여요. 2·3편에서 속도에 가속을 더하고 마찰로 깎았던 거 기억나죠? 이번엔 그 가속이 <b>“힘을 질량으로 나눈 값”</b>이라는 걸 배워서, <b>상자를 밀어 버튼에 올리는 퍼즐</b>을 완성해요!</p>
+
+    <div class="legend">
+      <div class="entry-block" data-block='{"shape":"stack","category":"START",   "marker":false,"contents":[{"type":"text","value":"시작"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"FLOW",    "marker":false,"contents":[{"type":"text","value":"흐름(반복·만일)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"MOVING",  "marker":false,"contents":[{"type":"text","value":"움직임"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"JUDGE",   "marker":false,"contents":[{"type":"text","value":"판단"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"VARIABLE","marker":false,"contents":[{"type":"text","value":"자료(변수)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"CALC",    "marker":false,"contents":[{"type":"text","value":"계산"}]}'></div>
+    </div>
+  </section>
+
+  <div class="goals">
+    <div class="goal-col phys">
+      <div class="goal-head">🔬 오늘 배우는 물리 개념</div>
+      <ul>
+        <li><b>힘</b> — 물체를 밀거나 당겨 움직임을 바꾸는 것</li>
+        <li><b>질량</b> — 무거운 정도. 클수록 잘 안 움직여요</li>
+        <li><b>가속도 = 힘 ÷ 질량</b> — 같은 힘이라도 무거우면 천천히 (뉴턴 제2법칙)</li>
+      </ul>
+    </div>
+    <div class="goal-col code">
+      <div class="goal-head">🧩 엔트리로 만드는 것</div>
+      <ul>
+        <li><b>‘질량’</b> 변수 + <b>상자속도 = (미는힘 ÷ 질량)</b>으로 가속</li>
+        <li>마찰 <b>×0.9</b>로 스르르 멈추기 (3·5편 복습)</li>
+        <li><b>버튼에 닿으면</b> “퍼즐 성공!” 판정</li>
+      </ul>
+    </div>
+  </div>
+
+  <section class="card c-magenta">
+    <div class="step-no">1</div>
+    <h2>직접 상자를 밀어보자</h2>
+    <p>백 마디 설명보다 한 번 해보는 게 빨라요! 아래 상자를 직접 밀어봐요. <b>질량</b> 슬라이더를 올리면 똑같은 <b>▶ 밀기</b>를 눌러도 상자가 <b>느릿느릿</b> 움직이고, 내리면 <b>쑥</b> 나가요. 📦</p>
+
+    <div class="try-demo">
+      <div class="demo-title"><span class="pill">직접 해보기</span> 상자를 밀어 🎯 버튼까지 옮겨봐요!</div>
+      <div class="try-canvas-wrap idle" id="demoStage6" tabindex="0" aria-label="상자를 밀어 버튼으로 옮기는 데모">
+        <canvas id="demoCanvas6" width="720" height="320"></canvas>
+        <div class="try-hud">속도: <b id="demoVel6">0.0</b></div>
+        <div class="try-hud vel">가속도(힘÷질량): <b id="demoAcc6">0.15</b></div>
+        <div class="try-focus-msg">▶ 밀기 버튼을 누르거나<br>이 화면을 클릭하면 상자를 밀어요</div>
+      </div>
+      <div class="try-controls">
+        <button id="demoRun6">▶ 밀기</button>
+        <button id="demoReset6" class="secondary">↺ 처음으로</button>
+        <span class="speed-row">질량 <b id="demoMassVal6">4</b>
+          <input type="range" id="demoMass6" min="1" max="10" step="1" value="4" aria-label="질량">
+        </span>
+      </div>
+      <div class="try-hint">📦 <b>미는 힘</b>은 항상 똑같아요. <b>질량</b>을 <b>1</b>에 두면 가속도가 커서 상자가 <b>금방</b> 버튼에 닿고, <b>10</b>에 두면 가속도가 작아서 <b>한참</b> 걸려요. 바꾼 뒤 <kbd>↺ 처음으로</kbd>를 눌러 다시 밀어봐요! 왜 그런지는 아래에서 알아봐요.</div>
+    </div>
+  </section>
+
+  <section class="card c-magenta">
+    <div class="step-no">2</div>
+    <h2>🔬 힘과 질량 — 밀기와 무거움</h2>
+    <p>먼저 두 가지 말을 정리해요. <b>힘</b>은 물체를 <b>밀거나 당겨서 움직임을 바꾸는 것</b>이에요. <b>질량</b>은 그 물체가 <b>얼마나 무거운지</b>를 나타내요. 질량이 클수록 <b>같은 힘으로 밀어도 잘 안 움직여요.</b></p>
+
+    <div class="tip">
+      <b>🛒 쇼핑카트로 느껴봐요</b><br>
+      텅 빈 카트는 살짝만 밀어도 쪼르르 굴러가지만, 물건이 가득 찬 카트는 똑같이 힘껏 밀어도 천천히 움직이죠? 카트 속 물건이 많아질수록 <b>질량이 커진</b> 거예요.
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 힘을 <b>뉴턴(N)</b>이라는 단위로 재요. 밀고 당기는 진짜 물리량이죠.<br>
+      <b>🎮 게임에서는</b> 그 힘을 <b>‘미는힘’이라는 숫자 하나</b>로 간단히 흉내 내요.
+    </div>
+
+    <p>그럼 같은 힘으로 밀 때 <b>빠르기를 정하는 건 무엇</b>일까요? 바로 <b>질량</b>이에요. 다음에서 그 관계를 풀어봐요!</p>
+  </section>
+
+  <section class="card c-magenta">
+    <div class="step-no">3</div>
+    <h2>🔬 가속도 = 힘 ÷ 질량</h2>
+    <p>핵심은 한 문장이에요. <b>같은 힘이라도 질량이 크면 가속도가 작아져요.</b> 가속도(2편에서 배운 “속도가 변하는 빠르기”)는 <b>힘을 질량으로 나눈 값</b>이거든요.</p>
+
+    <div class="tip">
+      <b>📖 뉴턴 제2법칙이란?</b><br>
+      “물체의 <b>가속도는 힘에 비례하고, 질량에 반비례</b>해요.” 즉 <b>가속도 = 힘 ÷ 질량</b>이에요.<br>
+      <small style="opacity:.7;">— <a href="https://ko.wikipedia.org/wiki/%EB%89%B4%ED%84%B4_%EC%9A%B4%EB%8F%99_%EB%B2%95%EC%B9%99" target="_blank" rel="noopener" style="color:var(--c6);">위키백과, “뉴턴 운동 법칙”</a> (내용 재작성)</small>
+    </div>
+
+    <p>나눗셈으로 생각하면 쉬워요. 사탕(힘)이 똑같이 있어도 <b>나눠 가질 사람(질량)이 많으면</b> 한 사람 몫(가속도)이 줄죠? 힘이 같을 때 <b>질량이 커지면 가속도가 작아지는</b> 것도 똑같아요.</p>
+
+    <div class="mass-cmp">
+      <div class="force-cap">— 미는 힘은 모두 똑같아요 →→→ —</div>
+      <div class="mc-item">
+        <div class="mc-emoji">🪶</div>
+        <div class="mc-mass">질량 1</div>
+        <div class="mc-acc">가속도 = 힘 ÷ 1 = 큼</div>
+        <div class="mc-arrow">→→→→→</div>
+        <div class="mc-label">쑥 나가요!</div>
+      </div>
+      <div class="mc-item best">
+        <div class="mc-emoji">📦</div>
+        <div class="mc-mass">질량 4</div>
+        <div class="mc-acc">가속도 = 힘 ÷ 4 = 보통</div>
+        <div class="mc-arrow">→→</div>
+        <div class="mc-label">기본값!<br>적당히 움직여요</div>
+      </div>
+      <div class="mc-item">
+        <div class="mc-emoji">🪨</div>
+        <div class="mc-mass">질량 10</div>
+        <div class="mc-acc">가속도 = 힘 ÷ 10 = 작음</div>
+        <div class="mc-arrow">→</div>
+        <div class="mc-label">느릿느릿…</div>
+      </div>
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 가속도 = 힘 ÷ 질량(a = F ÷ m)을 <b>정확히 계산</b>해요.<br>
+      <b>🎮 게임에서는</b> 진짜 힘 계산이 아니라, <b>‘상자속도’에 ‘(미는힘 ÷ 질량)’을 더하는 간단한 규칙</b>으로 “무거우면 천천히”를 흉내 내요.
+    </div>
+
+    <div class="tip bonus">
+      <b>⭐ 더 알고 싶다면: F = m × a</b><br>
+      과학자 뉴턴은 이걸 <b>힘 = 질량 × 가속도</b>라는 식으로 정리했어요. 우리 게임의 <b>가속도 = 미는힘 ÷ 질량</b>은 이 식을 가속도에 대해 바꿔 쓴 것과 똑같아요. 식이 어려우면 “무거우면 천천히”만 기억해도 충분해요! 😉
+    </div>
+
+    <p>그럼 이 규칙을 <b>엔트리 블록</b>으로 옮겨봐요!</p>
+  </section>
+
+  <section class="card c-magenta">
+    <div class="step-no">4</div>
+    <h2>🧩 엔트리로 미는 상자 만들기</h2>
+    <p>이제 엔트리로 만들어봐요! <b>‘질량’</b>, <b>‘미는힘’</b>, <b>‘상자속도’</b> 변수를 만들고, 오른쪽 화살표를 누르는 동안 <b>(미는힘 ÷ 질량)</b>만큼 상자속도를 더해주면 돼요.</p>
+
+    <div class="var-intro">
+      <div class="vi-icon">📦</div>
+      <div class="vi-text">
+        <b>‘상자속도’</b> = 상자가 지금 <b>얼마나 빠르게</b> 움직이는지 적어두는 메모장. <b>‘미는힘’</b>은 항상 같은 힘(예: 5), <b>‘질량’</b>은 상자가 <b>얼마나 무거운지</b>(클수록 무거움)예요.
+      </div>
+    </div>
+
+    <p style="font-weight:700;color:var(--soft);">▶ 시작 블록 안에 이렇게 쌓아주세요.</p>
+
+    <div class="entry-code" data-blocks='[
+      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+      {"shape":"stack","category":"VARIABLE","note":"숫자가 클수록 무거운 상자예요","contents":[
+        {"type":"dropdown","value":"질량"},{"type":"text","value":"을"},
+        {"type":"input","value":"4"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"stack","category":"VARIABLE","note":"항상 똑같은 힘으로 밀어요","contents":[
+        {"type":"dropdown","value":"미는힘"},{"type":"text","value":"을"},
+        {"type":"input","value":"5"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"stack","category":"VARIABLE","contents":[
+        {"type":"dropdown","value":"상자속도"},{"type":"text","value":"를"},
+        {"type":"input","value":"0"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"오른쪽 화살표"},{"type":"text","value":"키가 눌러져 있는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","note":"← 가속! 같은 힘이라도 질량이 크면 조금만 빨라져요","contents":[
+            {"type":"dropdown","value":"상자속도"},{"type":"text","value":"에"},
+            {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"미는힘"},{"type":"text","value":"÷"},{"type":"text","value":"질량"}]}},
+            {"type":"text","value":"만큼 더하기"}
+          ]}
+        ]},
+        {"shape":"stack","category":"VARIABLE","note":"↑ 마찰 — 1보다 작은 수를 곱해 속도를 줄여요 (3·5편과 같아요)","contents":[
+          {"type":"dropdown","value":"상자속도"},{"type":"text","value":"를"},
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"상자속도"},{"type":"text","value":"×"},{"type":"input","value":"0.9"}]}},
+          {"type":"text","value":"로 정하기"}
+        ]},
+        {"shape":"stack","category":"MOVING","contents":[
+          {"type":"text","value":"x 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"상자속도"}]}},
+          {"type":"text","value":"만큼 바꾸기"}
+        ]}
+      ]}
+    ]'></div>
+
+    <div class="tip">
+      <b>🧮 ‘미는힘 ÷ 질량’은 어떻게 만들어요?</b><br>
+      자료 카테고리의 <b>“[변수]에 [값]만큼 더하기”</b> 블록에서, 흰 칸 안에 <b>계산</b> 카테고리의 <b>나누기(÷) 블록</b>을 쏙 넣어요. 왼쪽 칸엔 <b>‘미는힘’</b>, 오른쪽 칸엔 <b>‘질량’</b>을 넣으면 끝! (3·5편에서 곱하기 블록을 넣었던 거랑 똑같은 방법이에요.)
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 바닥·공기와의 마찰이 상자를 멈춰요.<br>
+      <b>🎮 게임에서는</b> <b>3편(×0.85)·5편(×0.7)과 똑같이</b> 매 프레임 속도에 1보다 작은 수(<b>×0.9</b>)를 곱해 멈춤을 흉내 내요. 곱하는 수가 달라도 <b>원리는 같아요!</b>
+    </div>
+
+    <div class="tip bonus">
+      <b>🧪 실험해 봐요!</b><br>
+      ① <b>질량</b>을 <b>2</b>로 바꾸면? 상자가 훨씬 빨리 움직여요.<br>
+      ② <b>질량</b>을 <b>10</b>으로 바꾸면? 같은 힘인데 거북이처럼 느려요. 🐢<br>
+      ③ <b>미는힘</b>을 키우면? 무거운 상자도 다시 잘 움직여요 — 힘과 질량은 <b>줄다리기</b> 관계예요!
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🔧 안 될 때 확인!</h2>
+    <p>따라 하다 막히면 대부분 물리가 아니라 <b>블록 실수</b>예요. 아래를 확인해 봐요.</p>
+    <div class="fix">
+      <div class="fix-title">🔧 이렇게 안 되나요?</div>
+      <ul>
+        <li><b>상자가 안 움직여요</b> → <b>“오른쪽 화살표 키가 눌러져 있는가?”</b> 만일 안에 <b>‘상자속도에 (미는힘÷질량) 만큼 더하기’</b> 줄이 있는지 확인</li>
+        <li><b>질량을 키워도 똑같이 빨라요</b> → 나누기 블록의 <b>오른쪽 칸이 ‘질량’</b>(고정 숫자가 아니라 변수)인지 확인</li>
+        <li><b>상자가 끝없이 빨라져요</b> → 마찰 <b>‘상자속도 × 0.9로 정하기’</b>가 반복 안에 있는지 확인</li>
+        <li><b>손을 떼도 안 멈춰요</b> → 마찰 줄이 빠졌거나, ×0.9가 ×1처럼 너무 큰 값은 아닌지 확인</li>
+        <li><b>버튼에 올려도 성공이 안 떠요</b> → ⭐ 도전의 <b>“버튼에 닿았는가?”</b> 판정·말하기(또는 신호)가 들어갔는지 확인</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card c-magenta">
+    <div class="step-no">⭐</div>
+    <h2>⭐ 도전: 퍼즐 완성과 얼음 상자</h2>
+    <p>상자를 밀 수 있게 됐으니, 진짜 <b>퍼즐 게임</b>으로 완성해 봐요!</p>
+
+    <div class="tip">
+      <b>🎯 ① 버튼에 올리면 “성공!”</b><br>
+      상자가 목표 <b>버튼에 닿으면</b> 클리어로 처리해요. 반복 안에 이 판단을 더하면 돼요.
+      <div class="entry-code" style="margin:10px 0 0;" data-blocks='[
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"버튼"},{"type":"text","value":"에 닿았는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"LOOKS","contents":[
+            {"type":"input","value":"퍼즐 성공!"},{"type":"text","value":"을(를) 말하기"}
+          ]}
+        ]}
+      ]'></div>
+    </div>
+
+    <div class="tip">
+      <b>🧊 ② 마찰 없는 얼음 상자</b><br>
+      마찰을 <b>×0.99</b>(거의 1)로 바꾸면 상자가 잘 안 멈추고 <b>주르륵 미끄러져</b> 버튼을 지나쳐 버려요. “살살 밀어서 딱 멈추기”가 어려워지는 <b>얼음판 퍼즐</b>이 되죠. 3·5편의 마찰을 거꾸로 약하게 만든 거예요!
+    </div>
+
+    <div class="tip bonus">
+      <b>🧩 ③ 질량을 난이도로</b><br>
+      같은 레벨이라도 <b>‘질량’ 값을 크게</b> 하면 더 오래 밀어야 하는 어려운 퍼즐이 돼요. 레벨이 올라갈수록 상자를 무겁게 만들어 보세요!
+    </div>
+  </section>
+
+  <section class="card c-magenta">
+    <div class="step-no">★</div>
+    <h2>🔍 배운 내용을 코드에서 찾아봐요!</h2>
+    <p>아까 만든 코드 블록을 떠올리면서 아래 질문에 답해봐요. 개념과 코드가 어떻게 연결되는지 직접 확인해보는 거예요!</p>
+
+    <div class="quiz-list">
+      <div>① 상자를 <b>밀어 움직이게</b> 하는 부분은 어디예요? <span class="hint">(힌트: 상자속도에 더하기)</span></div>
+      <div>② 같은 힘인데 <b>무거우면 느리게</b> 만드는 건 무엇인가요? <span class="hint">(힌트: ÷ 질량)</span></div>
+      <div>③ <b>질량을 2배</b>로 하면 가속도는 어떻게 될까요?</div>
+      <div>④ 상자를 <b>스르르 멈추게</b> 하는 줄은 어디예요? <span class="hint">(힌트: ×0.9)</span></div>
+    </div>
+
+    <div class="tip bonus">
+      <b>💬 답을 확인해봐요!</b><br>
+      ① <code>상자속도에 (미는힘 ÷ 질량) 만큼 더하기</code> — 여기서 상자에 가속이 붙어요!<br>
+      ② <b>÷ 질량</b> — 같은 미는힘을 질량으로 나누니까 무거우면 가속도가 작아져요.<br>
+      ③ 가속도가 <b>절반</b>이 돼요 (힘 ÷ 질량에서 질량이 2배니까요).<br>
+      ④ <code>상자속도를 (상자속도 × 0.9) 로 정하기</code> — 3·5편의 마찰과 똑같은 아이디어예요!
+    </div>
+  </section>
+
+  <div class="finish">
+    <h2>🎉 6편 완성! 무거운 상자를 밀었어요!</h2>
+    <p>6편에서 배운 걸 확인해 볼까요?</p>
+    <div class="check">
+      <div>✅ <b>힘</b> = 움직임을 바꾸는 것 / <b>질량</b> = 무거운 정도</div>
+      <div>✅ <b>가속도 = 힘 ÷ 질량</b> — 같은 힘이라도 무거우면 천천히</div>
+      <div>✅ ‘상자속도’에 <b>(미는힘 ÷ 질량)</b>을 더해 밀기</div>
+      <div>✅ 마찰 <b>×0.9</b>로 스르르 멈추기 (3·5편과 같은 원리)</div>
+      <div>✅ <b>버튼에 닿으면</b> “퍼즐 성공!” 판정</div>
+      <div>✅ 엔트리로 무거운 상자 밀기 퍼즐 완성!</div>
+    </div>
+    <div class="next">🚀 <b>거의 다 왔어요!</b> 이동·속도·가속도·관성·마찰·중력·발사·탄성·힘·질량까지 배웠죠. 마지막 <b>7편</b>에서는 <b>운동량과 충돌</b>로 당구처럼 부딪히는 공을 만들어 시리즈를 완성해요!</div>
+  </div>
+
+  <div class="meta-box">
+    <b>📚 참고 자료</b><br>
+    • <a href="https://ko.wikipedia.org/wiki/%EB%89%B4%ED%84%B4_%EC%9A%B4%EB%8F%99_%EB%B2%95%EC%B9%99" target="_blank" rel="noopener">위키백과, “뉴턴 운동 법칙”</a> — 가속도 = 힘 ÷ 질량 (제2법칙)<br>
+    • <a href="https://ko.wikipedia.org/wiki/%EC%A7%88%EB%9F%89" target="_blank" rel="noopener">위키백과, “질량”</a> — 무거운 정도와 관성
+  </div>
+
+  <div class="cta">
+    <h3>📘 마지막 한 편이 남았어요!</h3>
+    <p>공이 다른 공에 부딪히면? 운동량과 충돌로 당구 같은 게임을 만들어요!</p>
+    <a class="go" href="entry-game-7-collision.html">7편 운동량과 충돌 →</a>
+  </div>
+
+  <footer>
+    엔트리로 만드는 나만의 게임 · 6편 「힘과 질량」<br>
+    <span style="font-size:10px;opacity:.7;">
+      © 2026 김경환 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;">CC BY-NC-SA 4.0</a><br>
+      도트 캐릭터 © <a href="https://zerie.itch.io/tiny-rpg-character-asset-pack" target="_blank" style="color:inherit;">Zerie</a>
+    </span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const wrap       = document.getElementById('demoStage6');
+  const canvas     = document.getElementById('demoCanvas6');
+  const ctx        = canvas.getContext('2d');
+  const runBtn     = document.getElementById('demoRun6');
+  const resetBtn   = document.getElementById('demoReset6');
+  const massSlider = document.getElementById('demoMass6');
+  const massVal    = document.getElementById('demoMassVal6');
+  const velLabel   = document.getElementById('demoVel6');
+  const accLabel   = document.getElementById('demoAcc6');
+
+  const W = canvas.width, H = canvas.height;
+  const groundY = H - 30;
+  const FORCE    = 0.6;     // 항상 같은 미는 힘
+  const friction = 0.92;
+  const boxSize  = 46;
+  const startX   = 64;          // 상자 왼쪽 끝 시작
+  const btnX     = W - 150;     // 버튼 영역 왼쪽
+  const btnW     = 84;
+  const goalX    = btnX + btnW / 2;   // 상자 오른쪽 끝이 여기 닿으면 성공
+  let mass = 4;
+  let x = startX, vel = 0;
+  let pushing = false, success = false, running = false;
+
+  function drawGround(){
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#a17a52';
+    ctx.fillRect(0, groundY, W, H - groundY);
+    ctx.fillStyle = '#8e6c47';
+    for (let gx = 0; gx < W; gx += 28) ctx.fillRect(gx + 24, groundY, 4, H - groundY);
+    ctx.fillStyle = '#7ea884';
+    ctx.fillRect(0, groundY - 5, W, 5);
+  }
+  function drawButton(){
+    ctx.fillStyle = success ? '#b05a8e' : '#d9b3cb';
+    ctx.fillRect(btnX, groundY - 9, btnW, 9);
+    ctx.font = '24px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(success ? '🎉' : '🎯', btnX + btnW / 2, groundY - 18);
+  }
+  function drawBox(){
+    const bx = x, by = groundY - boxSize;
+    ctx.fillStyle = 'rgba(0,0,0,.12)';
+    ctx.beginPath();
+    ctx.ellipse(bx + boxSize / 2, groundY - 2, boxSize * 0.55, 4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#b05a8e';
+    ctx.fillRect(bx, by, boxSize, boxSize);
+    ctx.fillStyle = '#8a4570';
+    ctx.fillRect(bx + boxSize - 9, by, 9, boxSize);
+    ctx.fillRect(bx, by + boxSize - 9, boxSize, 9);
+    ctx.fillStyle = '#f7eaf1';
+    ctx.fillRect(bx + 6, by + 6, boxSize - 18, 6);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 18px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(mass, bx + boxSize / 2 - 2, by + boxSize / 2 + 8);
+    if (pushing && !success){
+      ctx.strokeStyle = '#c0398a'; ctx.fillStyle = '#c0398a'; ctx.lineWidth = 3;
+      const ay = by + boxSize / 2;
+      ctx.beginPath(); ctx.moveTo(bx - 28, ay); ctx.lineTo(bx - 8, ay); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(bx - 8, ay - 6); ctx.lineTo(bx, ay); ctx.lineTo(bx - 8, ay + 6); ctx.fill();
+    }
+  }
+  function drawSuccess(){
+    if (!success) return;
+    ctx.fillStyle = 'rgba(176,90,142,.95)';
+    ctx.font = 'bold 26px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🎉 퍼즐 성공!', W / 2, 52);
+  }
+  function render(){
+    drawGround(); drawButton(); drawBox(); drawSuccess();
+    velLabel.textContent = vel.toFixed(1);
+    accLabel.textContent = (FORCE / mass).toFixed(2);
+  }
+  function updateBtn(){
+    runBtn.textContent = pushing ? '⏸ 멈춤' : '▶ 밀기';
+    wrap.classList.toggle('idle', !running && !success);
+  }
+  function loop(){
+    if (!running) return;
+    if (pushing && !success) vel += FORCE / mass;
+    vel *= friction;
+    x += vel;
+    if (x < 6){ x = 6; vel = 0; }
+    if (x + boxSize > W - 6){ x = W - 6 - boxSize; vel = 0; }
+    if (!success && x + boxSize >= goalX){ success = true; pushing = false; }
+    render();
+    if (pushing || Math.abs(vel) > 0.05){ requestAnimationFrame(loop); }
+    else { running = false; updateBtn(); }
+  }
+  function startLoop(){ if (!running){ running = true; requestAnimationFrame(loop); } }
+  function togglePush(){
+    if (success) return;          // 성공 후엔 ↺ 처음으로
+    pushing = !pushing;
+    updateBtn();
+    startLoop();
+  }
+  function reset(){
+    x = startX; vel = 0; pushing = false; success = false; running = false;
+    updateBtn(); render();
+  }
+
+  runBtn.addEventListener('click', togglePush);
+  resetBtn.addEventListener('click', reset);
+  massSlider.addEventListener('input', e => {
+    mass = parseInt(e.target.value, 10);
+    massVal.textContent = mass;
+    render();
+  });
+  wrap.addEventListener('click', () => {
+    wrap.focus();
+    if (!success) togglePush();
+  });
+
+  reset();
+})();
+</script>
+
+<nav class="toc-sidebar">
+  <div class="toc-title">이 페이지 목차</div>
+  <ol id="toc-list"></ol>
+</nav>
+
+<script>
+(function(){
+  var hs = document.querySelectorAll('section.card h2');
+  var list = document.getElementById('toc-list');
+  if(!hs.length || !list) return;
+  hs.forEach(function(h, i){
+    if(!h.id) h.id = 'toc-' + i;
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a); list.appendChild(li);
+  });
+  var links = list.querySelectorAll('a');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = list.querySelector('a[href="#' + e.target.id + '"]');
+        if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-8% 0px -80% 0px'});
+  hs.forEach(function(h){ io.observe(h); });
+})();
+</script>
+
+</body>
+</html>

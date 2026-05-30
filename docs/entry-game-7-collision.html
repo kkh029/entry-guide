@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>엔트리 게임 만들기 ⑦ 운동량과 충돌</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="assets/entry-blocks/renderer.js" defer></script>
+<style>
+  /* 7편 — 헤더 스테이지 (당구공 충돌: 큐볼이 굴러와 타깃볼을 밀어냄) */
+  .cue7, .tgt7{
+    position:absolute;bottom:24px;width:30px;height:30px;border-radius:50%;}
+  .cue7{background:var(--c7);box-shadow:inset -6px -6px 0 #6f2a3c;
+    animation:cue-roll 4.2s ease-in infinite;}
+  .tgt7{background:#ece0c8;box-shadow:inset -6px -6px 0 #c4b48a;
+    animation:tgt-roll 4.2s ease-out infinite;}
+  .cue7::after{content:"";position:absolute;top:6px;left:8px;width:7px;height:7px;background:rgba(255,255,255,.5);border-radius:50%;}
+  @keyframes cue-roll{0%{left:-10%}42%{left:38%}100%{left:38%}}
+  @keyframes tgt-roll{0%{left:46%}42%{left:46%}100%{left:108%}}
+
+  /* 충돌 결과 비교 비주얼 (같은 힘으로 발사, 무게에 따라 결과 다름) */
+  .col-cmp{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0;}
+  .col-cmp .force-cap{
+    width:100%;text-align:center;font-family:'Gaegu',cursive;font-weight:700;
+    font-size:15.5px;color:var(--c7);margin-bottom:2px;}
+  .cc-item{
+    flex:1;min-width:150px;
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 12px;text-align:center;}
+  .cc-item.best{border:1px solid var(--c7);background:#f5e9ed;}
+  .cc-emoji{font-size:28px;letter-spacing:2px;}
+  .cc-title{font-family:'Jua',sans-serif;font-size:15px;color:var(--c7);margin:4px 0 2px;}
+  .cc-label{font-size:13px;color:var(--soft);line-height:1.5;}
+  .cc-label b{color:var(--ink);}
+
+  /* 변수 안내 박스 */
+  .var-intro{
+    background:#fafaf6;
+    border:1px dashed var(--c7);
+    border-radius:10px;padding:14px 16px;margin:16px 0;
+    display:flex;gap:12px;align-items:center;}
+  .var-intro .vi-icon{font-size:26px;flex-shrink:0;}
+  .var-intro .vi-text{flex:1;font-size:14.5px;line-height:1.6;color:var(--ink);}
+  .var-intro .vi-text b{color:var(--c7);}
+
+  /* 코드 찾기 활동 */
+  .quiz-list{
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 18px;margin:16px 0;
+    font-size:14.5px;line-height:2.2;}
+  .quiz-list .hint{color:var(--c7);font-size:13px;}
+  .quiz-list code{background:#fff;padding:1px 7px;border-radius:5px;font-size:13px;border:1px solid var(--border);}
+
+  /* 참고자료 */
+  .meta-box{
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 18px;margin-top:14px;
+    font-size:13px;color:var(--soft);line-height:1.95;}
+  .meta-box b{font-size:13.5px;color:var(--ink);}
+  .meta-box a{color:var(--c7);text-decoration:underline;text-underline-offset:2px;}
+
+  /* CTA */
+  .cta{
+    background:linear-gradient(180deg,#f5e9ed,#fafaf6);
+    border:1px solid var(--border-s);
+    border-radius:12px;padding:22px 20px;
+    text-align:center;margin:22px 0;}
+  .cta h3{font-family:'Jua',sans-serif;font-size:20px;color:var(--ink);margin-bottom:6px;}
+  .cta p{font-size:15px;color:var(--soft);margin-bottom:12px;}
+  .cta a.go{
+    display:inline-block;background:var(--c7);color:#fff;
+    font-family:'Jua',sans-serif;font-size:16px;
+    padding:10px 22px;border-radius:30px;
+    box-shadow:0 3px 0 #6f2a3c;
+    transition:transform .12s ease;text-decoration:none;}
+  .cta a.go:hover{transform:translateY(-1px);}
+
+  /* 직접 해보기 — 인터랙티브 데모 */
+  .try-demo{
+    background:#fff;border:1px solid var(--border);
+    border-radius:12px;padding:16px 16px 14px;margin:16px 0 6px;}
+  .try-demo .demo-title{
+    font-family:'Jua',sans-serif;font-size:16px;color:var(--ink);
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .try-demo .demo-title .pill{
+    background:var(--c7);color:#fff;font-family:'Jua',sans-serif;
+    font-size:11px;padding:2px 9px;border-radius:20px;letter-spacing:.5px;}
+  .try-canvas-wrap{
+    position:relative;background:linear-gradient(180deg,var(--sky1),var(--sky2));
+    border-radius:10px;overflow:hidden;outline:none;cursor:pointer;}
+  .try-canvas-wrap:focus{box-shadow:0 0 0 3px rgba(154,59,82,.40);}
+  .try-canvas-wrap canvas{display:block;width:100%;height:auto;}
+  .try-hud{
+    position:absolute;top:8px;left:10px;
+    font-family:'Jua',sans-serif;font-size:13px;
+    background:rgba(255,255,255,.85);color:var(--ink);
+    padding:3px 10px;border-radius:14px;}
+  .try-hud.vel{
+    top:8px;left:auto;right:10px;
+    background:rgba(154,59,82,.18);color:var(--ink);}
+  .try-focus-msg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    text-align:center;padding:0 18px;
+    font-family:'Jua',sans-serif;font-size:14.5px;color:var(--ink);
+    background:rgba(255,255,255,.55);pointer-events:none;
+    opacity:0;transition:opacity .15s ease;}
+  .try-canvas-wrap.idle .try-focus-msg{opacity:1;}
+  .try-controls{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;}
+  .try-controls button{
+    font-family:'Jua',sans-serif;font-size:14px;
+    background:var(--c7);color:#fff;border:none;
+    padding:7px 16px;border-radius:20px;
+    box-shadow:0 2px 0 #6f2a3c;cursor:pointer;
+    transition:transform .1s ease;}
+  .try-controls button:active{transform:translateY(1px);box-shadow:0 1px 0 #6f2a3c;}
+  .try-controls button.secondary{
+    background:#fff;color:var(--ink);
+    border:1px solid var(--border);box-shadow:0 2px 0 var(--border);}
+  .try-controls button.secondary:active{box-shadow:0 1px 0 var(--border);}
+  .try-controls .speed-row{
+    display:flex;align-items:center;gap:8px;margin-left:auto;
+    font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);}
+  .try-controls .speed-row input[type=range]{width:120px;}
+  .try-controls .speed-row b{color:var(--ink);min-width:24px;display:inline-block;text-align:center;}
+  .try-hint{
+    font-family:'Gowun Dodum',sans-serif;font-size:13.5px;
+    color:var(--soft);margin-top:8px;line-height:1.65;}
+  .try-hint kbd{
+    display:inline-block;background:#fafaf6;
+    border:1px solid var(--border);border-bottom-width:2px;
+    border-radius:5px;padding:1px 8px;
+    font-family:'Jua',sans-serif;font-size:12px;color:var(--ink);}
+  @media (max-width:520px){
+    .try-controls .speed-row{margin-left:0;width:100%;justify-content:space-between;}
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="home-link">🏠</a>
+
+<header>
+  <span class="badge">엔트리 게임 만들기 · 7편</span>
+  <h1>운동량과 충돌<br>— 당구공처럼 부딪혀 보자!</h1>
+  <p class="sub">빠르고 무거운 공이 더 세게 밀어내요! 부딪히면 속도를 주고받는 비밀 🎱</p>
+</header>
+
+<div class="stage">
+  <div class="tgt7"></div>
+  <div class="cue7"></div>
+  <div class="ground"></div>
+</div>
+
+<div class="wrap">
+
+  <section class="card">
+    <p class="big">🎱 5편에서 공이 벽에 닿으면 <b>혼자 튕겨</b> 나왔죠? 그런데 당구나 볼링처럼 <b>공이 다른 공에 부딪히면</b> 어떻게 될까요? 가만히 있던 공이 갑자기 <b>데구르르 굴러가고</b>, 친 공은 <b>멈춰</b> 버려요!</p>
+
+    <p>오늘은 그 <b>“부딪힘(충돌)”</b>의 비밀을 풀어볼 거예요. 핵심은 <b>운동량</b>이에요 — 6편에서 배운 <b>질량</b>에 <b>속도</b>를 곱한 값이죠. <b>무겁고 빠른 공일수록</b> 다른 공을 더 세게 밀어내요. 부딪히는 순간 두 공이 <b>속도를 주고받는</b> 걸 직접 만들어, 당구 같은 게임을 완성해요!</p>
+
+    <div class="legend">
+      <div class="entry-block" data-block='{"shape":"stack","category":"START",   "marker":false,"contents":[{"type":"text","value":"시작"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"FLOW",    "marker":false,"contents":[{"type":"text","value":"흐름(반복·만일)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"MOVING",  "marker":false,"contents":[{"type":"text","value":"움직임"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"JUDGE",   "marker":false,"contents":[{"type":"text","value":"판단"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"VARIABLE","marker":false,"contents":[{"type":"text","value":"자료(변수)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"CALC",    "marker":false,"contents":[{"type":"text","value":"계산"}]}'></div>
+    </div>
+  </section>
+
+  <div class="goals">
+    <div class="goal-col phys">
+      <div class="goal-head">🔬 오늘 배우는 물리 개념</div>
+      <ul>
+        <li><b>운동량 = 질량 × 속도</b> — 무겁고 빠를수록 커요 (6편 연결)</li>
+        <li><b>충돌</b> — 부딪히면 서로 <b>속도를 주고받아요</b></li>
+        <li><b>에너지 손실</b> — 부딪힐 때 조금 잃어요 (5편 탄성 연결)</li>
+      </ul>
+    </div>
+    <div class="goal-col code">
+      <div class="goal-head">🧩 엔트리로 만드는 것</div>
+      <ul>
+        <li>공 두 개 + 각자 <b>‘속도’</b> 변수</li>
+        <li>공끼리 닿으면 <b>속도 교환</b>(임시 변수 스왑)</li>
+        <li>무게(질량)에 따라 결과가 달라지게</li>
+      </ul>
+    </div>
+  </div>
+
+  <section class="card c-wine">
+    <div class="step-no">1</div>
+    <h2>직접 당구공을 부딪혀보자</h2>
+    <p>백 마디 설명보다 한 번 해보는 게 빨라요! 아래 <b>큐볼</b>(와인색)을 발사해 가만히 있는 <b>흰 공</b>에 부딪혀 봐요. <b>큐볼 질량</b> 슬라이더를 바꾸면 충돌 결과가 확 달라져요. 🎱</p>
+
+    <div class="try-demo">
+      <div class="demo-title"><span class="pill">직접 해보기</span> 큐볼을 발사해 흰 공에 부딪혀봐요!</div>
+      <div class="try-canvas-wrap idle" id="demoStage7" tabindex="0" aria-label="당구공이 부딪히는 데모">
+        <canvas id="demoCanvas7" width="720" height="320"></canvas>
+        <div class="try-hud">큐볼 속도: <b id="demoV1_7">0.0</b></div>
+        <div class="try-hud vel">흰 공 속도: <b id="demoV2_7">0.0</b></div>
+        <div class="try-focus-msg">▶ 발사 버튼을 누르거나<br>이 화면을 클릭하면 큐볼이 굴러가요</div>
+      </div>
+      <div class="try-controls">
+        <button id="demoRun7">▶ 발사</button>
+        <button id="demoReset7" class="secondary">↺ 처음으로</button>
+        <span class="speed-row">큐볼 질량 <b id="demoMassVal7">4</b>
+          <input type="range" id="demoMass7" min="1" max="10" step="1" value="4" aria-label="큐볼 질량">
+        </span>
+      </div>
+      <div class="try-hint">🎱 흰 공의 질량은 <b>4</b>로 고정이에요. 큐볼 질량을 <b>4</b>(같은 무게)로 두면 큐볼이 <b>멈추고</b> 흰 공이 굴러가요. <b>10</b>(무거움)이면 큐볼이 <b>계속 밀고</b>, <b>1</b>(가벼움)이면 큐볼이 <b>튕겨 되돌아와요!</b> 바꾼 뒤 <kbd>▶ 발사</kbd>로 확인해요.</div>
+    </div>
+  </section>
+
+  <section class="card c-wine">
+    <div class="step-no">2</div>
+    <h2>🔬 운동량 — 무겁고 빠를수록 세게</h2>
+    <p>부딪힐 때 공이 <b>얼마나 세게 밀어내는지</b>는 <b>운동량</b>이 정해요. 운동량은 <b>질량 × 속도</b>예요. 6편에서 배운 질량(무거운 정도)에 속도(빠르기)를 곱한 거죠.</p>
+
+    <div class="tip">
+      <b>📖 운동량(Momentum)이란?</b><br>
+      “운동량은 <b>질량과 속도를 곱한 값</b>이에요. 무겁거나 빠른 물체일수록 운동량이 커요.”<br>
+      <small style="opacity:.7;">— <a href="https://ko.wikipedia.org/wiki/%EC%9A%B4%EB%8F%99%EB%9F%89" target="_blank" rel="noopener" style="color:var(--c7);">위키백과, “운동량”</a> (내용 재작성)</small>
+    </div>
+
+    <p>그래서 <b>무거운 볼링공</b>은 천천히 굴러도 핀을 와르르 쓰러뜨리고, <b>가벼운 탁구공</b>은 빨라도 살짝 튕길 뿐이에요. <b>무겁고 빠를수록</b> 부딪힐 때 더 세게 밀어내요!</p>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 운동량 = 질량 × 속도(p = m × v)를 정확히 계산하고, 부딪혀도 <b>전체 운동량은 그대로 보존</b>돼요.<br>
+      <b>🎮 게임에서는</b> 그 복잡한 보존 법칙 대신, “<b>부딪히면 속도를 주고받는다</b>”는 간단한 규칙으로 흉내 내요.
+    </div>
+
+    <p>그럼 부딪히는 <b>순간</b> 두 공의 속도는 어떻게 바뀔까요? 다음에서 풀어봐요!</p>
+  </section>
+
+  <section class="card c-wine">
+    <div class="step-no">3</div>
+    <h2>🔬 충돌 — 속도를 주고받아요</h2>
+    <p>핵심은 한 문장이에요. <b>부딪히면 두 공이 속도를 주고받아요.</b> 특히 <b>크기(질량)가 같은</b> 두 공이 정면으로 부딪히면, 친 공은 <b>멈추고</b> 맞은 공이 <b>그 속도로</b> 굴러가요 — 마치 속도를 <b>맞바꾼</b> 것처럼요!</p>
+
+    <div class="col-cmp">
+      <div class="force-cap">— 큐볼을 같은 속도로 발사했을 때, 큐볼 무게에 따라 —</div>
+      <div class="cc-item best">
+        <div class="cc-emoji">🎯 = ⚪</div>
+        <div class="cc-title">같은 무게</div>
+        <div class="cc-label">큐볼은 <b>딱 멈추고</b><br>흰 공이 그 속도로 출발!<br>(속도 맞바꾸기)</div>
+      </div>
+      <div class="cc-item">
+        <div class="cc-emoji">🪨 &gt; ⚪</div>
+        <div class="cc-title">무거운 큐볼</div>
+        <div class="cc-label">큐볼이 <b>계속 밀고</b> 나가고<br>흰 공은 <b>더 빠르게</b> 튀어나가요</div>
+      </div>
+      <div class="cc-item">
+        <div class="cc-emoji">🪶 &lt; ⚪</div>
+        <div class="cc-title">가벼운 큐볼</div>
+        <div class="cc-label">큐볼이 <b>튕겨 되돌아오고</b><br>흰 공은 <b>천천히</b> 밀려가요</div>
+      </div>
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 부딪힐 때 소리·열로 에너지를 조금 잃어요(완전 탄성 충돌은 거의 없어요).<br>
+      <b>🎮 게임에서는</b> 그냥 <b>속도를 그대로 주고받게</b> 만들고, 더 진짜처럼 하고 싶으면 5편처럼 <b>×0.9</b>를 곱해 살짝 힘을 빼요.
+    </div>
+
+    <div class="tip bonus">
+      <b>⭐ 더 알고 싶다면: 일반 충돌 공식</b><br>
+      무게가 다른 두 공의 충돌 후 속도는 이렇게 구해요(완전 탄성):<br>
+      <code>v1' = ((m1−m2)·v1 + 2·m2·v2) ÷ (m1+m2)</code><br>
+      식이 어려우면 “<b>같은 무게면 속도를 맞바꾼다</b>”만 기억해도 충분해요! 😉
+    </div>
+
+    <p>이제 이 <b>“속도 주고받기”</b>를 엔트리 블록으로 옮겨봐요!</p>
+  </section>
+
+  <section class="card c-wine">
+    <div class="step-no">4</div>
+    <h2>🧩 엔트리로 부딪히는 공 만들기</h2>
+    <p><b>공A</b>(큐볼)와 <b>공B</b>(흰 공) 두 오브젝트를 만들고, 각각 <b>‘A속도’</b>·<b>‘B속도’</b> 변수를 줘요. 공A가 굴러가다 공B에 닿으면 <b>속도를 맞바꿔요.</b></p>
+
+    <div class="var-intro">
+      <div class="vi-icon">🎱</div>
+      <div class="vi-text">
+        속도를 <b>맞바꾸려면</b> <b>‘임시속도’</b> 변수가 하나 필요해요. A속도를 잠깐 임시속도에 넣어두고, A에 B를 넣은 뒤, 저장해둔 임시속도를 B에 넣어요. (안 그러면 둘 다 같은 값이 돼버려요!)
+      </div>
+    </div>
+
+    <p style="font-weight:700;color:var(--soft);">▶ <b>공A(큐볼)</b>의 시작 블록 안에 이렇게 쌓아주세요.</p>
+
+    <div class="entry-code" data-blocks='[
+      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+      {"shape":"stack","category":"VARIABLE","note":"큐볼을 오른쪽으로 발사","contents":[
+        {"type":"dropdown","value":"A속도"},{"type":"text","value":"를"},
+        {"type":"input","value":"4"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+        {"shape":"stack","category":"MOVING","contents":[
+          {"type":"text","value":"x 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"A속도"}]}},
+          {"type":"text","value":"만큼 바꾸기"}
+        ]},
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"공B"},{"type":"text","value":"에 닿았는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","note":"① A속도를 잠깐 저장","contents":[
+            {"type":"dropdown","value":"임시속도"},{"type":"text","value":"를"},
+            {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"A속도"}]}},
+            {"type":"text","value":"로 정하기"}
+          ]},
+          {"shape":"stack","category":"VARIABLE","note":"② A가 B의 속도를 받음","contents":[
+            {"type":"dropdown","value":"A속도"},{"type":"text","value":"를"},
+            {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"B속도"}]}},
+            {"type":"text","value":"로 정하기"}
+          ]},
+          {"shape":"stack","category":"VARIABLE","note":"③ B가 저장해둔 A속도를 받음 ← 속도 교환 완성!","contents":[
+            {"type":"dropdown","value":"B속도"},{"type":"text","value":"를"},
+            {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"임시속도"}]}},
+            {"type":"text","value":"로 정하기"}
+          ]}
+        ]}
+      ]}
+    ]'></div>
+
+    <p style="font-weight:700;color:var(--soft);">▶ <b>공B(흰 공)</b>는 받은 속도로 굴러가기만 하면 돼요.</p>
+
+    <div class="entry-code" data-blocks='[
+      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+      {"shape":"stack","category":"VARIABLE","contents":[
+        {"type":"dropdown","value":"B속도"},{"type":"text","value":"를"},
+        {"type":"input","value":"0"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+        {"shape":"stack","category":"MOVING","contents":[
+          {"type":"text","value":"x 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"B속도"}]}},
+          {"type":"text","value":"만큼 바꾸기"}
+        ]}
+      ]}
+    ]'></div>
+
+    <div class="tip">
+      <b>🔁 왜 ‘임시속도’가 필요해요?</b><br>
+      바로 <code>A속도 = B속도</code>, <code>B속도 = A속도</code>로 하면, 첫 줄에서 A가 이미 B값으로 바뀌어 둘 다 똑같아져요. 그래서 <b>잠깐 저장(①)</b> → <b>옮기기(②③)</b> 순서가 꼭 필요해요. (물건 두 개를 바꿀 때 빈 상자 하나가 필요한 것과 같아요!)
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 부딪힐 때 에너지를 조금 잃어요.<br>
+      <b>🎮 게임에서는</b> 더 진짜처럼 하고 싶으면 교환 뒤 <b>두 속도에 ×0.9</b>를 곱해요(5편 탄성·3편 마찰과 같은 “1보다 작은 수 곱하기”).
+    </div>
+
+    <div class="tip bonus">
+      <b>🧪 실험해 봐요!</b><br>
+      ① 공B를 <b>또 다른 공</b> 앞에 놓아 보세요. 도미노처럼 <b>속도가 전달</b>돼요!<br>
+      ② A속도를 <b>8</b>로 키우면? 더 세게 부딪혀 흰 공이 더 빨리 날아가요.<br>
+      ③ 교환 뒤 ×0.9를 곱하면? 부딪힐수록 <b>점점 느려져</b> 진짜 당구처럼 돼요.
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🔧 안 될 때 확인!</h2>
+    <p>따라 하다 막히면 대부분 물리가 아니라 <b>블록 실수</b>예요. 아래를 확인해 봐요.</p>
+    <div class="fix">
+      <div class="fix-title">🔧 이렇게 안 되나요?</div>
+      <ul>
+        <li><b>부딪혀도 흰 공이 안 움직여요</b> → <b>“공B에 닿았는가?”</b> 만일 안에 속도 교환 3줄이 들어 있는지, 공B에 <code>x 좌표를 B속도만큼 바꾸기</code>가 있는지 확인</li>
+        <li><b>두 공이 똑같은 속도가 돼버려요</b> → <b>‘임시속도’</b>에 먼저 저장(①)했는지 확인. 임시 저장 없이 바로 바꾸면 값이 덮어써져요</li>
+        <li><b>공끼리 들러붙어 덜덜 떨려요</b> → 닿은 순간 공A를 살짝 <b>뒤로 띄우거나</b>, 교환을 <b>한 번만</b> 하도록(닿는 동안 계속 교환 X) 처리</li>
+        <li><b>큐볼이 화면 밖으로 날아가요</b> → 벽에 닿으면 5편처럼 <b>속도 부호 뒤집기</b>(× -1)를 더하기</li>
+        <li><b>속도가 안 변해요</b> → 두 오브젝트가 같은 변수(A속도·B속도·임시속도)를 쓰는지, 변수가 <b>모든 오브젝트에서 사용</b>으로 만들어졌는지 확인</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card c-wine">
+    <div class="step-no">⭐</div>
+    <h2>⭐ 도전: 벽돌깨기로 확장</h2>
+    <p>5편의 <b>튕김</b>(반사)과 이번 편의 <b>충돌</b>을 합치면 그 유명한 <b>벽돌깨기</b>가 돼요!</p>
+
+    <div class="tip">
+      <b>🧱 ① 벽돌에 닿으면 점수 +1, 공은 튕김</b><br>
+      공이 벽돌에 닿으면 <b>점수를 올리고</b>, 벽돌을 <b>숨기고</b>, 5편처럼 <b>y속도 방향을 뒤집어요.</b>
+      <div class="entry-code" style="margin:10px 0 0;" data-blocks='[
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"벽돌"},{"type":"text","value":"에 닿았는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"점수"},{"type":"text","value":"에"},
+            {"type":"input","value":"1"},{"type":"text","value":"만큼 더하기"}
+          ]},
+          {"shape":"stack","category":"VARIABLE","note":"← 5편 튕김: y속도 방향 뒤집기","contents":[
+            {"type":"dropdown","value":"y속도"},{"type":"text","value":"를"},
+            {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"y속도"},{"type":"text","value":"×"},{"type":"input","value":"-1"}]}},
+            {"type":"text","value":"로 정하기"}
+          ]}
+        ]}
+      ]'></div>
+      그리고 벽돌 오브젝트에 <b>“모양 숨기기”</b>를 더하면 깨지는 효과 완성!
+    </div>
+
+    <div class="tip">
+      <b>🎱 ② 무게가 다른 공 충돌</b><br>
+      두 공의 <b>질량</b>을 다르게 주면(6편처럼) 충돌 결과가 달라져요. 데모의 큐볼 질량을 바꾼 것처럼, “무거운 공이 가벼운 공을 더 세게 밀어내는” 진짜 당구를 만들 수 있어요. (정확히 하려면 위 ⭐ 일반 공식 사용!)
+    </div>
+  </section>
+
+  <section class="card c-wine">
+    <div class="step-no">★</div>
+    <h2>🔍 배운 내용을 코드에서 찾아봐요!</h2>
+    <p>아까 만든 코드 블록을 떠올리면서 아래 질문에 답해봐요. 개념과 코드가 어떻게 연결되는지 직접 확인해보는 거예요!</p>
+
+    <div class="quiz-list">
+      <div>① 부딪힘을 <b>감지</b>하는 부분은 어디예요? <span class="hint">(힌트: 만일 ~ 닿았는가?)</span></div>
+      <div>② 속도를 맞바꿀 때 <b>‘임시속도’</b>가 왜 필요한가요? <span class="hint">(힌트: 값이 덮어써져요)</span></div>
+      <div>③ <b>운동량</b>은 무엇과 무엇을 곱한 값인가요?</div>
+      <div>④ 같은 무게 두 공이 정면충돌하면 친 공은 어떻게 되나요?</div>
+    </div>
+
+    <div class="tip bonus">
+      <b>💬 답을 확인해봐요!</b><br>
+      ① <code>만일 〈공B에 닿았는가?〉 이라면</code> — 여기서 충돌을 감지해요!<br>
+      ② 먼저 저장 안 하면 <code>A속도 = B속도</code>에서 A가 바뀌어, 다음 줄에서 둘 다 같은 값이 돼버려요.<br>
+      ③ <b>질량 × 속도</b> — 무겁고 빠를수록 운동량이 커요.<br>
+      ④ <b>딱 멈춰요</b> — 속도를 맞은 공에게 넘겨주거든요!
+    </div>
+  </section>
+
+  <div class="finish">
+    <h2>🎉 시리즈 완주! 1~7편을 다 해냈어요!</h2>
+    <p>이제 게임 물리의 핵심을 모두 배웠어요. 7편에서 배운 걸 확인해 볼까요?</p>
+    <div class="check">
+      <div>✅ <b>운동량 = 질량 × 속도</b> — 무겁고 빠를수록 세게 밀어요</div>
+      <div>✅ 충돌 = 부딪히면 <b>속도를 주고받는 것</b></div>
+      <div>✅ 같은 무게 정면충돌 → 친 공은 멈추고 맞은 공이 출발</div>
+      <div>✅ 속도 교환은 <b>‘임시속도’</b>로 안전하게 맞바꾸기</div>
+      <div>✅ 5편 튕김 + 이번 충돌 = <b>벽돌깨기</b>로 확장</div>
+      <div>✅ 엔트리로 부딪히는 당구공 완성!</div>
+    </div>
+    <div class="next">🚀 <b>이제 여러분 차례예요!</b> 1~7편의 물리 블록 — 이동·속도·가속도·관성·마찰·중력·발사·탄성·힘·질량·<b>운동량·충돌</b> — 을 자유롭게 조합하면 <b>거의 모든 게임</b>을 만들 수 있어요. 여러분만의 작품을 만들어보세요!</div>
+  </div>
+
+  <div class="meta-box">
+    <b>📚 참고 자료</b><br>
+    • <a href="https://ko.wikipedia.org/wiki/%EC%9A%B4%EB%8F%99%EB%9F%89" target="_blank" rel="noopener">위키백과, “운동량”</a> — 운동량 = 질량 × 속도<br>
+    • <a href="https://ko.wikipedia.org/wiki/%EC%B6%A9%EB%8F%8C" target="_blank" rel="noopener">위키백과, “충돌”</a> — 탄성 충돌과 속도 교환
+  </div>
+
+  <div class="cta">
+    <h3>🏠 시리즈를 모두 마쳤어요!</h3>
+    <p>1~7편의 물리 블록을 조합해서 나만의 게임을 만들어봐요!</p>
+    <a class="go" href="index.html">🏠 목차로 돌아가기</a>
+  </div>
+
+  <footer>
+    엔트리로 만드는 나만의 게임 · 7편 「운동량과 충돌」<br>
+    <span style="font-size:10px;opacity:.7;">
+      © 2026 김경환 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;">CC BY-NC-SA 4.0</a><br>
+      도트 캐릭터 © <a href="https://zerie.itch.io/tiny-rpg-character-asset-pack" target="_blank" style="color:inherit;">Zerie</a>
+    </span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const wrap       = document.getElementById('demoStage7');
+  const canvas     = document.getElementById('demoCanvas7');
+  const ctx        = canvas.getContext('2d');
+  const runBtn     = document.getElementById('demoRun7');
+  const resetBtn   = document.getElementById('demoReset7');
+  const massSlider = document.getElementById('demoMass7');
+  const massVal    = document.getElementById('demoMassVal7');
+  const v1Label    = document.getElementById('demoV1_7');
+  const v2Label    = document.getElementById('demoV2_7');
+
+  const W = canvas.width, H = canvas.height;
+  const groundY = H - 30;
+  const r = 22;
+  const ballY = groundY - r;
+  const LAUNCH = 4.2;
+  const m2 = 4;                 // 흰 공 질량 고정
+  let m1 = 4;                   // 큐볼 질량 (슬라이더)
+  let x1 = 90, x2 = 440, v1 = 0, v2 = 0;
+  let collided = false, running = false, phase = 'ready';
+
+  function drawGround(){
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#a17a52';
+    ctx.fillRect(0, groundY, W, H - groundY);
+    ctx.fillStyle = '#8e6c47';
+    for (let gx = 0; gx < W; gx += 28) ctx.fillRect(gx + 24, groundY, 4, H - groundY);
+    ctx.fillStyle = '#7ea884';
+    ctx.fillRect(0, groundY - 5, W, 5);
+  }
+  function drawBall(x, color, dark, hi, mass){
+    ctx.fillStyle = 'rgba(0,0,0,.12)';
+    ctx.beginPath(); ctx.ellipse(x, groundY - 2, r * 0.8, 4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = dark;
+    ctx.beginPath(); ctx.arc(x, ballY, r, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(x - r * 0.10, ballY - r * 0.10, r * 0.82, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = hi;
+    ctx.beginPath(); ctx.arc(x - r * 0.34, ballY - r * 0.34, r * 0.20, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = color === '#ece0c8' ? '#7a6a45' : '#fff';
+    ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(mass, x, ballY + 5);
+  }
+  function drawStatus(){
+    if (!collided) return;
+    let msg = '같은 무게! 큐볼이 멈추고 속도를 넘겨줬어요';
+    if (m1 > m2) msg = '무거운 큐볼! 계속 밀고 나가요';
+    else if (m1 < m2) msg = '가벼운 큐볼! 튕겨 되돌아와요';
+    ctx.fillStyle = 'rgba(154,59,82,.95)';
+    ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('🎱 ' + msg, W / 2, 40);
+  }
+  function render(){
+    drawGround();
+    drawBall(x2, '#ece0c8', '#c4b48a', 'rgba(255,255,255,.65)', m2);
+    drawBall(x1, '#9a3b52', '#6f2a3c', 'rgba(255,255,255,.45)', m1);
+    drawStatus();
+    v1Label.textContent = v1.toFixed(1);
+    v2Label.textContent = v2.toFixed(1);
+  }
+  function updateBtn(){
+    runBtn.textContent = phase === 'rolling' ? '⏸ 멈춤' : '▶ 발사';
+    wrap.classList.toggle('idle', phase === 'ready');
+  }
+  function loop(){
+    if (!running) return;
+    x1 += v1; x2 += v2;
+    if (!collided && (x1 + r) >= (x2 - r) && v1 > v2){
+      x1 = x2 - 2 * r;                       // 겹침 보정
+      const u1 = v1, u2 = v2;
+      v1 = ((m1 - m2) * u1 + 2 * m2 * u2) / (m1 + m2);   // 1D 탄성 충돌
+      v2 = ((m2 - m1) * u2 + 2 * m1 * u1) / (m1 + m2);
+      collided = true;
+    }
+    if (x1 < r){ x1 = r; v1 = 0; }
+    if (x1 > W - r){ x1 = W - r; v1 = 0; }
+    if (x2 < r){ x2 = r; v2 = 0; }
+    if (x2 > W - r){ x2 = W - r; v2 = 0; }
+    render();
+    if (Math.abs(v1) > 0.05 || Math.abs(v2) > 0.05){ requestAnimationFrame(loop); }
+    else { running = false; phase = 'done'; updateBtn(); }
+  }
+  function launch(){
+    if (phase !== 'ready'){ reset(true); }
+    v1 = LAUNCH; v2 = 0; collided = false; phase = 'rolling'; running = true;
+    updateBtn();
+    requestAnimationFrame(loop);
+  }
+  function reset(silent){
+    x1 = 90; x2 = 440; v1 = 0; v2 = 0;
+    collided = false; running = false; phase = 'ready';
+    updateBtn();
+    if (!silent) render();
+  }
+  function toggle(){
+    if (phase === 'rolling'){ running = false; phase = 'done'; updateBtn(); }
+    else { launch(); }
+  }
+
+  runBtn.addEventListener('click', toggle);
+  resetBtn.addEventListener('click', () => reset(false));
+  massSlider.addEventListener('input', e => {
+    m1 = parseInt(e.target.value, 10);
+    massVal.textContent = m1;
+    if (phase === 'ready') render();
+  });
+  wrap.addEventListener('click', () => { wrap.focus(); if (phase !== 'rolling') launch(); });
+
+  reset(false);
+})();
+</script>
+
+<nav class="toc-sidebar">
+  <div class="toc-title">이 페이지 목차</div>
+  <ol id="toc-list"></ol>
+</nav>
+
+<script>
+(function(){
+  var hs = document.querySelectorAll('section.card h2');
+  var list = document.getElementById('toc-list');
+  if(!hs.length || !list) return;
+  hs.forEach(function(h, i){
+    if(!h.id) h.id = 'toc-' + i;
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a); list.appendChild(li);
+  });
+  var links = list.querySelectorAll('a');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = list.querySelector('a[href="#' + e.target.id + '"]');
+        if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-8% 0px -80% 0px'});
+  hs.forEach(function(h){ io.observe(h); });
+})();
+</script>
+
+</body>
+</html>

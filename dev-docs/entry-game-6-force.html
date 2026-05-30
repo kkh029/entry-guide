@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>6편 「힘과 질량」 추가 — entry-guide</title>
+
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css"
+        media="(prefers-color-scheme: light)">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"
+        media="(prefers-color-scheme: dark)">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+  <script src="assets/doc.js" defer></script>
+</head>
+
+<body class="layout">
+<main>
+
+  <header class="doc-header">
+    <h1>6편 「힘과 질량」 추가</h1>
+    <div class="meta">
+      <span>작성일 2026-05-31</span>
+      <span>대상 <code>docs/entry-game-6-force.html</code></span>
+      <span>PR 생성 예정</span>
+    </div>
+    <p class="lede">힘·질량과 뉴턴 제2법칙 직관(<code>가속도 = 힘 ÷ 질량</code>)을 가르치는 6편을 시리즈 새 마지막 편으로 추가하고, 질량 슬라이더로 같은 힘에도 가속도가 달라지는 것을 체감하는 "상자 밀기" 캔버스 데모를 만들었다.</p>
+  </header>
+
+  <div class="callout tldr">
+    <div class="callout-title">TL;DR</div>
+    <ul>
+      <li><code>next-steps.md</code> "후속 물리 주제 편 추가" <strong>1순위</strong>이자 <code>review_20260529.md</code>가 <strong>6편으로 명시 권장</strong>한 「힘과 질량 — 무거운 상자 밀기 퍼즐」을 신규 추가.</li>
+      <li>핵심 개념: <strong>같은 힘이라도 질량이 크면 가속도가 작다</strong>(a = F ÷ m). 2·3편의 가속·마찰을 "힘÷질량"으로 한 단계 확장.</li>
+      <li>엔트리 핵심 블록 = <code>상자속도에 (미는힘 ÷ 질량) 만큼 더하기</code> — 계산 카테고리 <strong>나누기(÷) reporter 중첩</strong>(5편 ×와 동일 경로, 텍스트 폴백 불필요) + 마찰 ×0.9.</li>
+      <li>인터랙티브 데모: 질량 슬라이더(1~10)로 같은 힘(<code>FORCE=0.6</code>)의 가속도 변화를 체감 — 질량 1→가속도 0.60, 10→0.06.</li>
+      <li>새 액센트 <code>--c6</code>(장미빛 마젠타 #b05a8e) + <code>.c-magenta</code>. 6편이 새 마지막 편 → 5편 CTA를 6편으로 잇고, index "6편 후보"는 "7편 후보(점수·게임 규칙)"로 전환.</li>
+    </ul>
+  </div>
+
+  <h2>개요</h2>
+  <p>기존 시리즈는 1편(이동·충돌) → 2편(속도·가속도) → 3편(관성·마찰) → 4편(포물선·발사) → 5편(튕김·탄성)으로, 5편이 마지막이었다. 외부 리뷰(<a href="review_20260529.md">review_20260529.md</a>)의 "추가로 다루면 좋은 주제 제안"에서 <strong>1순위가 「힘과 질량 — 무거운 상자 밀기 게임」</strong>이었고, 같은 리뷰가 6편 제목으로 이를 명시 권장했다. 속도·가속도·마찰까지 온 흐름에 "같은 힘이라도 질량이 크면 천천히 움직인다"는 뉴턴 제2법칙 직관을 더하기 좋은 자리였다.</p>
+  <p>제목·범위·디자인은 사용자 결정으로 확정: 제목 「힘과 질량 — 무거운 상자를 밀어 퍼즐을 풀자!」, <strong>인터랙티브 캔버스 데모 포함</strong>, 액센트 <code>--c6 = #b05a8e</code>(장미빛 마젠타).</p>
+
+  <div class="callout issue">
+    <div class="callout-title">이슈 — 채워지지 않은 빈틈</div>
+    <p>시리즈 어디에서도 <strong>힘·질량·뉴턴 제2법칙</strong>을 다루지 않았다. 캐릭터는 키를 누르면 무엇을 밀든 똑같은 빠르기로 움직였고, "왜 무거운 물체는 같은 힘에 더 느린가"를 설명·구현할 자리가 없었다.</p>
+  </div>
+
+  <div class="callout fix">
+    <div class="callout-title">해결 — 6편 신규 + 시리즈 배선</div>
+    <ul>
+      <li><strong>개념↔구현 분리 구조</strong>(3편 파일럿 표준): <code>.goals</code> 🔬/🧩 → 🔬힘·질량 → 🔬가속도=힘÷질량 → 🧩엔트리 만들기 → 🔧안 될 때 확인 → ⭐도전 → 🔍코드 찾기 → ✅마무리.</li>
+      <li><strong>상자 밀기 데모</strong>: 질량 슬라이더로 같은 힘에도 가속도가 달라지는 것을 체감. 5편 <code>.try-demo</code> 마크업 + self-contained IIFE/<code>requestAnimationFrame</code> 패턴 재사용.</li>
+      <li><strong>3·5편 마찰과 명시적 연결</strong>: ×0.9 = "속도에 1보다 작은 수 곱하기"의 같은 아이디어(3편 ×0.85, 5편 ×0.7).</li>
+      <li><strong>시리즈 배선</strong>: 5편 종료 CTA를 6편 브리지로 교체(완주 문구 제거), index에 ep-6 카드·6스텝 path 추가, "6편 후보"→"7편 후보(점수·게임 규칙)" 전환, 4편 CTA "마지막 한 편"→"다음 편" 정정.</li>
+    </ul>
+  </div>
+
+  <h2>영향 범위</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>파일</th><th>신규/편집</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td><code>docs/entry-game-6-force.html</code></td><td>신규</td><td>6편 본문 + 상자 밀기 데모 + TOC (5편 템플릿 베이스)</td></tr>
+      <tr><td><code>docs/assets/styles.css</code></td><td>편집</td><td><code>:root</code>에 <code>--c6:#b05a8e</code>, <code>.c-magenta .step-no</code> 규칙 추가</td></tr>
+      <tr><td><code>docs/index.html</code></td><td>편집</td><td>ep-6 카드 + <code>.ep-6</code> 액센트 + path <code>s6</code> 스텝 + "6편 후보"→"7편 후보"</td></tr>
+      <tr><td><code>docs/entry-game-5-bounce.html</code></td><td>편집</td><td>종료 CTA → 6편 브리지, finish/next "시리즈 완주" 문구를 "다음 편" 톤으로</td></tr>
+      <tr><td><code>docs/entry-game-4-projectile.html</code></td><td>편집</td><td>CTA 헤딩 "마지막 한 편이 남았어요!" → "다음 편으로 가볼까요?" (5편 뒤로 6편이 생겨 사실 정정)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>콘텐츠 구조</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>섹션</th><th>제목</th><th>가르치는 것</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>직접 상자를 밀어보자</td><td>데모 먼저 — 질량 슬라이더로 같은 힘에도 빠르기가 달라짐을 체감</td></tr>
+      <tr><td>2</td><td>🔬 힘과 질량 — 밀기와 무거움</td><td>힘=움직임을 바꾸는 것, 질량=무거운 정도(성질). 쇼핑카트 비유</td></tr>
+      <tr><td>3</td><td>🔬 가속도 = 힘 ÷ 질량</td><td>같은 힘+큰 질량=작은 가속도. 나눗셈 직관 + 질량 1/4/10 비교 비주얼. F=ma는 ⭐보너스로 분리</td></tr>
+      <tr><td>4</td><td>🧩 엔트리로 미는 상자 만들기</td><td><code>상자속도에 (미는힘÷질량) 더하기</code> + 마찰 ×0.9 + x좌표 바꾸기</td></tr>
+      <tr><td>5</td><td>🔧 안 될 때 확인!</td><td>안 움직임/질량 무효/끝없이 빨라짐/안 멈춤/성공 안 뜸 5건</td></tr>
+      <tr><td>⭐</td><td>도전: 퍼즐 완성과 얼음 상자</td><td>버튼 닿으면 "성공!"(LOOKS 말하기), 마찰 ×0.99 얼음 상자, 질량=난이도</td></tr>
+      <tr><td>★</td><td>🔍 배운 내용을 코드에서 찾아봐요</td><td>밀기/÷질량/질량2배→가속도절반/마찰 ×0.9 퀴즈</td></tr>
+      <tr><td>—</td><td>🎉 마무리</td><td>1~6편 완주 체크리스트(6편이 새 finale)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>데모 물리</h2>
+  <p>캔버스 좌표는 수평(x) 1차원만 쓴다(좌표 부호 혼동 회피). <strong>일정한 힘</strong> <code>FORCE</code>를 미는 동안 매 프레임 <code>vel += FORCE / mass</code>로 가속하고, 마찰(<code>vel *= friction</code>)로 감속한 뒤 위치를 적분한다. 질량 슬라이더가 크면 같은 <code>FORCE</code>에도 가속도(<code>FORCE/mass</code>)가 작아져 상자가 눈에 띄게 느려진다 — 이게 a=F/m을 손으로 체감하는 핵심이다.</p>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>상수/변수</th><th>값</th><th>의미</th></tr></thead>
+    <tbody>
+      <tr><td><code>FORCE</code></td><td>0.6 (고정)</td><td>항상 같은 미는 힘</td></tr>
+      <tr><td><code>mass</code></td><td>슬라이더 1~10 (기본 4)</td><td>상자 질량 — 클수록 무거움</td></tr>
+      <tr><td><code>friction</code></td><td>0.92</td><td>매 프레임 곱하는 마찰(3·5편과 같은 원리)</td></tr>
+      <tr><td>가속도 HUD</td><td><code>FORCE / mass</code></td><td>질량 1→0.60, 4→0.15, 10→0.06</td></tr>
+      <tr><td>성공 판정</td><td><code>x + boxSize ≥ goalX</code></td><td>상자 오른쪽 끝이 🎯 버튼 중앙에 닿으면 "퍼즐 성공!"</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <pre><code class="language-javascript">function loop(){
+  if (!running) return;
+  if (pushing && !success) vel += FORCE / mass;   // 가속 = 같은 힘 ÷ 질량 (핵심)
+  vel *= friction;                                 // 마찰 (3·5편과 같은 원리)
+  x += vel;                                         // 위치 적분
+  if (x < 6){ x = 6; vel = 0; }
+  if (x + boxSize > W - 6){ x = W - 6 - boxSize; vel = 0; }
+  if (!success &amp;&amp; x + boxSize >= goalX){ success = true; pushing = false; }  // 버튼 도착
+  render();
+  if (pushing || Math.abs(vel) > 0.05) requestAnimationFrame(loop);
+  else { running = false; updateBtn(); }
+}</code></pre>
+
+  <div class="callout info">
+    <div class="callout-title">HUD 설계 — "가속도(힘÷질량)"를 보여줌</div>
+    <p>우상단 HUD는 <code>속도</code>가 아니라 <strong>가속도 = FORCE/mass</strong>를 표시한다. 학습 목표(같은 힘 + 큰 질량 = 작은 가속도)가 슬라이더를 움직이는 즉시 숫자로 드러나게 하기 위해서다(밀기 전에도 갱신).</p>
+  </div>
+
+  <h2>엔트리 블록 표현</h2>
+  <p>핵심 가속 줄은 <strong>계산 카테고리 나누기(÷) 블록을 자료 "더하기" 블록에 중첩</strong>해 표현한다(5편 곱하기 ×와 동일 패턴).</p>
+  <pre><code class="language-text">시작하기 버튼을 클릭했을 때
+질량을 4 로 정하기                         ← 클수록 무거운 상자
+미는힘을 5 로 정하기                        ← 항상 같은 힘
+상자속도를 0 로 정하기
+계속 반복하기:
+  만일 〈오른쪽 화살표 키가 눌러져 있는가?〉 이라면:
+    상자속도에 (미는힘 ÷ 질량) 만큼 더하기   ← 가속 = 힘 ÷ 질량
+  상자속도를 (상자속도 × 0.9) 로 정하기       ← 마찰
+  x 좌표를 (상자속도) 만큼 바꾸기</code></pre>
+
+  <div class="callout success">
+    <div class="callout-title">렌더러 — ÷ reporter 중첩 정상 동작 (텍스트 폴백 불필요)</div>
+    <p>B-mini 렌더러(<code>renderer.js</code>)의 <code>measureContent</code>/<code>renderContent</code> <code>case 'block'</code>이 자식 reporter를 재귀 렌더한다. 5편의 <code>× -0.7</code>과 똑같은 경로라 <strong><code>미는힘 ÷ 질량</code> CALC reporter도 흰 칸 안에 정상 중첩</strong>된다(5편 정착 부등식 같은 비교식 중첩만 텍스트 폴백 대상). 프리뷰에서 SVG 렌더 확인.</p>
+  </div>
+
+  <h2>물리 정확성 (authoring-editing-guide A-3)</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>표현</th><th>처리</th></tr></thead>
+    <tbody>
+      <tr><td>질량</td><td>"힘"이 아니라 <strong>무거운 정도(성질)</strong>로 서술 (관성 A-3 함정과 동일)</td></tr>
+      <tr><td>미는힘·질량</td><td>현실 뉴턴(N) 계산이 아니라 <strong>게임 규칙</strong>임을 <code>.tip.real</code>로 분리(A-3의 +0.8/×0.85 처리와 동일)</td></tr>
+      <tr><td>마찰 ×0.9</td><td>3편(×0.85)·5편(×0.7)과 <strong>같은 원리, 다른 숫자</strong>임을 명시</td></tr>
+      <tr><td>질량 2배</td><td>"<strong>가속도</strong> 절반"으로 한정(반비례). "속도 절반"은 틀림(마찰·시간 누적)</td></tr>
+      <tr><td>F = m × a</td><td>본문 밖 <code>.tip.bonus</code>(⭐)로 분리 — 난이도 단계화</td></tr>
+      <tr><td>좌표 부호</td><td>x 수평 이동만 다뤄 4편 vy 부호 함정 회피</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>검증</h2>
+  <div class="callout success">
+    <div class="callout-title">로컬 프리뷰 검증 통과 (python http.server, 1280×720)</div>
+    <ul>
+      <li><strong>렌더링</strong>: 엔트리 블록 22개 SVG 렌더, <code>÷</code>·<code>×</code>·<code>질량</code>·<code>미는힘</code> 텍스트가 SVG에 존재, 렌더 에러(<code>JSON 오류</code>/<code>블록 오류</code>) 0, 콘솔 에러/경고 0.</li>
+      <li><strong>데모 물리</strong>: 질량 슬라이더 1→가속도 HUD 0.60, 10→0.06, 4→0.15 (= <code>FORCE/mass</code>) 확인.</li>
+      <li><strong>TOC</strong>: 7개 섹션(<code>section.card h2</code>) 자동 수집.</li>
+      <li><strong>index</strong>: <code>.ep-6</code> 보더·번호·<code>.path-step.s6</code> 점이 computed style로 <code>rgb(176,90,142)</code>(=#b05a8e), 6스텝 path·6카드·"7편 후보" 헤딩 확인.</li>
+      <li><strong>내비</strong>: 4편 CTA→"다음 편"(마지막 문구 제거), 5편 CTA→6편(완주 문구 제거), 6편 CTA→index 확인.</li>
+    </ul>
+  </div>
+
+  <h2>설계 결정</h2>
+  <div class="callout link">
+    <div class="callout-title">주제 — 1순위 그대로</div>
+    <p>리뷰의 추가 주제 1~8순위 중 1순위(힘·질량)를 채택. 속도·가속도·마찰 다음의 자연스러운 물리 흐름이고, 리뷰가 6편 제목으로 명시 권장했다. 2순위 운동량·충돌(공끼리)은 보류.</p>
+  </div>
+  <div class="callout link">
+    <div class="callout-title">색 — 장미빛 마젠타(--c6)</div>
+    <p>1~5편이 빨강·파랑·보라·주황·청록을 이미 써서, 편 구분이 또렷하도록 기존 5색과 가장 덜 겹치는 <code>#b05a8e</code>를 선택. <code>.c-magenta .step-no</code>만 추가하고 나머지 액센트(CTA·데모 버튼·박스 보더)는 페이지 전용 <code>&lt;style&gt;</code>에서 <code>var(--c6)</code>로 적용(5편식 단색 표준).</p>
+  </div>
+  <div class="callout link">
+    <div class="callout-title">마지막 편 CTA + 6편 후보 전환</div>
+    <p>6편이 새 마지막 편이므로 CTA는 목차(index) 복귀(<code>new-page-guide</code> 권고). 5편은 더 이상 finale가 아니므로 "시리즈 완주" 문구를 "다음 편" 톤으로 낮췄다. index "6편 후보"는 리뷰의 7편 로드맵(점수·게임 규칙)에 맞춰 "7편 후보"로 전환.</p>
+  </div>
+
+  <h2>후속 TODO</h2>
+  <ul>
+    <li><strong>7편 후보 — 점수와 게임 규칙</strong>: 코인·점수·적·게임오버·체력·레벨. 리뷰의 7편 로드맵(물리 흐름 뒤 게임 완성도). index "7편 후보" 블록에 노출.</li>
+    <li><strong>6편 헤더 push 모션 — 전용 스프라이트 검토</strong>: 현재 헤더는 soldier-walk 스프라이트가 CSS 상자를 미는 연출. "미는" 전용 프레임이 생기면 더 자연스러움(현재도 큰 문제 아님).</li>
+    <li><strong>2순위 운동량·충돌(공끼리)</strong>(기존 이슈): 5편에서 보류한 당구/핀볼식 운동량 교환. 6편 다음 물리 주제 후보로 유지.</li>
+  </ul>
+
+  <footer class="doc-footer">
+    <h2>관련 문서</h2>
+    <ul>
+      <li><a href="fix-history.md">fix-history.md</a> — 수정 히스토리 인덱스</li>
+      <li><a href="next-steps.md">next-steps.md</a> — 후속 TODO 통합 인덱스</li>
+      <li><a href="review_20260529.md">review_20260529.md</a> — 외부 리뷰(추가 주제 1순위 = 힘·질량 출처)</li>
+      <li><a href="concept-implementation-separation.html">concept-implementation-separation.html</a> — 개념↔구현 분리 구조(6편이 따르는 표준)</li>
+      <li><a href="new-page-guide.html">new-page-guide.html</a> — 새 페이지 제작 템플릿·체크리스트</li>
+      <li><a href="entry-blocks-renderer.html">entry-blocks-renderer.html</a> — 엔트리 블록 SVG 렌더러(÷ reporter 중첩 근거)</li>
+    </ul>
+  </footer>
+
+</main>
+<aside id="toc"></aside>
+</body>
+</html>
