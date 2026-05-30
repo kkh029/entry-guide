@@ -79,7 +79,7 @@
 - [x] **개념↔구현 분리 구조를 전 편(1~5편)으로 확대 완료** — 3편 파일럿 패턴(`.goals`·🔬/🧩·`.tip.real`·`.fix`·⭐도전)을 1·2·4·5편에 모두 적용. 1편은 충돌·중력 개념 분리 + 🧩 구현 존 재구성, 2·4·5편은 박스·프리픽스 추가 위주(4편 §5→⭐도전, 5편 벽 튕김·새총 ⭐도전 신설) (PR #25)
 - [x] **review.md → review_20260529.md 참조 정리 + 커밋 여부 해결** — 파일은 이미 커밋(`a0b2a13`), 끊긴 링크/언급 갱신 (PR #25)
 - [x] **new-page-guide.html 액센트 색상표에 `--c4`·`--c5` 행 추가** — review_20260529.md 반영 변경에 포함 (PR 시 번호 기입)
-- [x] **6편 「힘과 질량」 추가** — [entry-game-6-force.html](entry-game-6-force.html) (PR 생성 예정)
+- [x] **6편 「힘과 질량」 추가** — [entry-game-6-force.html](entry-game-6-force.html) (PR #27)
   후속 물리 1순위(힘·질량·뉴턴 제2법칙, 가속도=힘÷질량) + 상자 밀기 데모. `--c6` 마젠타·`.c-magenta`, 5편 CTA→6편(완주 문구 제거), index "6편 후보"→"7편 후보", 4편 CTA "마지막 한 편"→"다음 편" 정정. `--c6` 행은 후속 new-page-guide 색상표 갱신 대상.
-- [x] **7편 「운동량과 충돌」 추가** — [entry-game-7-collision.html](entry-game-7-collision.html) (PR 생성 예정)
+- [x] **7편 「운동량과 충돌」 추가** — [entry-game-7-collision.html](entry-game-7-collision.html) (PR #27)
   후속 물리 2순위(운동량=질량×속도, 충돌=속도 교환) + 당구 1D 탄성 충돌 데모. `--c7` 와인·버건디·`.c-wine`, 6편 CTA→7편(완주 문구 제거), index "7편 후보"→"8편 후보", CLAUDE.md 7-part·트리 갱신. 엔트리 핵심=‘임시속도’ 변수로 두 공 속도 스왑. `--c6`·`--c7` 행은 후속 new-page-guide 색상표 갱신 대상.
