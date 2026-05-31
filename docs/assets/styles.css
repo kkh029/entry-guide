@@ -345,3 +345,25 @@ footer{text-align:center;color:var(--muted);font-size:13px;margin-top:36px;}
     font-weight:600;
   }
 }
+
+/* ───── 인터랙티브 데모 — 넓은 화면에서 본문보다 넓게 ─────
+   .try-demo는 각 편의 페이지 <style>에 정의(페이지 로컬)된다. 여기서는
+   `.wrap .try-demo` (specificity 0,2,0)로 페이지 규칙(0,1,0) 위에 덮어써
+   모든 데모 페이지(1·2·4·5·6·7편)에 일관 적용한다. 캔버스가 width:100%라
+   컨테이너 폭만 키우면 가로·세로가 비례해 함께 커진다.
+   - 중간 폭(사이드바 없음): 본문 중앙 기준 좌우 대칭 확장
+   - 큰 폭(≥1240, 우측 사이드바 있음): 사이드바를 피해 왼쪽으로만 확장
+     (왼쪽 끝 뷰포트 ~70px 고정, 오른쪽 끝은 본문 우단 유지) */
+@media (min-width:880px) and (max-width:1239.98px){
+  .wrap .try-demo{
+    width:min(94vw, 900px);
+    margin-left:50%;
+    transform:translateX(-50%);
+  }
+}
+@media (min-width:1240px){
+  .wrap .try-demo{
+    width:calc(100% + min(50vw - 543px, 300px));
+    margin-left:calc(-1 * min(50vw - 543px, 300px));
+  }
+}
