@@ -20,6 +20,8 @@
   --c5:        #3aa6a0;   /* 5편 — 청록(틸) */
   --c6:        #b05a8e;   /* 6편 — 장미빛 마젠타 */
   --c7:        #9a3b52;   /* 7편 — 와인·버건디 */
+  --c8:        #5a6fce;   /* 8편 — 인디고 */
+  --c9:        #b061c4;   /* 9편 — 오키드(자주빛 보라) */
 
   /* 상태 — 절제 */
   --accent:    #b78a3a;   /* 골드(절제) — 강조 한 점 */
@@ -129,6 +131,8 @@ section.card + section.card{
 .c-teal .step-no{background:var(--c5);}
 .c-magenta .step-no{background:var(--c6);}
 .c-wine .step-no{background:var(--c7);}
+.c-indigo .step-no{background:var(--c8);}
+.c-orchid .step-no{background:var(--c9);}
 
 h2{
   font-family:'Jua',sans-serif;

@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>8·9편 추가 — 에너지·경사면과 마찰 — entry-guide</title>
+
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css"
+        media="(prefers-color-scheme: light)">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"
+        media="(prefers-color-scheme: dark)">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+  <script src="assets/doc.js" defer></script>
+</head>
+
+<body class="layout">
+<main>
+
+  <header class="doc-header">
+    <h1>8·9편 추가 — 에너지(롤러코스터) · 경사면과 마찰(눈썰매)</h1>
+    <div class="meta">
+      <span>작성일 2026-05-31</span>
+      <span>대상: <code>docs/entry-game-8-energy.html</code> · <code>docs/entry-game-9-slope.html</code> 신규 + 7편 강등 + 공통 배선</span>
+    </div>
+    <p class="lede">외부 리뷰(<a href="review_20260529.md">review_20260529.md</a>)의 후속 물리 주제 3·4순위 — <b>에너지</b>(위치↔운동에너지 전환)와 <b>경사면·마찰</b>(비탈에서의 미끄러짐) — 을 8·9편으로 추가했다. 9편이 새 마지막 편이 되어 7편을 중간 편으로 강등했다. 1~7편과 동일한 「개념↔구현 분리」 표준 구조와 인터랙티브 캔버스 데모를 따른다.</p>
+  </header>
+
+  <div class="callout tldr">
+    <div class="callout-title">TL;DR</div>
+    <ul>
+      <li><b>8편 에너지</b>(인디고 <code>--c8 #5a6fce</code>·<code>.c-indigo</code>): 위치에너지→운동에너지 전환 + 마찰 손실. 데모 = <b>출발 높이 슬라이더</b>로 굴러내려 목표 도달(높이 ↑ → 빠르고 멀리, 단 <b>2배는 아님</b>).</li>
+      <li><b>9편 경사면·마찰</b>(오키드 <code>--c9 #b061c4</code>·<code>.c-orchid</code>, <b>새 마지막 편</b>): 경사가 미는 힘 vs 마찰이 버티는 힘 = 가속도. 데모 = <b>경사각 슬라이더 + 얼음/눈/모래 토글</b>.</li>
+      <li><b>내비 체인</b>: 7편 「시리즈 완주」→「7편 완성+8편 브리지」로 강등, 8편→9편, 9편→목차. (6편 강등과 동일 패턴)</li>
+      <li><b>정확성 가드</b>: 8편은 <code>v=√(2gh)</code>의 비선형(높이 2배≠속도 2배)을 산문·<code>.tip.warn</code>으로 명시(4편 발사힘 보정과 동형), 9편은 진짜 공식 <code>a=g·sinθ−μg·cosθ</code>를 ⭐<code>.tip.bonus</code>로 분리.</li>
+      <li>로컬 프리뷰 검증 완료 — 블록 SVG 8/8·콘솔 에러 0·데모 물리 시뮬·canvas 픽셀·네비 6→7→8→9→index.</li>
+    </ul>
+  </div>
+
+  <h2>개요</h2>
+  <p>현재 시리즈는 이동·충돌(1) → 속도·가속도(2) → 관성·마찰(3) → 포물선·발사(4) → 튕김·탄성(5) → 힘·질량(6) → 운동량·충돌(7)로 이어진다. 리뷰가 제안한 추가 물리 주제 1·2순위(힘·질량=6편, 운동량·충돌=7편)는 PR #27로 완료됐고, 이번에 <b>3순위 에너지</b>와 <b>4순위 경사면·마찰</b>을 이어 8·9편으로 추가했다. 사용자가 "물리 주제 편 추가"를 명시해, 「점수·게임 규칙」(게임 완성도) 갈림길 대신 물리 흐름을 계속한다.</p>
+
+  <h2>두 편 요약</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>8편 에너지</th><th>9편 경사면과 마찰</th></tr></thead>
+    <tbody>
+      <tr><th>파일</th><td><code>entry-game-8-energy.html</code></td><td><code>entry-game-9-slope.html</code></td></tr>
+      <tr><th>소재</th><td>롤러코스터(언덕을 굴러 목표로)</td><td>눈썰매(비탈을 내려가기)</td></tr>
+      <tr><th>🔬 개념</th><td>위치에너지·운동에너지·에너지 전환·마찰 손실</td><td>경사면·중력의 방향·마찰·가속도</td></tr>
+      <tr><th>🧩 핵심 변수</th><td><code>속도</code>(+0.45 가속·×0.99 마찰)</td><td><code>미끄럼속도</code>·<code>경사기울기</code>·<code>마찰</code>(바닥별)</td></tr>
+      <tr><th>액센트</th><td>인디고 <code>--c8 #5a6fce</code> / <code>.c-indigo</code></td><td>오키드 <code>--c9 #b061c4</code> / <code>.c-orchid</code></td></tr>
+      <tr><th>편 위치</th><td>중간 편 (CTA→9편)</td><td><b>새 마지막 편</b> (CTA→목차)</td></tr>
+      <tr><th>이전 편 연결</th><td>5편 탄성·3편 마찰·4편 발사(점프대)</td><td>3편 마찰·8편·6편 가속도·4편 sin</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-title">액센트 색 선택</div>
+    <p><b>기능색</b>(🔬개념=<code>--green</code> · 🔧오류=<code>--warn</code> · ⭐도전=<code>--c3</code>)과 충돌하지 않도록 <b>녹색 계열을 피하고</b>, 색상환에서 비어 있던 두 구간을 골랐다 — 인디고(c2 파랑↔c3 보라 사이, ~233°)·오키드(c3 보라↔c6 장미 사이, ~288°). 프리뷰에서 path-strip 점과 카드 보더가 c2/c3와 구분됨을 확인.</p>
+  </div>
+
+  <h2>내비 체인 변경 (7편 강등)</h2>
+  <p>새 마지막 편이 생기면 직전 마지막 편의 "완주" 문구를 풀고 전진 브리지로 바꾼다(6편→7편 때와 동일). 이번엔 9편이 새 마지막 편이라 <b>7편·8편이 중간 편</b>이 된다.</p>
+
+  <pre class="mermaid">
+flowchart LR
+  6["6편 힘·질량"] --> 7["7편 운동량·충돌"]
+  7 -->|"완주→8편 브리지로 강등"| 8["8편 에너지 (NEW)"]
+  8 --> 9["9편 경사면·마찰 (NEW·마지막)"]
+  9 --> idx["🏠 목차"]
+  </pre>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>편</th><th><code>.finish</code> h2</th><th><code>.cta</code> 버튼</th></tr></thead>
+    <tbody>
+      <tr><td>7편(강등)</td><td>🎉 7편 완성! 당구공을 부딪혔어요!</td><td>→ <code>entry-game-8-energy.html</code> "8편 에너지 →"</td></tr>
+      <tr><td>8편(중간)</td><td>🎉 8편 완성! 롤러코스터를 굴렸어요!</td><td>→ <code>entry-game-9-slope.html</code> "9편 경사면과 마찰 →"</td></tr>
+      <tr><td>9편(마지막)</td><td>🎉 시리즈 완주! 1~9편을 다 해냈어요!</td><td>→ <code>index.html</code> "🏠 목차로 돌아가기"</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>인터랙티브 데모 설계</h2>
+  <p>두 데모 모두 7편 스캐폴드(<code>.try-demo</code>·<code>.try-canvas-wrap.idle</code>·HUD 2개·<code>▶/↺</code>·<code>requestAnimationFrame</code>·click-to-launch·<code>drawGround</code>)를 재사용하고 물리 코어와 컨트롤만 교체했다.</p>
+
+  <h3>8편 — 출발 높이 → 굴러내려 → 어디까지?</h3>
+  <p>언덕(직선 경사) 꼭대기 높이를 슬라이더로 정하고, 굴러내려 목표 🎯에 닿는지 본다. 언덕을 내려오는 동안 쌓인 낙하 속도가 <b>그대로 수평 속도로 전환</b>된다 — 이게 에너지 전환의 핵심.</p>
+  <pre><code class="language-javascript">// 언덕: 떨어지며 가속 → 바닥에서 수평 속도로 전환(에너지 전환)
+if (phase === 'hill'){
+  vy += GRAV; y += vy;
+  x += vy * (160 / startH);          // 항상 바닥에서 x=rampBaseX
+  if (y >= runwayY){
+    y = runwayY; x = rampBaseX;
+    vx = vy; vy = 0; phase = 'flat';  // 낙하 속도 = √(2·GRAV·startH) 가 수평 속도로
+  }
+} else if (phase === 'flat'){
+  x += vx; vx *= FRICT;               // 마찰로 에너지 손실
+  if (!reached &amp;&amp; x + r >= goalX) reached = true;
+  if (vx < 0.1 || x > W - r){ phase = 'done'; }
+}</code></pre>
+  <div class="callout warn">
+    <div class="callout-title">정확성 가드 — 높이 2배 ≠ 속도/거리 2배</div>
+    <p>바닥 도달 속도는 <code>√(2gh)</code>라 <b>높이의 √에 비례</b>한다. 시뮬레이션으로 확인: 높이 120→속도 10.39, 240→14.70 (1.41배, 2배 아님). 그래서 아동용 문장은 "<b>더 높이 출발하면 더 빨라지고 더 멀리 간다</b>"(단조 증가)만 단정하고, 비선형은 <code>.tip.warn</code> + 데모 HUD 숫자로 스스로 발견하게 한다. 4편 "발사힘 2배→훨씬 멀리" 보정과 동형(<a href="authoring-editing-guide.html">A-3</a>).</p>
+  </div>
+
+  <h3>9편 — 경사각 + 바닥 → 미끄럼 속도</h3>
+  <p>경사각 슬라이더(10~45°)와 얼음/눈/모래 토글로 두 힘의 겨룸을 본다. 경사가 미는 힘은 <b>진짜 sin</b>으로 계산(4편 삼각함수 강화), 마찰은 시리즈 관례인 <b>곱셈 감쇠</b>로 흉내 낸다.</p>
+  <pre><code class="language-javascript">const slideGain = SLOPE_K * Math.sin(angRad);  // 경사가 미는 힘 ∝ sin(경사각)
+vel += slideGain;
+vel *= SURF[surface];                          // 바닥 마찰 (ice .99 / snow .96 / sand .92)
+d += vel;                                       // 비탈을 따라 이동</code></pre>
+  <div class="callout info">
+    <div class="callout-title">정확성 가드 — 진짜 공식은 ⭐로 분리</div>
+    <p>진짜 비탈 가속도는 <code>a = g·sinθ − μ·g·cosθ</code>(미는 힘 − 버티는 힘). 데모는 경사항을 진짜 sin으로, 마찰항을 곱셈으로 흉내 내고, "곱셈은 진짜 −μg·cosθ가 아니라 흉내"임을 <code>.tip.real</code>이 명시. 공식 자체는 본문 산문이 아니라 ⭐<code>.tip.bonus</code>로 분리해 부담을 낮췄다. "2배 가파르면 2배 빠르다"는 금지(sin 비선형·도 단위≠기울기).</p>
+  </div>
+  <div class="callout success">
+    <div class="callout-title">데모 물리 시뮬 결과 (의도한 순서 확인)</div>
+    <p>같은 각도에서 얼음≫모래(10°: maxVel 9.9 vs 2.0), 같은 바닥에서 가파를수록 빠름(모래 45°=8.0 vs 10°=2.0), 가장 빠른 조합 = 가파른 얼음(45°ice=16). 모래는 가파르게 해도 한계가 있음(45°sand 8.0 &lt; 45°ice 16) — "마찰이 버틴다"는 본문과 일치.</p>
+  </div>
+
+  <h2>렌더러 제약 대응</h2>
+  <div class="callout info">
+    <div class="callout-title">c-block 자식 안의 <code>note</code>는 누락된다</div>
+    <p>B-mini 렌더러는 c-block <code>statements</code> 내부 블록의 <code>note</code>를 그리지 않는다(<a href="entry-blocks-renderer.html">렌더러 문서</a> 참조). 그래서 반복문 <b>안</b>의 줄별 설명은 <code>note</code> 대신 코드 블록 바로 아래 <code>.tip</code> 산문(①②③)으로 옮겼다. 9편의 <code>미끄럼속도 × 마찰</code>(CALC reporter 안에 VARIABLE reporter 중첩)과 ⭐의 <code>0.6 × (sin 경사각의 값)</code>(이중 중첩)도 정상 렌더됨을 확인(블록 SVG 8/8).</p>
+  </div>
+
+  <h2>영향 범위 (배선)</h2>
+  <div class="callout impact">
+    <div class="callout-title">건드린 파일</div>
+    <ul>
+      <li><code>docs/entry-game-8-energy.html</code> · <code>docs/entry-game-9-slope.html</code> — 신규(7편 복사 후 재작성, 폰트셋 유지).</li>
+      <li><code>docs/assets/styles.css</code> — <code>--c8</code>/<code>--c9</code> 토큰 + <code>.c-indigo</code>/<code>.c-orchid .step-no</code> 규칙.</li>
+      <li><code>docs/entry-game-7-collision.html</code> — <code>.finish</code> h2/next + <code>.cta</code> 강등(완주→8편 브리지).</li>
+      <li><code>docs/index.html</code> — <code>ep-8</code>/<code>ep-9</code> 카드, <code>s8</code>/<code>s9</code> path-step + dot 색, <code>.ep-8</code>/<code>.ep-9</code> 보더 규칙, "8편 후보"→"10편 후보"(점수·게임규칙/공기저항/스프링).</li>
+      <li><code>CLAUDE.md</code> — "7-part"→"9-part"·주제 체인·파일 트리 2줄.</li>
+      <li><code>dev-docs/new-page-guide.html</code> — §3 색상표 <code>--c6</code>~<code>--c9</code> 4행 + CTA tint 불릿(누락됐던 c6/c7 포함).</li>
+    </ul>
+  </div>
+
+  <h2>검증</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>항목</th><th>8편</th><th>9편</th></tr></thead>
+    <tbody>
+      <tr><td>콘솔 에러</td><td>0</td><td>0</td></tr>
+      <tr><td>블록 SVG 렌더(원시 JSON 노출)</td><td>8/8 (0)</td><td>8/8 (0)</td></tr>
+      <tr><td>액센트 computed style</td><td><code>rgb(90,111,206)</code> ✓</td><td><code>rgb(176,97,196)</code> ✓</td></tr>
+      <tr><td>TOC 자동 수집(h2)</td><td>8</td><td>8</td></tr>
+      <tr><td>데모 캔버스 픽셀</td><td>하늘·언덕·목표·인디고 공 ✓</td><td>하늘·눈 비탈·눈 바닥 ✓</td></tr>
+      <tr><td>데모 물리</td><td>도달 임계 높이 200·√비선형 ✓</td><td>가파른 얼음 최速·모래 최遅 ✓</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>index 검증: 카드 9개·ep-8 인디고/ep-9 오키드 보더·path-step 9개·dot 색·"10편 후보" 박스. 네비 체인 6→7→8→9→index 및 7편 강등 문구 확인. <code>requestAnimationFrame</code>은 헤드리스 프리뷰에서 throttle되어(<code>visibilityState=hidden</code>) 데모 애니는 멈추지만 — 6·7편 데모와 동일 — 물리는 동일 공식 시뮬 + canvas 픽셀 샘플로 검증.</p>
+
+  <h2>후속 TODO</h2>
+  <p>상세·상태는 <a href="next-steps.md">next-steps.md</a> 참조.</p>
+  <ul>
+    <li><b>10편 후보</b> — 점수·게임 규칙(게임 완성도) vs 공기저항·낙하산(5순위)/스프링·진동(6순위). 물리를 더 갈지 게임성으로 갈지 선택.</li>
+    <li><b>9편 진짜 sin 블록/데모 보강</b> — ⭐의 <code>중력 × sin(경사각)</code>을 본문 기본 코드/데모로 승격 검토.</li>
+    <li><b>8편 점프대 포물선 2nd 코드</b> — 현재 점프대 도약은 ⭐ 한 블록만. 4편식 <code>y속도 + 중력</code> 낙하 루프를 데모/코드로 보강 가능.</li>
+  </ul>
+
+  <footer class="doc-footer">
+    <h2>관련 문서</h2>
+    <ul>
+      <li><a href="fix-history.md">fix-history.md</a> — 수정 히스토리 인덱스(2026-05-31 항목)</li>
+      <li><a href="next-steps.md">next-steps.md</a> — 후속 TODO 통합 인덱스</li>
+      <li><a href="review_20260529.md">review_20260529.md</a> — 추가 물리 주제 제안(3·4순위 출처)</li>
+      <li><a href="design-guide.html">design-guide.html</a> — D-1 색 의미·D-4 개념↔구현 분리 구조</li>
+      <li><a href="authoring-editing-guide.html">authoring-editing-guide.html</a> — A-3 정확성 참조표(현실 vs 게임)</li>
+      <li><a href="new-page-guide.html">new-page-guide.html</a> — 레이아웃 뼈대·액센트 색상표</li>
+      <li><a href="entry-blocks-renderer.html">entry-blocks-renderer.html</a> — data-blocks 렌더러(note 제약)</li>
+    </ul>
+  </footer>
+
+</main>
+<aside id="toc"></aside>
+</body>
+</html>
