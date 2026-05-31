@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>엔트리 게임 만들기 ⑨ 경사면과 마찰</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="assets/entry-blocks/renderer.js" defer></script>
+<style>
+  /* 9편 — 헤더 스테이지 (눈썰매가 비탈을 내려가 바위를 지남) */
+  .slope9{
+    position:absolute;left:0;bottom:24px;width:200px;height:78px;
+    background:#eaf1f6;clip-path:polygon(0 0,100% 100%,0 100%);}
+  .slope9::after{content:"";position:absolute;left:0;top:0;width:100%;height:100%;
+    border-top:4px solid #cdd8df;clip-path:polygon(0 0,100% 100%,0 100%);}
+  .sled9{
+    position:absolute;bottom:24px;width:30px;height:18px;
+    animation:sled-slide 4.4s ease-in infinite;}
+  .sled9::before{content:"🛷";font-size:24px;position:absolute;left:0;bottom:0;}
+  @keyframes sled-slide{
+    0%{left:2%;bottom:80px;}
+    40%{left:24%;bottom:26px;}
+    82%{left:88%;bottom:26px;}
+    100%{left:88%;bottom:26px;}
+  }
+  .rock9{position:absolute;right:18%;bottom:26px;font-size:22px;}
+
+  /* 바닥(표면)별 결과 비교 비주얼 */
+  .col-cmp{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0;}
+  .col-cmp .force-cap{
+    width:100%;text-align:center;font-family:'Gaegu',cursive;font-weight:700;
+    font-size:15.5px;color:var(--c9);margin-bottom:2px;}
+  .cc-item{
+    flex:1;min-width:150px;
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 12px;text-align:center;}
+  .cc-item.best{border:1px solid var(--c9);background:#f6ecf9;}
+  .cc-emoji{font-size:28px;letter-spacing:2px;}
+  .cc-title{font-family:'Jua',sans-serif;font-size:15px;color:var(--c9);margin:4px 0 2px;}
+  .cc-label{font-size:13px;color:var(--soft);line-height:1.5;}
+  .cc-label b{color:var(--ink);}
+
+  /* 변수 안내 박스 */
+  .var-intro{
+    background:#fafaf6;
+    border:1px dashed var(--c9);
+    border-radius:10px;padding:14px 16px;margin:16px 0;
+    display:flex;gap:12px;align-items:center;}
+  .var-intro .vi-icon{font-size:26px;flex-shrink:0;}
+  .var-intro .vi-text{flex:1;font-size:14.5px;line-height:1.6;color:var(--ink);}
+  .var-intro .vi-text b{color:var(--c9);}
+
+  /* 코드 찾기 활동 */
+  .quiz-list{
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 18px;margin:16px 0;
+    font-size:14.5px;line-height:2.2;}
+  .quiz-list .hint{color:var(--c9);font-size:13px;}
+  .quiz-list code{background:#fff;padding:1px 7px;border-radius:5px;font-size:13px;border:1px solid var(--border);}
+
+  /* 참고자료 */
+  .meta-box{
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 18px;margin-top:14px;
+    font-size:13px;color:var(--soft);line-height:1.95;}
+  .meta-box b{font-size:13.5px;color:var(--ink);}
+  .meta-box a{color:var(--c9);text-decoration:underline;text-underline-offset:2px;}
+
+  /* CTA */
+  .cta{
+    background:linear-gradient(180deg,#f6ecf9,#fafaf6);
+    border:1px solid var(--border-s);
+    border-radius:12px;padding:22px 20px;
+    text-align:center;margin:22px 0;}
+  .cta h3{font-family:'Jua',sans-serif;font-size:20px;color:var(--ink);margin-bottom:6px;}
+  .cta p{font-size:15px;color:var(--soft);margin-bottom:12px;}
+  .cta a.go{
+    display:inline-block;background:var(--c9);color:#fff;
+    font-family:'Jua',sans-serif;font-size:16px;
+    padding:10px 22px;border-radius:30px;
+    box-shadow:0 3px 0 #8a3f9e;
+    transition:transform .12s ease;text-decoration:none;}
+  .cta a.go:hover{transform:translateY(-1px);}
+
+  /* 직접 해보기 — 인터랙티브 데모 */
+  .try-demo{
+    background:#fff;border:1px solid var(--border);
+    border-radius:12px;padding:16px 16px 14px;margin:16px 0 6px;}
+  .try-demo .demo-title{
+    font-family:'Jua',sans-serif;font-size:16px;color:var(--ink);
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .try-demo .demo-title .pill{
+    background:var(--c9);color:#fff;font-family:'Jua',sans-serif;
+    font-size:11px;padding:2px 9px;border-radius:20px;letter-spacing:.5px;}
+  .try-canvas-wrap{
+    position:relative;background:linear-gradient(180deg,var(--sky1),var(--sky2));
+    border-radius:10px;overflow:hidden;outline:none;cursor:pointer;}
+  .try-canvas-wrap:focus{box-shadow:0 0 0 3px rgba(176,97,196,.40);}
+  .try-canvas-wrap canvas{display:block;width:100%;height:auto;}
+  .try-hud{
+    position:absolute;top:8px;left:10px;
+    font-family:'Jua',sans-serif;font-size:13px;
+    background:rgba(255,255,255,.85);color:var(--ink);
+    padding:3px 10px;border-radius:14px;}
+  .try-hud.vel{
+    top:8px;left:auto;right:10px;
+    background:rgba(176,97,196,.18);color:var(--ink);}
+  .try-focus-msg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    text-align:center;padding:0 18px;
+    font-family:'Jua',sans-serif;font-size:14.5px;color:var(--ink);
+    background:rgba(255,255,255,.55);pointer-events:none;
+    opacity:0;transition:opacity .15s ease;}
+  .try-canvas-wrap.idle .try-focus-msg{opacity:1;}
+  .try-controls{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;}
+  .try-controls button{
+    font-family:'Jua',sans-serif;font-size:14px;
+    background:var(--c9);color:#fff;border:none;
+    padding:7px 16px;border-radius:20px;
+    box-shadow:0 2px 0 #8a3f9e;cursor:pointer;
+    transition:transform .1s ease;}
+  .try-controls button:active{transform:translateY(1px);box-shadow:0 1px 0 #8a3f9e;}
+  .try-controls button.secondary{
+    background:#fff;color:var(--ink);
+    border:1px solid var(--border);box-shadow:0 2px 0 var(--border);}
+  .try-controls button.secondary:active{box-shadow:0 1px 0 var(--border);}
+  .try-controls .surf-row{
+    display:flex;align-items:center;gap:6px;
+    font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);}
+  .try-controls button.surf{
+    padding:5px 11px;font-size:13px;background:#fff;color:var(--ink);
+    border:1px solid var(--border);box-shadow:0 2px 0 var(--border);}
+  .try-controls button.surf.active{
+    background:var(--c9);color:#fff;border-color:var(--c9);box-shadow:0 2px 0 #8a3f9e;}
+  .try-controls .speed-row{
+    display:flex;align-items:center;gap:8px;margin-left:auto;
+    font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);}
+  .try-controls .speed-row input[type=range]{width:110px;}
+  .try-controls .speed-row b{color:var(--ink);min-width:20px;display:inline-block;text-align:center;}
+  .try-hint{
+    font-family:'Gowun Dodum',sans-serif;font-size:13.5px;
+    color:var(--soft);margin-top:8px;line-height:1.65;}
+  .try-hint kbd{
+    display:inline-block;background:#fafaf6;
+    border:1px solid var(--border);border-bottom-width:2px;
+    border-radius:5px;padding:1px 8px;
+    font-family:'Jua',sans-serif;font-size:12px;color:var(--ink);}
+  @media (max-width:560px){
+    .try-controls .speed-row{margin-left:0;width:100%;justify-content:space-between;}
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="home-link">🏠</a>
+
+<header>
+  <span class="badge">엔트리 게임 만들기 · 9편</span>
+  <h1>경사면과 마찰<br>— 눈썰매로 비탈을 내려가자!</h1>
+  <p class="sub">비탈에선 가만히 있어도 미끄러져요! 가파를수록 빨라지고, 바닥이 거칠면 천천히 가요 ⛷️</p>
+</header>
+
+<div class="stage">
+  <div class="slope9"></div>
+  <div class="rock9">🪨</div>
+  <div class="sled9"></div>
+  <div class="ground"></div>
+</div>
+
+<div class="wrap">
+
+  <section class="card">
+    <p class="big">⛷️ 3편에서 <b>평평한 바닥</b>의 마찰을 배웠죠? 그런데 <b>비탈길</b>에선 신기한 일이 벌어져요 — 가만히 있어도 <b>스르륵 미끄러져 내려가요!</b> 8편의 롤러코스터도 사실은 <b>비탈을 내려온</b> 거였죠.</p>
+
+    <p>비탈에서는 <b>중력</b>이 우리를 비탈 아래로 끌어당겨요. 그래서 <b>가파를수록</b> 더 빨리 미끄러지고, 바닥이 <b>거칠수록</b>(모래처럼) 마찰이 버텨서 덜 미끄러져요. 오늘은 <b>눈썰매</b>가 비탈을 내려가는 게임을 만들면서, <b>경사각</b>과 <b>바닥</b>(얼음·눈·모래)이 속도를 어떻게 바꾸는지 직접 실험해 봐요!</p>
+
+    <div class="legend">
+      <div class="entry-block" data-block='{"shape":"stack","category":"START",   "marker":false,"contents":[{"type":"text","value":"시작"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"FLOW",    "marker":false,"contents":[{"type":"text","value":"흐름(반복·만일)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"MOVING",  "marker":false,"contents":[{"type":"text","value":"움직임"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"JUDGE",   "marker":false,"contents":[{"type":"text","value":"판단"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"VARIABLE","marker":false,"contents":[{"type":"text","value":"자료(변수)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"CALC",    "marker":false,"contents":[{"type":"text","value":"계산"}]}'></div>
+    </div>
+  </section>
+
+  <div class="goals">
+    <div class="goal-col phys">
+      <div class="goal-head">🔬 오늘 배우는 물리 개념</div>
+      <ul>
+        <li><b>경사면</b> — 비탈에선 중력이 아래로 끌어당겨요</li>
+        <li><b>가파를수록</b> 더 빨리 미끄러져요</li>
+        <li><b>마찰</b> — 바닥이 거칠수록 덜 미끄러져요</li>
+        <li><b>가속도</b> — 두 힘이 겨뤄요 (6편 연결)</li>
+      </ul>
+    </div>
+    <div class="goal-col code">
+      <div class="goal-head">🧩 엔트리로 만드는 것</div>
+      <ul>
+        <li><b>‘미끄럼속도’</b> 변수 + <b>경사기울기</b>만큼 가속</li>
+        <li>바닥별 <b>‘마찰’</b> 값(얼음·눈·모래)</li>
+        <li><b>장애물(바위)</b>에 닿으면 게임 오버</li>
+      </ul>
+    </div>
+  </div>
+
+  <section class="card c-orchid">
+    <div class="step-no">1</div>
+    <h2>직접 미끄러져 보자</h2>
+    <p>백 마디 설명보다 한 번 해보는 게 빨라요! 아래에서 <b>경사각</b>을 바꾸고 <b>바닥</b>(얼음·눈·모래)을 골라 눈썰매를 출발시켜 봐요. 어떤 조합이 <b>가장 빠를지</b> 먼저 예측해 보면 더 재밌어요! ⛷️</p>
+
+    <div class="try-demo">
+      <div class="demo-title"><span class="pill">직접 해보기</span> 경사각과 바닥을 바꿔 눈썰매를 미끄러뜨려봐요!</div>
+      <div class="try-canvas-wrap idle" id="demoStage9" tabindex="0" aria-label="눈썰매가 비탈을 내려가는 데모">
+        <canvas id="demoCanvas9" width="720" height="320"></canvas>
+        <div class="try-hud">미끄럼 속도: <b id="demoV9">0.0</b></div>
+        <div class="try-hud vel">바닥: <b id="demoSurf9">눈</b></div>
+        <div class="try-focus-msg">▶ 출발 버튼을 누르거나<br>이 화면을 클릭하면 썰매가 미끄러져요</div>
+      </div>
+      <div class="try-controls">
+        <button id="demoRun9">▶ 출발</button>
+        <button id="demoReset9" class="secondary">↺ 처음으로</button>
+        <span class="surf-row">바닥:
+          <button class="surf" data-s="ice">🧊 얼음</button>
+          <button class="surf active" data-s="snow">❄️ 눈</button>
+          <button class="surf" data-s="sand">🏖️ 모래</button>
+        </span>
+        <span class="speed-row">경사각 <b id="demoAngleVal9">25</b>°
+          <input type="range" id="demoAngle9" min="10" max="45" step="5" value="25" aria-label="경사각">
+        </span>
+      </div>
+      <div class="try-hint">⛷️ <b>경사각</b>을 올리고 <b>바닥</b>을 바꿔봐요. 가장 빠른 조합은? <small style="opacity:.7;">(예측: 가파른 얼음!)</small> 모래에선 가파르게 해도 왜 느릴까요? — <b>마찰이 버티거든요!</b></div>
+    </div>
+  </section>
+
+  <section class="card c-orchid">
+    <div class="step-no">2</div>
+    <h2>🔬 왜 미끄러질까? — 중력의 방향</h2>
+    <p>비탈에서는 <b>중력</b>이 우리를 아래로 끌어당겨요. 중력은 늘 <b>곧장 아래로</b> 당기지만, 비탈에선 그 힘의 <b>일부가 비탈을 따라 미끄러뜨리는 힘</b>이 돼요. 그래서 가만히 있어도 스르륵 내려가는 거예요!</p>
+
+    <div class="tip">
+      <b>📖 쉽게 말하면</b><br>
+      “비탈길에서는 중력이 아래쪽으로 끌어당기기 때문에 <b>가만히 있어도 미끄러져요.</b> 비탈이 <b>가파를수록</b> 미끄러뜨리는 힘이 더 커져요.”<br>
+      <small style="opacity:.7;">— <a href="https://ko.wikipedia.org/wiki/%EB%B9%97%EB%A9%B4" target="_blank" rel="noopener" style="color:var(--c9);">위키백과, “빗면”</a> (내용 재작성)</small>
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 비탈을 따라 미는 힘이 <b>중력 × sin(경사각)</b>이에요 — 가파를수록 sin 값이 커져서 더 세게 미끄러져요.<br>
+      <b>🎮 게임에서는</b> 복잡한 sin 계산 없이 “<b>가파를수록 매 프레임 속도를 더 많이 더한다</b>”는 간단한 규칙으로 흉내 내요.
+    </div>
+
+    <p>그런데 똑같이 가파른 비탈이라도 <b>얼음</b>과 <b>모래</b>는 완전히 다르죠? 그 차이가 바로 <b>마찰</b>이에요!</p>
+  </section>
+
+  <section class="card c-orchid">
+    <div class="step-no">3</div>
+    <h2>🔬 마찰 — 거친 바닥은 덜 미끄러져</h2>
+    <p>바닥이 <b>거칠면</b> 마찰이 미끄러짐을 <b>방해해서</b> 덜 미끄러져요. 얼음은 매끄러워서(마찰이 작아서) <b>쌩</b> 미끄러지고, 모래는 거칠어서(마찰이 커서) <b>금방 느려져요.</b> 마찰은 늘 <b>미끄러지는 반대 방향</b>으로 버텨요.</p>
+
+    <div class="col-cmp">
+      <div class="force-cap">— 같은 경사각, 바닥만 다르게 했을 때 —</div>
+      <div class="cc-item best">
+        <div class="cc-emoji">🧊</div>
+        <div class="cc-title">얼음 (마찰 작음)</div>
+        <div class="cc-label">아주 잘 미끄러져<br><b>쌩— 빨라요!</b></div>
+      </div>
+      <div class="cc-item">
+        <div class="cc-emoji">❄️</div>
+        <div class="cc-title">눈 (보통)</div>
+        <div class="cc-label">적당히<br>미끄러져요</div>
+      </div>
+      <div class="cc-item">
+        <div class="cc-emoji">🏖️</div>
+        <div class="cc-title">모래 (마찰 큼)</div>
+        <div class="cc-label">잘 안 미끄러져<br><b>금방 느려져요</b></div>
+      </div>
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 마찰력 = 마찰계수 × (바닥을 누르는 힘)이고, 비탈에선 미끄러뜨리는 힘과 서로 겨뤄요.<br>
+      <b>🎮 게임에서는</b> 3편·8편처럼 매 프레임 속도에 <b>1보다 작은 수</b>를 곱해 흉내 내요 — 바닥마다 그 수가 달라요(얼음 0.99, 눈 0.96, 모래 0.92).
+    </div>
+  </section>
+
+  <section class="card c-orchid">
+    <div class="step-no">4</div>
+    <h2>🔬 둘이 겨루면? — 가속도</h2>
+    <p>비탈에선 두 힘이 <b>겨뤄요</b> — 비탈 아래로 <b>미끄러뜨리는 힘(경사)</b> vs 그걸 막는 <b>버티는 힘(마찰)</b>. 미끄러뜨리는 힘이 더 크면 점점 빨라지고(<b>가속</b>), 마찰이 충분히 크면 천천히 가거나 거의 안 미끄러져요. 이게 6편에서 배운 <b>가속도</b>가 비탈에서 나타나는 모습이에요!</p>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 두 힘의 <b>차이</b>만큼 가속도가 생겨요. 같은 비탈이라도 얼음이면 빨리, 모래면 느리게 가속돼요.<br>
+      <b>🎮 게임에서는</b> “경사로 <b>속도를 더하고</b>(가속), 바닥으로 <b>속도를 깎는다</b>(마찰)”로 두 힘의 겨룸을 흉내 내요.
+    </div>
+
+    <div class="tip bonus">
+      <b>⭐ 더 알고 싶다면: 진짜 공식</b><br>
+      비탈을 내려가는 가속도는 이렇게 구해요:<br>
+      <code>가속도 = 중력 × sin(경사각) − 마찰계수 × 중력 × cos(경사각)</code><br>
+      앞부분 <b>중력 × sin(경사각)</b>은 <b>경사가 미끄러뜨리는 힘</b>(가파를수록 ↑), 뒷부분은 <b>마찰이 버티는 힘</b>(바닥이 거칠수록 ↑)이에요. 두 힘의 <b>차이</b>가 가속도죠. 식이 어려우면 “<b>가파를수록 빨라지고, 거칠수록 느려진다</b>”만 기억해도 충분해요! 😉
+    </div>
+
+    <p>이제 <b>경사로 가속 + 마찰로 감속</b>을 엔트리 블록으로 옮겨, 비탈을 내려가는 눈썰매를 만들어봐요!</p>
+  </section>
+
+  <section class="card c-orchid">
+    <div class="step-no">5</div>
+    <h2>🧩 엔트리로 눈썰매 만들기</h2>
+    <p><b>눈썰매</b> 오브젝트를 비탈 위에 놓고, 미끄러지는 빠르기를 기억할 <b>‘미끄럼속도’</b> 변수를 만들어요. 비탈에선 매 프레임 속도가 <b>붙고(경사)</b>, 바닥의 <b>마찰</b>로 깎이며, <b>바위</b>에 닿으면 게임 오버예요.</p>
+
+    <div class="var-intro">
+      <div class="vi-icon">⛷️</div>
+      <div class="vi-text">
+        변수 두 개! <b>‘경사기울기’</b>는 비탈이 가파를수록 큰 값으로 정해요(완만 <b>0.1</b> ~ 가파름 <b>0.4</b>). <b>‘마찰’</b>은 바닥에 따라 — 얼음 <b>0.99</b>, 눈 <b>0.96</b>, 모래 <b>0.92</b>로 바꾸면 끝!
+      </div>
+    </div>
+
+    <p style="font-weight:700;color:var(--soft);">▶ <b>눈썰매</b>의 시작 블록 안에 이렇게 쌓아주세요.</p>
+
+    <div class="entry-code" data-blocks='[
+      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+      {"shape":"stack","category":"VARIABLE","contents":[
+        {"type":"dropdown","value":"미끄럼속도"},{"type":"text","value":"를"},
+        {"type":"input","value":"0"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"stack","category":"VARIABLE","note":"눈=0.96 (얼음 0.99 / 모래 0.92)","contents":[
+        {"type":"dropdown","value":"마찰"},{"type":"text","value":"를"},
+        {"type":"input","value":"0.96"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+        {"shape":"stack","category":"VARIABLE","contents":[
+          {"type":"dropdown","value":"미끄럼속도"},{"type":"text","value":"에"},
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"경사기울기"}]}},
+          {"type":"text","value":"만큼 더하기"}
+        ]},
+        {"shape":"stack","category":"VARIABLE","contents":[
+          {"type":"dropdown","value":"미끄럼속도"},{"type":"text","value":"를"},
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"미끄럼속도"},{"type":"text","value":"×"},{"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"마찰"}]}}]}},
+          {"type":"text","value":"로 정하기"}
+        ]},
+        {"shape":"stack","category":"MOVING","contents":[
+          {"type":"text","value":"x 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"미끄럼속도"}]}},
+          {"type":"text","value":"만큼 바꾸기"}
+        ]},
+        {"shape":"stack","category":"MOVING","note":"비탈을 따라 아래로(엔트리는 위쪽이 +y)","contents":[
+          {"type":"text","value":"y 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"미끄럼속도"},{"type":"text","value":"×"},{"type":"input","value":"-1"}]}},
+          {"type":"text","value":"만큼 바꾸기"}
+        ]},
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"바위"},{"type":"text","value":"에 닿았는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"LOOKS","contents":[
+            {"type":"input","value":"부딪혔어요!"},{"type":"text","value":"을(를) 말하기"}
+          ]},
+          {"shape":"stack","category":"FLOW","contents":[{"type":"text","value":"모든 코드 멈추기"}]}
+        ]}
+      ]}
+    ]'></div>
+
+    <div class="tip">
+      <b>🔬 두 줄이 “겨룸”의 핵심이에요!</b><br>
+      ① <b>미끄럼속도에 경사기울기 더하기</b> — 경사가 <b>미끄러뜨리는</b> 가속(가파를수록 큼).<br>
+      ② <b>미끄럼속도 × 마찰</b> — 바닥이 <b>버티는</b> 감속(거칠수록 작은 수).<br>
+      이 둘이 매 프레임 겨뤄서 썰매의 빠르기가 정해져요. 얼음(0.99)이면 거의 안 깎여 쌩, 모래(0.92)면 많이 깎여 느릿!
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 미끄러뜨리는 힘이 <b>중력 × sin(경사각)</b>이라 각도로 정확히 정해져요.<br>
+      <b>🎮 게임에서는</b> ‘경사기울기’ 변수에 적당한 값(완만 0.1 ~ 가파름 0.4)을 직접 넣어 흉내 내요. 진짜 sin을 쓰고 싶으면 아래 ⭐ 도전으로!
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🔧 안 될 때 확인!</h2>
+    <p>따라 하다 막히면 대부분 물리가 아니라 <b>블록 실수</b>예요. 아래를 확인해 봐요.</p>
+    <div class="fix">
+      <div class="fix-title">🔧 이렇게 안 되나요?</div>
+      <ul>
+        <li><b>썰매가 안 미끄러져요</b> → <b>계속 반복하기</b> 안에 <code>미끄럼속도에 경사기울기 만큼 더하기</code>가 있는지, <b>경사기울기가 0이 아닌지</b> 확인</li>
+        <li><b>경사를 키워도 속도가 그대로예요</b> → 더하는 값이 <b>경사기울기</b>(가파를수록 큰 값)에 연동되는지, 평지면 0인지 확인</li>
+        <li><b>얼음인데 모래처럼 느려요</b> → <b>‘마찰’ 값</b>이 바뀌는지(얼음 0.99 / 눈 0.96 / 모래 0.92), 마찰 곱하기 줄이 <b>한 번만</b> 있는지 확인</li>
+        <li><b>바위에 닿아도 게임 오버가 안 돼요</b> → <code>만일 〈바위에 닿았는가?〉</code>가 <b>반복 안</b>에 있고, 멈추기(또는 장면 바꾸기)가 들어갔는지 확인</li>
+        <li><b>썰매가 비탈을 뚫고 가요</b> → 비탈 배경과 썰매의 <b>y 위치</b>가 맞는지, 좌표 갱신 순서를 확인 (빠를 땐 3편 <b>서브스텝</b> 참고)</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card c-orchid">
+    <div class="step-no">⭐</div>
+    <h2>⭐ 도전: 진짜 눈썰매 게임으로</h2>
+    <p>기본 미끄럼이 완성됐다면, 진짜 게임처럼 한 발 더 가볼까요?</p>
+
+    <div class="tip">
+      <b>🌨️ ① 바닥이 바뀌는 코스</b><br>
+      <b>얼음 → 눈 → 모래</b> 구간을 이어 붙여 보세요. 구간마다 <b>‘마찰’ 값</b>을 바꾸면, 얼음에선 쌩 빨라지다 모래에선 뚝 느려지는 <b>변화무쌍한 코스</b>가 돼요!
+    </div>
+
+    <div class="tip">
+      <b>🎿 ② 좌우로 피하기 (게임화)</b><br>
+      화살표 키로 썰매를 <b>좌우로</b> 움직여 <b>바위·나무</b>를 피해 보세요. 1편의 키 입력 이동을 그대로 쓰면 돼요. 닿으면 게임 오버!
+    </div>
+
+    <div class="tip bonus">
+      <b>📐 ③ 진짜 sin 써보기 (고급)</b><br>
+      4편의 <b>cos·sin</b>을 떠올려, 경사기울기를 직접 정하지 말고 <b>중력 × sin(경사각)</b>으로 <b>계산</b>해 보세요. 경사각만 바꾸면 미끄러뜨리는 힘이 <b>저절로</b> 정확하게 정해져요 — 진짜 물리에 한 발 더 가까워져요!
+      <div class="entry-code" style="margin:10px 0 0;" data-blocks='[
+        {"shape":"stack","category":"VARIABLE","contents":[
+          {"type":"dropdown","value":"경사기울기"},{"type":"text","value":"를"},
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"input","value":"0.6"},{"type":"text","value":"×"},{"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"dropdown","value":"sin"},{"type":"input","value":"경사각"},{"type":"text","value":"의 값"}]}}]}},
+          {"type":"text","value":"로 정하기"}
+        ]}
+      ]'></div>
+    </div>
+  </section>
+
+  <section class="card c-orchid">
+    <div class="step-no">★</div>
+    <h2>🔍 배운 내용을 코드에서 찾아봐요!</h2>
+    <p>아까 만든 코드 블록을 떠올리면서 아래 질문에 답해봐요. 개념과 코드가 어떻게 연결되는지 직접 확인해보는 거예요!</p>
+
+    <div class="quiz-list">
+      <div>① 비탈에서 가만히 있어도 <b>미끄러지는 이유</b>는? <span class="hint">(힌트: 중력의 방향)</span></div>
+      <div>② 경사가 더 <b>가파르면</b> 미끄럼속도는 어떻게 되나요? <span class="hint">(힌트: 경사기울기)</span></div>
+      <div>③ <b>얼음과 모래</b> 중 더 잘 미끄러지는 건? 왜? <span class="hint">(힌트: 마찰)</span></div>
+      <div>④ 비탈에서 <b>겨루는 두 힘</b>은 무엇인가요?</div>
+    </div>
+
+    <div class="tip bonus">
+      <b>💬 답을 확인해봐요!</b><br>
+      ① <b>중력이 아래로 끌어당겨서</b> — 그 일부가 비탈을 따라 미끄러뜨리는 힘이 돼요.<br>
+      ② <b>더 빨라져요</b> — 경사기울기가 커져 매 프레임 더 많이 가속돼요.<br>
+      ③ <b>얼음</b> — 마찰이 작아서(0.99) 거의 안 깎이거든요.<br>
+      ④ <b>미끄러뜨리는 힘(경사)</b> vs <b>버티는 힘(마찰)</b> — 둘의 차이가 가속도!
+    </div>
+  </section>
+
+  <div class="finish">
+    <h2>🎉 시리즈 완주! 1~9편을 다 해냈어요!</h2>
+    <p>이제 게임 물리의 핵심을 모두 배웠어요. 9편에서 배운 걸 확인해 볼까요?</p>
+    <div class="check">
+      <div>✅ 비탈에선 <b>중력</b>이 아래로 끌어당겨 미끄러져요</div>
+      <div>✅ <b>가파를수록</b> 미끄러뜨리는 힘이 커져 빨라져요</div>
+      <div>✅ <b>마찰</b> — 거친 바닥(모래)일수록 덜 미끄러져요</div>
+      <div>✅ 경사(가속) vs 마찰(감속)의 겨룸이 <b>가속도</b></div>
+      <div>✅ ‘미끄럼속도’ + 경사기울기 + 마찰로 눈썰매 완성!</div>
+    </div>
+    <div class="next">🚀 <b>이제 여러분 차례예요!</b> 1~9편의 물리 블록 — 이동·속도·가속도·관성·마찰·중력·발사·탄성·힘·질량·운동량·충돌·에너지·<b>경사면</b> — 을 자유롭게 조합하면 <b>거의 모든 게임</b>을 만들 수 있어요. 여러분만의 작품을 만들어보세요!</div>
+  </div>
+
+  <div class="meta-box">
+    <b>📚 참고 자료</b><br>
+    • <a href="https://ko.wikipedia.org/wiki/%EB%B9%97%EB%A9%B4" target="_blank" rel="noopener">위키백과, “빗면(경사면)”</a> — 비탈에서의 힘<br>
+    • <a href="https://ko.wikipedia.org/wiki/%EB%A7%88%EC%B0%B0" target="_blank" rel="noopener">위키백과, “마찰”</a> — 미끄러짐을 막는 힘<br>
+    • <a href="https://ko.wikipedia.org/wiki/%EA%B0%80%EC%86%8D%EB%8F%84" target="_blank" rel="noopener">위키백과, “가속도”</a> — 두 힘의 차이로 생기는 가속
+  </div>
+
+  <div class="cta">
+    <h3>🏠 시리즈를 모두 마쳤어요!</h3>
+    <p>1~9편의 물리 블록을 조합해서 나만의 게임을 만들어봐요!</p>
+    <a class="go" href="index.html">🏠 목차로 돌아가기</a>
+  </div>
+
+  <footer>
+    엔트리로 만드는 나만의 게임 · 9편 「경사면과 마찰」<br>
+    <span style="font-size:10px;opacity:.7;">
+      © 2026 김경환 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;">CC BY-NC-SA 4.0</a><br>
+      도트 캐릭터 © <a href="https://zerie.itch.io/tiny-rpg-character-asset-pack" target="_blank" style="color:inherit;">Zerie</a>
+    </span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const wrap        = document.getElementById('demoStage9');
+  const canvas      = document.getElementById('demoCanvas9');
+  const ctx         = canvas.getContext('2d');
+  const runBtn      = document.getElementById('demoRun9');
+  const resetBtn    = document.getElementById('demoReset9');
+  const angleSlider = document.getElementById('demoAngle9');
+  const angleVal    = document.getElementById('demoAngleVal9');
+  const vLabel      = document.getElementById('demoV9');
+  const surfLabel   = document.getElementById('demoSurf9');
+  const surfBtns    = wrap.parentElement.querySelectorAll('button.surf');
+
+  const W = canvas.width, H = canvas.height;
+  const groundY = H - 30;
+  const sledR = 13;
+  const SLOPE_K = 1.0;
+  const SURF = { ice:0.99, snow:0.96, sand:0.92 };
+  const SURF_KO = { ice:'얼음', snow:'눈', sand:'모래' };
+
+  let angleDeg = 25;
+  let surface = 'snow';
+  let d = 0, vel = 0, maxVel = 0;
+  let phase = 'ready', running = false;
+
+  function slope(){
+    const th = angleDeg * Math.PI / 180;
+    const tan = Math.tan(th);
+    const maxRise = 235, maxBase = 480;
+    let baseX, rise;
+    if (maxBase * tan <= maxRise){ baseX = maxBase; rise = maxBase * tan; }
+    else { rise = maxRise; baseX = maxRise / tan; }
+    const topY = groundY - rise;
+    const L = Math.hypot(baseX, rise);
+    return { th, baseX, rise, topY, L, cos: baseX / L, sin: rise / L };
+  }
+
+  function drawSky(){
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#d8ecf6'); g.addColorStop(1, '#eef6fb');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  function drawGround(){
+    ctx.fillStyle = '#dfe7ec';
+    ctx.fillRect(0, groundY, W, H - groundY);
+    ctx.fillStyle = '#cdd8df';
+    ctx.fillRect(0, groundY - 4, W, 4);
+  }
+  function drawSlope(s){
+    // 눈 비탈 삼각형
+    ctx.fillStyle = '#eef4f8';
+    ctx.beginPath();
+    ctx.moveTo(0, s.topY);
+    ctx.lineTo(s.baseX, groundY);
+    ctx.lineTo(0, groundY);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#cdd8df'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(0, s.topY); ctx.lineTo(s.baseX, groundY); ctx.stroke();
+    // 바위(장식)
+    ctx.fillStyle = '#9aa4ad';
+    ctx.beginPath(); ctx.ellipse(s.baseX + 46, groundY - 8, 16, 11, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#8a949d';
+    ctx.beginPath(); ctx.ellipse(s.baseX + 40, groundY - 6, 9, 7, 0, 0, Math.PI * 2); ctx.fill();
+  }
+  function drawSled(s){
+    const px = d * s.cos, py = s.topY + d * s.sin;     // 비탈 위 표면점
+    const cx = px + sledR * s.sin, cy = py - sledR * s.cos;  // 표면 위로 올린 중심
+    ctx.save();
+    ctx.translate(cx, cy); ctx.rotate(s.th);
+    ctx.strokeStyle = '#8a3f9e'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-15, 9); ctx.lineTo(15, 9);
+    ctx.moveTo(15, 9); ctx.quadraticCurveTo(21, 9, 21, 3); ctx.stroke();
+    ctx.fillStyle = '#b061c4';
+    ctx.fillRect(-15, -3, 30, 11);
+    ctx.fillStyle = '#f0d6a8';
+    ctx.beginPath(); ctx.arc(-3, -10, 6, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#8a3f9e';
+    ctx.beginPath(); ctx.arc(-3, -12, 6, Math.PI, 0); ctx.fill();
+    ctx.restore();
+  }
+  function drawStatus(){
+    if (phase !== 'done') return;
+    let msg = '느릿느릿… 마찰이 꽉 붙잡네요!';
+    if (maxVel > 7) msg = '🏂 쌩— 정말 빠르게 내려왔어요!';
+    else if (maxVel > 3.5) msg = '잘 미끄러져 내려왔어요!';
+    ctx.fillStyle = 'rgba(138,63,158,.95)';
+    ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(msg, W / 2, 40);
+  }
+  function render(){
+    const s = slope();
+    drawSky(); drawSlope(s); drawGround(); drawSled(s); drawStatus();
+    vLabel.textContent = vel.toFixed(1);
+    surfLabel.textContent = SURF_KO[surface];
+  }
+  function updateBtn(){
+    runBtn.textContent = running ? '⏸ 멈춤' : '▶ 출발';
+    wrap.classList.toggle('idle', phase === 'ready');
+  }
+  function loop(){
+    if (!running) return;
+    const s = slope();
+    const slideGain = SLOPE_K * s.sin;     // 경사가 미는 힘 ∝ sin(경사각)
+    vel += slideGain;
+    vel *= SURF[surface];                  // 바닥 마찰
+    if (vel > 16) vel = 16;
+    if (vel > maxVel) maxVel = vel;
+    d += vel;
+    if (d >= s.L){ d = s.L; phase = 'done'; running = false; }
+    render();
+    if (running){ requestAnimationFrame(loop); }
+    else updateBtn();
+  }
+  function launch(){
+    if (phase !== 'ready'){ reset(true); }
+    d = 0; vel = 0; maxVel = 0; phase = 'sliding'; running = true;
+    updateBtn();
+    requestAnimationFrame(loop);
+  }
+  function reset(silent){
+    d = 0; vel = 0; maxVel = 0; phase = 'ready'; running = false;
+    updateBtn();
+    if (!silent) render();
+  }
+  function toggle(){
+    if (running){ running = false; phase = 'done'; updateBtn(); render(); }
+    else { launch(); }
+  }
+
+  runBtn.addEventListener('click', toggle);
+  resetBtn.addEventListener('click', () => reset(false));
+  angleSlider.addEventListener('input', e => {
+    angleDeg = parseInt(e.target.value, 10);
+    angleVal.textContent = angleDeg;
+    if (!running) reset(false);
+  });
+  surfBtns.forEach(b => b.addEventListener('click', () => {
+    surface = b.dataset.s;
+    surfBtns.forEach(x => x.classList.toggle('active', x === b));
+    if (!running) render();
+  }));
+  wrap.addEventListener('click', () => { wrap.focus(); if (!running) launch(); });
+
+  reset(false);
+})();
+</script>
+
+<nav class="toc-sidebar">
+  <div class="toc-title">이 페이지 목차</div>
+  <ol id="toc-list"></ol>
+</nav>
+
+<script>
+(function(){
+  var hs = document.querySelectorAll('section.card h2');
+  var list = document.getElementById('toc-list');
+  if(!hs.length || !list) return;
+  hs.forEach(function(h, i){
+    if(!h.id) h.id = 'toc-' + i;
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a); list.appendChild(li);
+  });
+  var links = list.querySelectorAll('a');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = list.querySelector('a[href="#' + e.target.id + '"]');
+        if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-8% 0px -80% 0px'});
+  hs.forEach(function(h){ io.observe(h); });
+})();
+</script>
+
+</body>
+</html>

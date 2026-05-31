@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>엔트리 게임 만들기 ⑧ 에너지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="assets/entry-blocks/renderer.js" defer></script>
+<style>
+  /* 8편 — 헤더 스테이지 (롤러코스터: 공이 언덕을 굴러내려 목표로) */
+  .ramp8{
+    position:absolute;left:5%;bottom:24px;width:150px;height:62px;
+    background:#9a7449;clip-path:polygon(0 0,100% 100%,0 100%);
+    border-radius:2px 0 0 0;}
+  .ramp8::after{content:"";position:absolute;left:0;top:0;width:4px;height:100%;
+    background:#7ea884;transform-origin:top left;}
+  .coaster8{
+    position:absolute;bottom:24px;width:26px;height:26px;border-radius:50%;
+    background:var(--c8);box-shadow:inset -6px -6px 0 #3f57ab;
+    animation:coaster-roll 4.4s ease-in infinite;}
+  .coaster8::after{content:"";position:absolute;top:6px;left:7px;width:7px;height:7px;
+    background:rgba(255,255,255,.55);border-radius:50%;}
+  @keyframes coaster-roll{
+    0%{left:5%;bottom:80px;}
+    34%{left:21%;bottom:26px;}
+    82%{left:86%;bottom:26px;}
+    100%{left:86%;bottom:26px;}
+  }
+  .goal8{position:absolute;right:7%;bottom:24px;font-size:26px;}
+
+  /* 출발 높이별 결과 비교 비주얼 */
+  .col-cmp{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0;}
+  .col-cmp .force-cap{
+    width:100%;text-align:center;font-family:'Gaegu',cursive;font-weight:700;
+    font-size:15.5px;color:var(--c8);margin-bottom:2px;}
+  .cc-item{
+    flex:1;min-width:150px;
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 12px;text-align:center;}
+  .cc-item.best{border:1px solid var(--c8);background:#edf0fb;}
+  .cc-emoji{font-size:28px;letter-spacing:2px;}
+  .cc-title{font-family:'Jua',sans-serif;font-size:15px;color:var(--c8);margin:4px 0 2px;}
+  .cc-label{font-size:13px;color:var(--soft);line-height:1.5;}
+  .cc-label b{color:var(--ink);}
+
+  /* 변수 안내 박스 */
+  .var-intro{
+    background:#fafaf6;
+    border:1px dashed var(--c8);
+    border-radius:10px;padding:14px 16px;margin:16px 0;
+    display:flex;gap:12px;align-items:center;}
+  .var-intro .vi-icon{font-size:26px;flex-shrink:0;}
+  .var-intro .vi-text{flex:1;font-size:14.5px;line-height:1.6;color:var(--ink);}
+  .var-intro .vi-text b{color:var(--c8);}
+
+  /* 코드 찾기 활동 */
+  .quiz-list{
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 18px;margin:16px 0;
+    font-size:14.5px;line-height:2.2;}
+  .quiz-list .hint{color:var(--c8);font-size:13px;}
+  .quiz-list code{background:#fff;padding:1px 7px;border-radius:5px;font-size:13px;border:1px solid var(--border);}
+
+  /* 참고자료 */
+  .meta-box{
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 18px;margin-top:14px;
+    font-size:13px;color:var(--soft);line-height:1.95;}
+  .meta-box b{font-size:13.5px;color:var(--ink);}
+  .meta-box a{color:var(--c8);text-decoration:underline;text-underline-offset:2px;}
+
+  /* CTA */
+  .cta{
+    background:linear-gradient(180deg,#edf0fb,#fafaf6);
+    border:1px solid var(--border-s);
+    border-radius:12px;padding:22px 20px;
+    text-align:center;margin:22px 0;}
+  .cta h3{font-family:'Jua',sans-serif;font-size:20px;color:var(--ink);margin-bottom:6px;}
+  .cta p{font-size:15px;color:var(--soft);margin-bottom:12px;}
+  .cta a.go{
+    display:inline-block;background:var(--c8);color:#fff;
+    font-family:'Jua',sans-serif;font-size:16px;
+    padding:10px 22px;border-radius:30px;
+    box-shadow:0 3px 0 #3f57ab;
+    transition:transform .12s ease;text-decoration:none;}
+  .cta a.go:hover{transform:translateY(-1px);}
+
+  /* 직접 해보기 — 인터랙티브 데모 */
+  .try-demo{
+    background:#fff;border:1px solid var(--border);
+    border-radius:12px;padding:16px 16px 14px;margin:16px 0 6px;}
+  .try-demo .demo-title{
+    font-family:'Jua',sans-serif;font-size:16px;color:var(--ink);
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .try-demo .demo-title .pill{
+    background:var(--c8);color:#fff;font-family:'Jua',sans-serif;
+    font-size:11px;padding:2px 9px;border-radius:20px;letter-spacing:.5px;}
+  .try-canvas-wrap{
+    position:relative;background:linear-gradient(180deg,var(--sky1),var(--sky2));
+    border-radius:10px;overflow:hidden;outline:none;cursor:pointer;}
+  .try-canvas-wrap:focus{box-shadow:0 0 0 3px rgba(90,111,206,.40);}
+  .try-canvas-wrap canvas{display:block;width:100%;height:auto;}
+  .try-hud{
+    position:absolute;top:8px;left:10px;
+    font-family:'Jua',sans-serif;font-size:13px;
+    background:rgba(255,255,255,.85);color:var(--ink);
+    padding:3px 10px;border-radius:14px;}
+  .try-hud.vel{
+    top:8px;left:auto;right:10px;
+    background:rgba(90,111,206,.18);color:var(--ink);}
+  .try-focus-msg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    text-align:center;padding:0 18px;
+    font-family:'Jua',sans-serif;font-size:14.5px;color:var(--ink);
+    background:rgba(255,255,255,.55);pointer-events:none;
+    opacity:0;transition:opacity .15s ease;}
+  .try-canvas-wrap.idle .try-focus-msg{opacity:1;}
+  .try-controls{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;}
+  .try-controls button{
+    font-family:'Jua',sans-serif;font-size:14px;
+    background:var(--c8);color:#fff;border:none;
+    padding:7px 16px;border-radius:20px;
+    box-shadow:0 2px 0 #3f57ab;cursor:pointer;
+    transition:transform .1s ease;}
+  .try-controls button:active{transform:translateY(1px);box-shadow:0 1px 0 #3f57ab;}
+  .try-controls button.secondary{
+    background:#fff;color:var(--ink);
+    border:1px solid var(--border);box-shadow:0 2px 0 var(--border);}
+  .try-controls button.secondary:active{box-shadow:0 1px 0 var(--border);}
+  .try-controls .speed-row{
+    display:flex;align-items:center;gap:8px;margin-left:auto;
+    font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);}
+  .try-controls .speed-row input[type=range]{width:120px;}
+  .try-controls .speed-row b{color:var(--ink);min-width:24px;display:inline-block;text-align:center;}
+  .try-hint{
+    font-family:'Gowun Dodum',sans-serif;font-size:13.5px;
+    color:var(--soft);margin-top:8px;line-height:1.65;}
+  .try-hint kbd{
+    display:inline-block;background:#fafaf6;
+    border:1px solid var(--border);border-bottom-width:2px;
+    border-radius:5px;padding:1px 8px;
+    font-family:'Jua',sans-serif;font-size:12px;color:var(--ink);}
+  @media (max-width:520px){
+    .try-controls .speed-row{margin-left:0;width:100%;justify-content:space-between;}
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="home-link">🏠</a>
+
+<header>
+  <span class="badge">엔트리 게임 만들기 · 8편</span>
+  <h1>에너지<br>— 롤러코스터처럼 굴러내려 보자!</h1>
+  <p class="sub">높은 곳에서 출발할수록 더 빨라지고 더 멀리 가요! 위치에너지가 속도로 바뀌는 비밀 🎢</p>
+</header>
+
+<div class="stage">
+  <div class="ramp8"></div>
+  <div class="coaster8"></div>
+  <div class="goal8">🎯</div>
+  <div class="ground"></div>
+</div>
+
+<div class="wrap">
+
+  <section class="card">
+    <p class="big">🎢 5편에서 공을 통통 <b>튕겼죠?</b> 그런데 롤러코스터는 <b>엔진도 없는데</b> 왜 높은 데서 출발하면 점점 <b>빨라질까요?</b> 언덕만 쭉 내려왔을 뿐인데 바람을 가르며 쌩— 달려요!</p>
+
+    <p>비밀은 <b>에너지</b>예요. <b>높은 곳</b>에 있는 물체에는 “떨어질 준비가 된 힘”인 <b>위치에너지</b>가 숨어 있어요. 내려오면서 이 힘이 <b>속도(운동에너지)</b>로 바뀌는 거죠. 오늘은 공이 언덕을 굴러내려 <b>목표 지점</b>에 도착하는 롤러코스터를 만들면서, <b>“출발 높이를 바꾸면 어디까지 갈까?”</b>를 직접 실험해 봐요!</p>
+
+    <div class="legend">
+      <div class="entry-block" data-block='{"shape":"stack","category":"START",   "marker":false,"contents":[{"type":"text","value":"시작"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"FLOW",    "marker":false,"contents":[{"type":"text","value":"흐름(반복·만일)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"MOVING",  "marker":false,"contents":[{"type":"text","value":"움직임"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"JUDGE",   "marker":false,"contents":[{"type":"text","value":"판단"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"VARIABLE","marker":false,"contents":[{"type":"text","value":"자료(변수)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"CALC",    "marker":false,"contents":[{"type":"text","value":"계산"}]}'></div>
+    </div>
+  </section>
+
+  <div class="goals">
+    <div class="goal-col phys">
+      <div class="goal-head">🔬 오늘 배우는 물리 개념</div>
+      <ul>
+        <li><b>위치에너지</b> — 높은 곳에 숨은 “떨어질 힘”</li>
+        <li><b>운동에너지</b> — 빠르게 움직이는 것의 에너지</li>
+        <li><b>에너지 전환</b> — 높이가 속도로 바뀌어요</li>
+        <li><b>마찰로 인한 손실</b> — 결국 멈춰요 (3편 연결)</li>
+      </ul>
+    </div>
+    <div class="goal-col code">
+      <div class="goal-head">🧩 엔트리로 만드는 것</div>
+      <ul>
+        <li><b>‘속도’</b> 변수 + 내리막에서 <b>속도 += 중력</b></li>
+        <li><b>속도 × 0.99</b>로 마찰(에너지 손실) 흉내</li>
+        <li><b>목표</b>에 닿으면 “도착!” 판정</li>
+      </ul>
+    </div>
+  </div>
+
+  <section class="card c-indigo">
+    <div class="step-no">1</div>
+    <h2>직접 굴려보자</h2>
+    <p>백 마디 설명보다 한 번 해보는 게 빨라요! 아래 <b>출발 높이</b> 슬라이더를 바꾸고 공을 굴려, <b>어디까지 가는지</b> 직접 확인해 봐요. 굴리기 전에 <b>“이번엔 목표에 닿을까?”</b> 먼저 예측해 보면 더 재밌어요! 🎢</p>
+
+    <div class="try-demo">
+      <div class="demo-title"><span class="pill">직접 해보기</span> 출발 높이를 바꿔 목표까지 굴려봐요!</div>
+      <div class="try-canvas-wrap idle" id="demoStage8" tabindex="0" aria-label="공이 언덕을 굴러내려 목표로 가는 데모">
+        <canvas id="demoCanvas8" width="720" height="320"></canvas>
+        <div class="try-hud">속도: <b id="demoV8">0.0</b></div>
+        <div class="try-hud vel">남은 거리: <b id="demoDist8">—</b></div>
+        <div class="try-focus-msg">▶ 출발 버튼을 누르거나<br>이 화면을 클릭하면 공이 굴러가요</div>
+      </div>
+      <div class="try-controls">
+        <button id="demoRun8">▶ 출발</button>
+        <button id="demoReset8" class="secondary">↺ 처음으로</button>
+        <span class="speed-row">출발 높이 <b id="demoHeightVal8">120</b>
+          <input type="range" id="demoHeight8" min="40" max="240" step="20" value="120" aria-label="출발 높이">
+        </span>
+      </div>
+      <div class="try-hint">🎢 출발 높이를 <b>40 → 120 → 240</b>으로 올리며 <kbd>▶ 출발</kbd>! 목표 🎯에 닿는 <b>가장 낮은 높이</b>를 찾아봐요. 높이를 <b>2배</b>로 하면 거리도 딱 2배일까요? 직접 확인! <small style="opacity:.7;">(힌트: 아니에요 😉)</small></div>
+    </div>
+  </section>
+
+  <section class="card c-indigo">
+    <div class="step-no">2</div>
+    <h2>🔬 위치에너지 — 높이에 숨은 힘</h2>
+    <p>높은 곳에 있는 물체는 가만히 있어도 <b>“떨어질 준비가 된 힘”</b>을 가지고 있어요. 이걸 <b>위치에너지</b>라고 불러요. <b>높이 올라갈수록</b> 이 힘은 더 커져요 — 그래서 높은 미끄럼틀이 더 무섭게 느껴지는 거죠!</p>
+
+    <div class="tip">
+      <b>📖 위치에너지(Potential Energy)란?</b><br>
+      “높은 곳에 있는 물체가 가지는 에너지로, <b>높이가 높을수록 커져요.</b> 떨어지면서 다른 에너지로 바뀔 수 있어요.”<br>
+      <small style="opacity:.7;">— <a href="https://ko.wikipedia.org/wiki/%EC%9C%84%EC%B9%98_%EC%97%90%EB%84%88%EC%A7%80" target="_blank" rel="noopener" style="color:var(--c8);">위키백과, “위치 에너지”</a> (내용 재작성)</small>
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 위치에너지 = 무게 × 중력 × 높이(m·g·h)를 정확히 계산하고, <b>높이에 정비례</b>해요.<br>
+      <b>🎮 게임에서는</b> 그 복잡한 곱셈 대신, “<b>높은 데서 출발할수록 더 빠르게 굴러내린다</b>”는 간단한 규칙으로 흉내 내요.
+    </div>
+
+    <p>그럼 내려오면서 이 “떨어질 힘”은 <b>어디로</b> 갈까요? 다음에서 풀어봐요!</p>
+  </section>
+
+  <section class="card c-indigo">
+    <div class="step-no">3</div>
+    <h2>🔬 운동에너지 — 높이가 속도로 바뀌어요</h2>
+    <p>공이 내려오면 <b>높이가 줄어든 만큼 속도가 빨라져요.</b> 높은 곳에 숨어 있던 <b>위치에너지</b>가 빠르게 움직이는 에너지, 즉 <b>운동에너지</b>로 <b>바뀌는</b> 거예요. 이걸 <b>에너지 전환</b>이라고 해요. 그래서 언덕 <b>맨 아래</b>에서 가장 빨라요!</p>
+
+    <div class="col-cmp">
+      <div class="force-cap">— 같은 언덕, 출발 높이만 다르게 했을 때 —</div>
+      <div class="cc-item">
+        <div class="cc-emoji">🌱</div>
+        <div class="cc-title">낮게 출발</div>
+        <div class="cc-label">속도가 <b>조금만</b> 붙어<br>금방 멈춰요</div>
+      </div>
+      <div class="cc-item">
+        <div class="cc-emoji">🏔️</div>
+        <div class="cc-title">중간 높이</div>
+        <div class="cc-label">제법 빨라져<br><b>더 멀리</b> 가요</div>
+      </div>
+      <div class="cc-item best">
+        <div class="cc-emoji">🏔️🏔️</div>
+        <div class="cc-title">높게 출발</div>
+        <div class="cc-label">가장 빠르게 출발해<br><b>목표까지</b> 도착!</div>
+      </div>
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 위치에너지 + 운동에너지의 <b>합(역학적 에너지)이 그대로 보존</b>돼요(마찰이 없을 때). 그래서 떨어진 높이로 도착 속도가 정해져요.<br>
+      <b>🎮 게임에서는</b> “<b>내려온 높이만큼 속도를 더하고</b>, 마찰로 조금씩 깎는다”로 흉내 내요.
+    </div>
+
+    <div class="tip warn">
+      <b>⚠️ 높이를 2배로 하면 속도도 2배일까요? — 아니에요!</b><br>
+      높이를 2배로 해도 속도는 <b>딱 2배가 되지 않아요</b>(약 1.4배쯤). 거리도 마찬가지예요. 그래서 정확히 “2배”라고 외우기보다, <b>“더 높이 출발하면 더 빨라지고 더 멀리 간다”</b>로 기억해요. 위 데모의 <b>속도·거리 숫자</b>를 보면 직접 알 수 있어요! (4편의 “발사힘 2배 → 훨씬 멀리”와 똑같은 이야기예요.)
+    </div>
+  </section>
+
+  <section class="card c-indigo">
+    <div class="step-no">4</div>
+    <h2>🔬 마찰 — 에너지를 조금씩 잃어요</h2>
+    <p>진짜 롤러코스터가 <b>영원히 돌지 못하는</b> 이유가 있어요. 바닥·공기와의 <b>마찰</b>이 에너지를 <b>조금씩 빼앗아</b> 가거든요. 그래서 굴러갈수록 점점 느려지다 <b>결국 멈춰요.</b></p>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 마찰이 운동에너지를 <b>열·소리로 바꿔</b> 사라지게 해요(그래서 미끄럼틀이 따뜻해져요).<br>
+      <b>🎮 게임에서는</b> 매 프레임 <b>속도 × 0.99</b>처럼 1보다 살짝 작은 수를 곱해 흉내 내요 — 3편 마찰, 5편 탄성과 <b>똑같은 아이디어</b>죠!
+    </div>
+
+    <p>이제 <b>위치에너지 → 운동에너지 → 마찰로 손실</b>까지, 롤러코스터의 모든 비밀을 엔트리 블록으로 옮겨봐요!</p>
+  </section>
+
+  <section class="card c-indigo">
+    <div class="step-no">5</div>
+    <h2>🧩 엔트리로 롤러코스터 만들기</h2>
+    <p><b>공</b> 오브젝트를 언덕 위에 놓고, 굴러가는 빠르기를 기억할 <b>‘속도’</b> 변수를 하나 만들어요. 내리막에선 매 프레임 속도가 <b>붙고(중력)</b>, 마찰로 <b>조금씩 깎이며</b>, <b>목표</b>에 닿으면 도착이에요.</p>
+
+    <div class="var-intro">
+      <div class="vi-icon">🎢</div>
+      <div class="vi-text">
+        <b>‘속도’</b> 변수 하나로 충분해요! 내리막을 내려오는 동안 <b>매 프레임 +0.45</b>(중력처럼 가속)씩 빨라지고, <b>× 0.99</b>(마찰)로 조금씩 줄어요. <b>높은 언덕</b>일수록 더 오래 내려와서 더 빨라져요.
+      </div>
+    </div>
+
+    <p style="font-weight:700;color:var(--soft);">▶ <b>공</b>의 시작 블록 안에 이렇게 쌓아주세요.</p>
+
+    <div class="entry-code" data-blocks='[
+      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+      {"shape":"stack","category":"VARIABLE","note":"속도는 0에서 시작","contents":[
+        {"type":"dropdown","value":"속도"},{"type":"text","value":"를"},
+        {"type":"input","value":"0"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+        {"shape":"stack","category":"VARIABLE","contents":[
+          {"type":"dropdown","value":"속도"},{"type":"text","value":"에"},
+          {"type":"input","value":"0.45"},{"type":"text","value":"만큼 더하기"}
+        ]},
+        {"shape":"stack","category":"VARIABLE","contents":[
+          {"type":"dropdown","value":"속도"},{"type":"text","value":"를"},
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"속도"},{"type":"text","value":"×"},{"type":"input","value":"0.99"}]}},
+          {"type":"text","value":"로 정하기"}
+        ]},
+        {"shape":"stack","category":"MOVING","contents":[
+          {"type":"text","value":"x 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"속도"}]}},
+          {"type":"text","value":"만큼 바꾸기"}
+        ]},
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"목표"},{"type":"text","value":"에 닿았는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"LOOKS","contents":[
+            {"type":"input","value":"도착!"},{"type":"text","value":"을(를) 말하기"}
+          ]},
+          {"shape":"stack","category":"FLOW","contents":[{"type":"text","value":"모든 코드 멈추기"}]}
+        ]}
+      ]}
+    ]'></div>
+
+    <div class="tip">
+      <b>🔬 이 세 줄이 핵심이에요!</b><br>
+      ① <b>속도에 0.45 더하기</b> — 내리막에서 점점 빨라지는 <b>가속</b>(중력 역할).<br>
+      ② <b>속도 × 0.99</b> — 마찰로 에너지를 <b>조금씩 잃어요</b>(3·5편과 같은 “1보다 작은 수 곱하기”).<br>
+      ③ <b>x 좌표를 속도만큼</b> — 빠른 만큼 멀리 이동.<br>
+      이 셋이 매 프레임 반복되면 <b>위치에너지 → 운동에너지 → 마찰 손실</b>이 자동으로 흉내 나요!
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 도착 속도가 출발 높이로 정확히 정해져요(v는 높이의 √에 비례 — 그래서 2배가 아니에요).<br>
+      <b>🎮 게임에서는</b> 위 코드처럼 “<b>내리막에서 +0.45씩 가속</b>”으로 간단히 흉내 내고, 정확한 거리는 위 데모의 숫자로 확인해요.
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🔧 안 될 때 확인!</h2>
+    <p>따라 하다 막히면 대부분 물리가 아니라 <b>블록 실수</b>예요. 아래를 확인해 봐요.</p>
+    <div class="fix">
+      <div class="fix-title">🔧 이렇게 안 되나요?</div>
+      <ul>
+        <li><b>공이 안 굴러가요</b> → <b>계속 반복하기</b> 안에 <code>속도에 0.45 만큼 더하기</code>·<code>x 좌표를 속도만큼 바꾸기</code>가 있는지, <b>‘속도’</b> 변수를 만들었는지 확인</li>
+        <li><b>점점 빨라지기만 하고 안 멈춰요</b> → <b>마찰</b> <code>속도를 (속도 × 0.99)로 정하기</code> 줄이 빠졌는지 확인 (3편 마찰과 똑같아요)</li>
+        <li><b>목표에 닿아도 “도착!”이 안 떠요</b> → <code>만일 〈목표에 닿았는가?〉</code>가 <b>반복 안</b>에 들어 있는지, 목표 오브젝트 이름이 맞는지 확인</li>
+        <li><b>너무 빨라 화면을 순식간에 지나가요</b> → 출발 높이를 줄이거나, <b>최고 속도 제한</b>(예: 속도가 12보다 크면 12로 정하기)을 더하기</li>
+        <li><b>점프대에서 안 튀어요</b> → 점프대에 닿으면 <code>y속도</code>에 <b>위로(+)</b> 값을 주는지, 엔트리는 <b>위쪽이 +y</b>인지 확인 (4편과 동일)</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card c-indigo">
+    <div class="step-no">⭐</div>
+    <h2>⭐ 도전: 더 진짜 같은 롤러코스터</h2>
+    <p>기본 코스가 완성됐다면, 진짜 놀이공원처럼 한 발 더 가볼까요?</p>
+
+    <div class="tip">
+      <b>🪁 ① 점프대 더하기 (4편 연결)</b><br>
+      평지에 <b>점프대</b> 오브젝트를 놓고, 닿으면 <b>위로</b> 도약하게 해요. 굴러온 <b>속도</b>를 <b>y속도</b>로 바꿔 주면, 4편 포물선처럼 <b>붕</b> 날아요!
+      <div class="entry-code" style="margin:10px 0 0;" data-blocks='[
+        {"shape":"cblock","category":"FLOW","contents":[
+          {"type":"text","value":"만일"},
+          {"type":"block","block":{"shape":"boolean","category":"JUDGE","contents":[{"type":"dropdown","value":"점프대"},{"type":"text","value":"에 닿았는가?"}]}},
+          {"type":"text","value":"이라면"}
+        ],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"y속도"},{"type":"text","value":"를"},
+            {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"속도"}]}},
+            {"type":"text","value":"로 정하기"}
+          ]}
+        ]}
+      ]'></div>
+      그다음은 4편처럼 <code>y속도에 중력(-) 더하기</code> + <code>y 좌표를 y속도만큼 바꾸기</code>를 더하면 포물선 완성!
+    </div>
+
+    <div class="tip">
+      <b>🌀 ② 둘째 언덕은 처음보다 낮게!</b><br>
+      마찰로 에너지를 조금 잃었으니, 두 번째 언덕은 <b>첫 언덕보다 낮아야</b> 넘을 수 있어요. 더 높게 만들면 <b>못 넘고 되돌아와요</b> — 진짜 에너지 보존이에요!
+    </div>
+
+    <div class="tip bonus">
+      <b>❄️ ③ 마찰을 0으로?</b><br>
+      마찰을 <b>× 1.0</b>(또는 빼버리면)으로 하면 공이 <b>영원히 안 멈춰요!</b> 5편에서 탄성계수를 1.0으로 했을 때와 똑같죠. 진짜처럼 하려면 꼭 <b>× 0.99</b>처럼 1보다 작은 수가 필요해요.
+    </div>
+  </section>
+
+  <section class="card c-indigo">
+    <div class="step-no">★</div>
+    <h2>🔍 배운 내용을 코드에서 찾아봐요!</h2>
+    <p>아까 만든 코드 블록을 떠올리면서 아래 질문에 답해봐요. 개념과 코드가 어떻게 연결되는지 직접 확인해보는 거예요!</p>
+
+    <div class="quiz-list">
+      <div>① <b>위치에너지</b>가 가장 큰 곳은 어디예요? <span class="hint">(힌트: 높을수록 커요)</span></div>
+      <div>② 내려오면서 위치에너지는 무엇으로 <b>바뀌나요?</b> <span class="hint">(힌트: 빠르기)</span></div>
+      <div>③ 롤러코스터가 <b>결국 멈추는</b> 이유는? <span class="hint">(힌트: × 0.99)</span></div>
+      <div>④ 출발 높이를 더 높이면 도착 지점은 어떻게 되나요?</div>
+    </div>
+
+    <div class="tip bonus">
+      <b>💬 답을 확인해봐요!</b><br>
+      ① <b>가장 높은 곳(출발점)</b> — 높을수록 “떨어질 힘”이 커요.<br>
+      ② <b>운동에너지(속도)</b> — 높이가 속도로 바뀌는 <b>에너지 전환</b>!<br>
+      ③ <b>마찰</b> — <code>속도 × 0.99</code>가 매 프레임 에너지를 조금씩 빼앗아요.<br>
+      ④ <b>더 멀어져요</b> — 더 빠르게 출발하니까요 (단, 딱 2배는 아니에요!).
+    </div>
+  </section>
+
+  <div class="finish">
+    <h2>🎉 8편 완성! 롤러코스터를 굴렸어요!</h2>
+    <p>8편에서 배운 걸 확인해 볼까요?</p>
+    <div class="check">
+      <div>✅ <b>위치에너지</b> — 높은 곳에 숨은 “떨어질 힘”</div>
+      <div>✅ <b>운동에너지</b> — 내려오며 높이가 속도로 바뀜(에너지 전환)</div>
+      <div>✅ 더 높이 출발 = 더 빠르고 더 멀리 (딱 2배는 아님!)</div>
+      <div>✅ <b>마찰</b> ×0.99로 에너지를 조금씩 잃어 결국 멈춤</div>
+      <div>✅ ‘속도’ 변수 + 매 프레임 갱신으로 롤러코스터 완성!</div>
+    </div>
+    <div class="next">🚀 <b>거의 다 왔어요!</b> 이동·속도·가속도·관성·마찰·중력·발사·탄성·힘·질량·운동량·충돌·<b>에너지</b>까지 배웠죠. 마지막 <b>9편</b>에서는 <b>경사면과 마찰</b>로 눈썰매를 타고 비탈을 내려가며 시리즈를 완성해요!</div>
+  </div>
+
+  <div class="meta-box">
+    <b>📚 참고 자료</b><br>
+    • <a href="https://ko.wikipedia.org/wiki/%EC%9C%84%EC%B9%98_%EC%97%90%EB%84%88%EC%A7%80" target="_blank" rel="noopener">위키백과, “위치 에너지”</a> — 높이에 따른 에너지<br>
+    • <a href="https://ko.wikipedia.org/wiki/%EC%9A%B4%EB%8F%99_%EC%97%90%EB%84%88%EC%A7%80" target="_blank" rel="noopener">위키백과, “운동 에너지”</a> — 속도에 따른 에너지<br>
+    • <a href="https://ko.wikipedia.org/wiki/%EC%97%AD%ED%95%99%EC%A0%81_%EC%97%90%EB%84%88%EC%A7%80_%EB%B3%B4%EC%A1%B4" target="_blank" rel="noopener">위키백과, “역학적 에너지 보존”</a> — 위치↔운동에너지 전환
+  </div>
+
+  <div class="cta">
+    <h3>📘 마지막 한 편이 남았어요!</h3>
+    <p>비탈에선 가만히 있어도 미끄러져요! 눈썰매로 경사면과 마찰을 정복해요.</p>
+    <a class="go" href="entry-game-9-slope.html">9편 경사면과 마찰 →</a>
+  </div>
+
+  <footer>
+    엔트리로 만드는 나만의 게임 · 8편 「에너지」<br>
+    <span style="font-size:10px;opacity:.7;">
+      © 2026 김경환 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;">CC BY-NC-SA 4.0</a><br>
+      도트 캐릭터 © <a href="https://zerie.itch.io/tiny-rpg-character-asset-pack" target="_blank" style="color:inherit;">Zerie</a>
+    </span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const wrap         = document.getElementById('demoStage8');
+  const canvas       = document.getElementById('demoCanvas8');
+  const ctx          = canvas.getContext('2d');
+  const runBtn       = document.getElementById('demoRun8');
+  const resetBtn     = document.getElementById('demoReset8');
+  const heightSlider = document.getElementById('demoHeight8');
+  const heightVal    = document.getElementById('demoHeightVal8');
+  const vLabel       = document.getElementById('demoV8');
+  const distLabel    = document.getElementById('demoDist8');
+
+  const W = canvas.width, H = canvas.height;
+  const groundY = H - 30;
+  const r = 16;
+  const runwayY = groundY - r;          // 평지에서 공 중심 y
+  const rampTopX = 62, rampBaseX = 222; // 언덕 꼭대기 / 바닥
+  const goalX = 600;                    // 목표 지점
+  const GRAV = 0.45, FRICT = 0.965;
+
+  let startH = 120;
+  let x = rampTopX, y = runwayY - startH, vx = 0, vy = 0;
+  let phase = 'ready', reached = false, running = false;
+
+  function drawSky(){
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#d8ecf6'); g.addColorStop(1, '#ecf4f9');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  function drawGround(){
+    ctx.fillStyle = '#a17a52';
+    ctx.fillRect(0, groundY, W, H - groundY);
+    ctx.fillStyle = '#8e6c47';
+    for (let gx = 0; gx < W; gx += 28) ctx.fillRect(gx + 24, groundY, 4, H - groundY);
+    ctx.fillStyle = '#7ea884';
+    ctx.fillRect(0, groundY - 5, W, 5);
+  }
+  function drawHill(){
+    // 언덕(직선 경사) — 꼭대기 높이 = startH
+    ctx.fillStyle = '#9a7449';
+    ctx.beginPath();
+    ctx.moveTo(0, groundY - startH);
+    ctx.lineTo(rampTopX, groundY - startH);
+    ctx.lineTo(rampBaseX, groundY);
+    ctx.lineTo(0, groundY);
+    ctx.closePath();
+    ctx.fill();
+    // 잔디 표면선
+    ctx.strokeStyle = '#7ea884'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(0, groundY - startH - 2);
+    ctx.lineTo(rampTopX, groundY - startH - 2);
+    ctx.lineTo(rampBaseX, groundY - 2);
+    ctx.stroke();
+  }
+  function drawGoal(){
+    const reachedNow = reached;
+    ctx.strokeStyle = '#8a8f98'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(goalX, groundY); ctx.lineTo(goalX, groundY - 54); ctx.stroke();
+    ctx.fillStyle = reachedNow ? '#5a6fce' : '#aeb6e6';
+    ctx.beginPath();
+    ctx.moveTo(goalX, groundY - 54);
+    ctx.lineTo(goalX + 30, groundY - 46);
+    ctx.lineTo(goalX, groundY - 38);
+    ctx.closePath(); ctx.fill();
+    ctx.font = '20px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('🎯', goalX, groundY - 60);
+  }
+  function drawBall(){
+    ctx.fillStyle = 'rgba(0,0,0,.12)';
+    ctx.beginPath(); ctx.ellipse(x, groundY - 2, r * 0.8, 4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#3f57ab';
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#5a6fce';
+    ctx.beginPath(); ctx.arc(x - r * 0.10, y - r * 0.10, r * 0.82, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.55)';
+    ctx.beginPath(); ctx.arc(x - r * 0.34, y - r * 0.34, r * 0.20, 0, Math.PI * 2); ctx.fill();
+  }
+  function drawStatus(){
+    let msg = '';
+    if (reached) msg = '🎯 도착! 목표에 닿았어요!';
+    else if (phase === 'done') msg = '여기서 멈췄어요 — 더 높이서 출발해 볼까요?';
+    if (!msg) return;
+    ctx.fillStyle = 'rgba(63,87,171,.95)';
+    ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(msg, W / 2, 40);
+  }
+  function render(){
+    drawSky(); drawHill(); drawGround(); drawGoal(); drawBall(); drawStatus();
+    const speed = phase === 'hill' ? vy : vx;
+    vLabel.textContent = speed.toFixed(1);
+    if (reached) distLabel.textContent = '🎯 도착!';
+    else distLabel.textContent = Math.max(0, Math.round(goalX - x));
+  }
+  function updateBtn(){
+    runBtn.textContent = running ? '⏸ 멈춤' : '▶ 출발';
+    wrap.classList.toggle('idle', phase === 'ready');
+  }
+  function loop(){
+    if (!running) return;
+    if (phase === 'hill'){
+      vy += GRAV;
+      y += vy;
+      x += vy * (160 / startH);              // 경사를 따라 우측으로 (항상 바닥서 x=rampBaseX)
+      if (y >= runwayY){
+        y = runwayY; x = rampBaseX;
+        vx = vy; vy = 0; phase = 'flat';       // 떨어진 속도가 그대로 수평 속도로 (에너지 전환)
+      }
+    } else if (phase === 'flat'){
+      x += vx;
+      vx *= FRICT;                             // 마찰로 에너지 손실
+      if (!reached && x + r >= goalX) reached = true;
+      if (vx < 0.1 || x > W - r){ phase = 'done'; running = false; }
+    }
+    render();
+    if (running){ requestAnimationFrame(loop); }
+    else updateBtn();
+  }
+  function launch(){
+    if (phase !== 'ready'){ reset(true); }
+    phase = 'hill'; running = true; vy = 0; vx = 0; reached = false;
+    updateBtn();
+    requestAnimationFrame(loop);
+  }
+  function reset(silent){
+    x = rampTopX; y = runwayY - startH; vx = 0; vy = 0;
+    phase = 'ready'; reached = false; running = false;
+    updateBtn();
+    if (!silent) render();
+  }
+  function toggle(){
+    if (running){ running = false; phase = 'done'; updateBtn(); render(); }
+    else { launch(); }
+  }
+
+  runBtn.addEventListener('click', toggle);
+  resetBtn.addEventListener('click', () => reset(false));
+  heightSlider.addEventListener('input', e => {
+    startH = parseInt(e.target.value, 10);
+    heightVal.textContent = startH;
+    if (!running) reset(false);
+  });
+  wrap.addEventListener('click', () => { wrap.focus(); if (!running) launch(); });
+
+  reset(false);
+})();
+</script>
+
+<nav class="toc-sidebar">
+  <div class="toc-title">이 페이지 목차</div>
+  <ol id="toc-list"></ol>
+</nav>
+
+<script>
+(function(){
+  var hs = document.querySelectorAll('section.card h2');
+  var list = document.getElementById('toc-list');
+  if(!hs.length || !list) return;
+  hs.forEach(function(h, i){
+    if(!h.id) h.id = 'toc-' + i;
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a); list.appendChild(li);
+  });
+  var links = list.querySelectorAll('a');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = list.querySelector('a[href="#' + e.target.id + '"]');
+        if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-8% 0px -80% 0px'});
+  hs.forEach(function(h){ io.observe(h); });
+})();
+</script>
+
+</body>
+</html>
