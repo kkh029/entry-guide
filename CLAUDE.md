@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A static-HTML Korean coding-education site (초등·중학생 대상) that teaches block coding with **Entry** (entry.org.kr — a Korean Scratch-like platform). Content is a 3-part series that builds physics-based game movement step by step (이동·충돌 → 속도·가속도 → 관성·마찰), plus a TOC and an "엔트리란?" intro page.
+A static-HTML Korean coding-education site (초등·중학생 대상) that teaches block coding with **Entry** (entry.org.kr — a Korean Scratch-like platform). Content is a 7-part series that builds physics-based game movement step by step (이동·충돌 → 속도·가속도 → 관성·마찰 → 포물선·발사 → 튕김·탄성 → 힘·질량 → 운동량·충돌), plus a TOC and an "엔트리란?" intro page.
 
 Live URL: https://kkh029.github.io/entry-guide/docs/
 
@@ -56,7 +56,11 @@ docs/                           # ← served by GitHub Pages
 ├── about-entry.html            # "엔트리란?" intro (green accent)
 ├── entry-game-1-movement.html  # 1편 (red accent, --c1) — has canvas demo
 ├── entry-game-2-velocity.html  # 2편 (blue accent, --c2)
-├── entry-game-3-inertia.html   # 3편 (purple accent, --c3)
+├── entry-game-3-inertia.html   # 3편 (purple accent, --c3) — 개념↔구현 분리 reference
+├── entry-game-4-projectile.html# 4편 (orange accent, --c4) — slingshot demo
+├── entry-game-5-bounce.html    # 5편 (teal accent, --c5) — bouncing-ball demo
+├── entry-game-6-force.html     # 6편 (magenta accent, --c6) — box-push demo (force ÷ mass)
+├── entry-game-7-collision.html # 7편 (wine accent, --c7) — billiard-collision demo
 └── assets/styles.css           # ONLY shared file — common tokens, layout, Entry-block visuals
 
 dev-docs/                       # ← internal, not deployed (session-doc output lives here)
