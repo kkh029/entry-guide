@@ -199,7 +199,7 @@
     <div class="try-demo">
       <div class="demo-title"><span class="pill">직접 해보기</span> 큐볼을 발사해 흰 공에 부딪혀봐요!</div>
       <div class="try-canvas-wrap idle" id="demoStage7" tabindex="0" aria-label="당구공이 부딪히는 데모">
-        <canvas id="demoCanvas7" width="720" height="360"></canvas>
+        <canvas id="demoCanvas7" width="720" height="400"></canvas>
         <div class="try-hud">큐볼 속도: <b id="demoV1_7">0.0</b></div>
         <div class="try-hud vel">흰 공 속도: <b id="demoV2_7">0.0</b></div>
         <div class="try-focus-msg">▶ 발사 버튼을 누르거나<br>이 화면을 클릭하면 큐볼이 굴러가요</div>
@@ -487,8 +487,23 @@
   let x1 = 90, x2 = 440, v1 = 0, v2 = 0;
   let collided = false, running = false, phase = 'ready';
 
+  function drawClouds(){
+    // 높이 확대로 생긴 위쪽 하늘을 부드러운 구름으로 채움 (정적 장식)
+    const puff = (cx, cy, s, a) => {
+      ctx.fillStyle = 'rgba(255,255,255,' + a + ')';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, s, s * 0.62, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx - s * 0.82, cy + s * 0.20, s * 0.64, s * 0.48, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx + s * 0.82, cy + s * 0.20, s * 0.64, s * 0.48, 0, 0, Math.PI * 2);
+      ctx.fill();
+    };
+    puff(W * 0.16, 66, 30, .52);
+    puff(W * 0.82, 50, 23, .42);
+    puff(W * 0.50, 118, 18, .28);
+  }
   function drawGround(){
     ctx.clearRect(0, 0, W, H);
+    drawClouds();
     ctx.fillStyle = '#a17a52';
     ctx.fillRect(0, groundY, W, H - groundY);
     ctx.fillStyle = '#8e6c47';

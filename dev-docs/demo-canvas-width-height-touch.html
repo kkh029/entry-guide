@@ -109,6 +109,11 @@
   </table>
   </div>
 
+  <div class="callout warn">
+    <div class="callout-title">갱신 — PR #31에서 전 편 400 통일</div>
+    <p>위 장면별 차등(가로 300/360 vs 세로 400)은 이후 <a href="https://github.com/kkh029/entry-guide/pull/31">PR #31</a>에서 <b>전 편 400으로 통일</b>되고, 가로 액션(1·2·6·7편)의 빈 하늘은 각 데모의 <code>drawClouds()</code> 구름으로 채워졌다. 자세한 내용은 <a href="demo-height-unify-and-new-demos.html">demo-height-unify-and-new-demos.html</a> 참조.</p>
+  </div>
+
   <div class="callout info">
     <div class="callout-title">왜 CSS 비율이 아니라 height 속성을 키웠나</div>
     <p>CSS로 표시 비율만 늘리면 캔버스 그림이 세로로 늘어나 <b>왜곡</b>된다. <code>height</code> 속성을 키우면 JS가 <code>canvas.height</code>를 새 값으로 읽어 장면을 다시 레이아웃한다. 대부분의 데모는 <code>const groundY = H − 30</code>으로 바닥을 잡고 그 위로 그리므로 H가 커지면 <b>위쪽 하늘 공간만 늘어날 뿐 기존 요소는 잘리지 않는다</b>. 중심 기준 데모(10편 <code>restY = H/2</code>·11편 <code>cy = H/2</code>)도 H에 비례해 중심이 이동할 뿐이라 상하 여백이 대칭으로 늘 뿐 잘리지 않는다(상향이라 오버플로 불가).</p>
@@ -208,7 +213,7 @@ function holdPad(btn, dir){
   <h2>후속 TODO</h2>
   <ul>
     <li>실제 모바일 단말(또는 visible 탭)에서 1·2편 이동·4편 발사의 애니메이션 동작 최종 확인.</li>
-    <li>(선택) 가로 액션 6·7편에 빈 하늘을 활용한 가벼운 배경 장식 검토 — 현재는 비워 둠.</li>
+    <li><s>(선택) 가로 액션 6·7편에 빈 하늘을 활용한 가벼운 배경 장식 검토</s> — ✅ <a href="https://github.com/kkh029/entry-guide/pull/31">PR #31</a>에서 전 편 높이 400 통일 + <code>drawClouds()</code> 구름으로 해소(<a href="demo-height-unify-and-new-demos.html">demo-height-unify-and-new-demos.html</a>).</li>
   </ul>
 
   <footer class="doc-footer">

@@ -130,6 +130,19 @@
     border:1px solid var(--border);border-bottom-width:2px;
     border-radius:5px;padding:1px 8px;
     font-family:'Jua',sans-serif;font-size:12px;color:var(--ink);}
+  .try-controls .mode-pick{
+    display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-left:auto;
+    font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);
+  }
+  .try-controls .mode-pick .mode{
+    background:#fff;color:var(--ink);
+    border:1px solid var(--border);box-shadow:0 2px 0 var(--border);
+    padding:6px 12px;font-size:13px;
+  }
+  .try-controls .mode-pick .mode:active{box-shadow:0 1px 0 var(--border);}
+  .try-controls .mode-pick .mode.on{
+    background:var(--c11);color:#fff;border-color:var(--c11);box-shadow:0 2px 0 #94562f;
+  }
   @media (max-width:560px){
     .try-controls .ctl-sliders{margin-left:0;width:100%;}
   }
@@ -233,6 +246,25 @@
       <b>📖 구심력이란?</b><br>
       “원을 그리며 도는 물체에는 항상 <b>원의 중심을 향하는 힘</b>이 작용해요. 이 힘이 없으면 물체는 곧장 날아가 버려요.”<br>
       <small style="opacity:.7;">— <a href="https://ko.wikipedia.org/wiki/%EA%B5%AC%EC%8B%AC%EB%A0%A5" target="_blank" rel="noopener" style="color:var(--c11);">위키백과, “구심력”</a> (내용 재작성)</small>
+    </div>
+
+    <div class="try-demo">
+      <div class="demo-title"><span class="pill">직접 해보기</span> 똑같은 ‘당기는 힘’ — 옆으로 미는 속도만 바꿔봐요!</div>
+      <div class="try-canvas-wrap idle" id="demoStageLink11" tabindex="0" aria-label="스프링 복원력이 원운동의 구심력과 같음을 보여주는 데모">
+        <canvas id="demoCanvasLink11" width="720" height="400"></canvas>
+        <div class="try-hud">중심까지 거리: <b id="demoDistL11">110</b></div>
+        <div class="try-hud vel">모드: <b id="demoModeL11">직선 진동</b></div>
+        <div class="try-focus-msg">▶ 실행을 누르거나<br>아래에서 모드를 골라보세요</div>
+      </div>
+      <div class="try-controls">
+        <button id="demoRunL11">▶ 실행</button>
+        <button id="demoResetL11" class="secondary">↺ 처음으로</button>
+        <span class="mode-pick" role="group" aria-label="모드 고르기">
+          <button class="mode on" type="button" data-mode="line"  id="modeLineL11">↕ 직선 진동</button>
+          <button class="mode"    type="button" data-mode="orbit" id="modeOrbitL11">🌀 원운동</button>
+        </span>
+      </div>
+      <div class="try-hint">🔗 <b>주황색 용수철</b>이 바로 <b>중심으로 당기는 힘</b>(=10편 복원력=구심력)이에요. 힘은 <b>똑같은데</b>, <b>옆으로 미는 처음 속도</b>가 없으면 <b>↕ 직선으로 왔다 갔다</b>(10편 스프링!), 적당히 있으면 <b>🌀 동그란 원</b>을 그려요. 🔴 빨간 화살표는 항상 <b>중심을 향하죠</b>?</div>
     </div>
 
     <div class="tip real">
@@ -598,6 +630,134 @@
   wrap.addEventListener('click', () => { wrap.focus(); if (!running) launch(); });
 
   reset();
+})();
+</script>
+
+<script>
+/* 🔗 스프링→원운동 연결 데모 — 10편 복원력과 똑같은 '중심으로 당기는 힘'(구심력)을
+   x·y 양쪽에 걸면, 옆 속도가 0이면 직선 진동(=10편), 적당하면 원운동이 된다. */
+(function(){
+  const canvas    = document.getElementById('demoCanvasLink11');
+  if (!canvas) return;
+  const ctx       = canvas.getContext('2d');
+  const wrap      = document.getElementById('demoStageLink11');
+  const runBtn    = document.getElementById('demoRunL11');
+  const resetBtn  = document.getElementById('demoResetL11');
+  const distLabel = document.getElementById('demoDistL11');
+  const modeLabel = document.getElementById('demoModeL11');
+  const modeBtns  = wrap.parentElement.querySelectorAll('.mode');
+
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+  const R = 110;                  // 처음 중심에서 떨어진 거리
+  const K = 0.008;                // 용수철 세기(복원력 계수) — 10편 k와 같은 역할
+  const VORB = R * Math.sqrt(K);  // 딱 동그란 원이 되는 옆 속도 (≈9.8)
+  let bx = cx + R, by = cy, vx = 0, vy = 0;
+  let mode = 'line';              // 'line'(직선 진동) | 'orbit'(원운동)
+  let trail = [];
+  let running = false;
+
+  function drawSky(){
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#f6efe9'); g.addColorStop(1, '#fbf6f2');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  function drawGuide(){
+    ctx.strokeStyle = 'rgba(192,116,74,.28)'; ctx.lineWidth = 2; ctx.setLineDash([6, 7]);
+    ctx.beginPath();
+    if (mode === 'orbit') ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    else { ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy); }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  function drawTrail(){
+    for (let i = 0; i < trail.length; i++){
+      const t = trail[i];
+      ctx.fillStyle = 'rgba(192,116,74,' + (i / trail.length) * 0.38 + ')';
+      ctx.beginPath(); ctx.arc(t.x, t.y, 4.5, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  function drawCoil(){
+    const dx = bx - cx, dy = by - cy, len = Math.hypot(dx, dy);
+    if (len < 6) return;
+    ctx.save();
+    ctx.translate(cx, cy); ctx.rotate(Math.atan2(dy, dx));
+    ctx.strokeStyle = '#b06a3e'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(8, 0);
+    const coils = 11, wdt = 8, span = Math.max(len - 18, 4), seg = span / coils;
+    for (let i = 0; i < coils; i++) ctx.lineTo(8 + seg * (i + 0.5), (i % 2 === 0 ? wdt : -wdt));
+    ctx.lineTo(8 + span, 0); ctx.stroke();
+    ctx.restore();
+  }
+  function drawForceArrow(){
+    const dx = cx - bx, dy = cy - by, d = Math.hypot(dx, dy);
+    if (d < 34) return;
+    const ux = dx / d, uy = dy / d;
+    const sx = bx + ux * 22, sy = by + uy * 22, ex = bx + ux * 52, ey = by + uy * 52;
+    ctx.strokeStyle = '#d65a4a'; ctx.fillStyle = '#d65a4a'; ctx.lineWidth = 3.5;
+    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke();
+    const a = Math.atan2(ey - sy, ex - sx);
+    ctx.beginPath(); ctx.moveTo(ex, ey);
+    ctx.lineTo(ex - 9 * Math.cos(a - 0.42), ey - 9 * Math.sin(a - 0.42));
+    ctx.lineTo(ex - 9 * Math.cos(a + 0.42), ey - 9 * Math.sin(a + 0.42));
+    ctx.closePath(); ctx.fill();
+  }
+  function drawCenter(){
+    ctx.fillStyle = '#8a949d';
+    ctx.beginPath(); ctx.arc(cx, cy, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(60,70,80,.85)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('중심(손)', cx, cy + 24);
+  }
+  function drawBall(){
+    ctx.fillStyle = '#94562f';
+    ctx.beginPath(); ctx.arc(bx, by, 15, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#c0744a';
+    ctx.beginPath(); ctx.arc(bx - 1.5, by - 1.5, 15 * 0.82, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.5)';
+    ctx.beginPath(); ctx.arc(bx - 4.5, by - 4.5, 3.4, 0, Math.PI * 2); ctx.fill();
+  }
+  function render(){
+    drawSky(); drawGuide(); drawTrail(); drawCoil(); drawForceArrow(); drawCenter(); drawBall();
+    distLabel.textContent = Math.round(Math.hypot(bx - cx, by - cy));
+  }
+  function loop(){
+    if (!running) return;
+    // 매 프레임 중심으로 당기는 힘 = 복원력 = 구심력 (10편과 똑같은 식을 x·y 양쪽에)
+    vx += K * (cx - bx);
+    vy += K * (cy - by);
+    bx += vx; by += vy;
+    trail.push({ x: bx, y: by }); if (trail.length > 46) trail.shift();
+    render();
+    requestAnimationFrame(loop);
+  }
+  function setRunning(on){
+    running = on;
+    runBtn.textContent = on ? '⏸ 정지' : '▶ 실행';
+    wrap.classList.toggle('idle', !on);
+    if (on){ wrap.focus(); requestAnimationFrame(loop); }
+  }
+  function applyMode(m){
+    mode = m;
+    bx = cx + R; by = cy; vx = 0; vy = (m === 'orbit') ? -VORB : 0;
+    trail = [];
+    modeBtns.forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+    modeLabel.textContent = (m === 'orbit') ? '원운동' : '직선 진동';
+  }
+  function reset(){
+    setRunning(false);
+    applyMode(mode);
+    render();
+  }
+
+  runBtn.addEventListener('click', () => setRunning(!running));
+  resetBtn.addEventListener('click', reset);
+  modeBtns.forEach(b => b.addEventListener('click', () => {
+    applyMode(b.dataset.mode);
+    if (!running) setRunning(true);
+  }));
+  wrap.addEventListener('click', () => { wrap.focus(); if (!running) setRunning(true); });
+
+  applyMode('line');
+  render();
 })();
 </script>
 

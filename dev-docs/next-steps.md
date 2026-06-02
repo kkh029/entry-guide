@@ -19,13 +19,13 @@
 
 ## 대기
 
-### 데모 캔버스 폭·높이·터치 조작
-출처: [demo-canvas-width-height-touch.html](demo-canvas-width-height-touch.html)
+### 데모 높이·구름·3·11편 신규 데모
+출처: [demo-height-unify-and-new-demos.html](demo-height-unify-and-new-demos.html) · [demo-canvas-width-height-touch.html](demo-canvas-width-height-touch.html)
 
-- [ ] **실제 모바일/visible 탭에서 애니메이션 동작 최종 확인**
-  프리뷰가 hidden 탭이라 `rAF` 정지로 1·2편 이동·4편 발사의 실제 움직임은 시각검증 못 함. 패드 배선·HUD 동기 갱신·초기 프레임은 검증됨. 실기기에서 ◀▶ 꾹눌러 이동/가속, 4편 조준→발사 흐름 한 번 확인.
-- [ ] **(선택) 가로 액션 6·7편 빈 하늘 장식 검토**
-  상자 밀기·당구는 액션이 바닥에 몰려 높이 360에서도 상단 하늘이 빈다. 가벼운 배경(구름 등) 또는 더 낮은 높이 재검토. 현재는 의도적으로 비워 둠.
+- [ ] **실기기/visible 탭에서 애니메이션 최종 확인** (PR #30·#31 공통 hidden-탭 한계)
+  hidden 탭 `rAF` 정지로 실제 움직임은 시각검증 불가(배선·HUD·초기 프레임·픽셀은 검증됨). 실기기에서 1·2편 이동·4편 발사(#30), **3편 표면별 미끄러짐 거리·11편 직선↔원운동 자취**(#31)를 한 번 확인.
+- [ ] **(선택) 11편 연결 데모에 ‘옆 속도’ 슬라이더**
+  현재 직선/원 2모드. 옆으로 미는 처음 속도를 슬라이더로 주면 타원↔원 연속 변화를 보여줄 수 있음(선형 복원력 궤도가 일반적으로 타원이라는 `.tip.real`과 연결).
 
 ### 도트 캐릭터 스프라이트 (Zerie)
 출처: [character-sprites.html](character-sprites.html)
@@ -88,6 +88,14 @@
 
 ## 완료
 
+- [x] **데모 높이 400 통일 + 가로 액션 빈 하늘 구름 배경** — [demo-height-unify-and-new-demos.html](demo-height-unify-and-new-demos.html) (PR #31)
+  PR #30의 미해결 TODO(6·7편 빈 하늘) 해소 — 가로 액션 차등 높이(1·2편 300·6·7편 360)를 거두고 **전 편 400 통일**, 늘어난 상단을 `drawClouds()`(저채도 구름 3개, 1·2·3·6·7편 공통)로 채움.
+- [x] **6편 ‘시작 대기’ 오버레이 잔류 버그 수정** — [demo-height-unify-and-new-demos.html](demo-height-unify-and-new-demos.html) (PR #31)
+  `togglePush()`에서 `startLoop()`(running=true)를 `updateBtn()` 앞으로 이동 → 시작 시 `idle`/흰 오버레이 제거(5·7편 정상 패턴과 동일).
+- [x] **3편 관성·마찰 데모 신규** — [demo-height-unify-and-new-demos.html](demo-height-unify-and-new-demos.html) (PR #31)
+  데모 없던 유일한 편에 추가. 밀기→관성 미끄러짐→표면별 마찰 정지(🏜️모래0.7·🌿잔디0.85·🧊빙판0.95·🚀우주1.0, 마찰 섹션 값과 정렬). 우주=마찰0이 2편 ‘안 멈추는 문제’ 시연. `--c3` 보라.
+- [x] **11편 스프링→원운동 연결 데모 신규** — [demo-height-unify-and-new-demos.html](demo-height-unify-and-new-demos.html) (PR #31)
+  ‘구심력=10편 복원력’ 한 문장을 전용 데모로. 복원력을 x·y 양쪽에 걸어 옆 속도 0이면 직선 진동·`R·√K`면 원운동(같은 힘, 시작 속도만 다름), 회전 코일+구심력 화살표. 별도 IIFE(`demoCanvasLink11`).
 - [x] **10편 「스프링·진동」 추가** — [entry-game-10-spring.html](entry-game-10-spring.html) · 설계 [entry-game-10-11-spring-circular.html](entry-game-10-11-spring-circular.html) (PR #29)
   후속 물리 6순위(후크의 법칙·복원력·진동·감쇠) + 당겼다 놓는 스프링 데모(탄성계수·감쇠 슬라이더, 기준위치 점선). `--c10` 세이지·`.c-spring`. 5편 튕김(닿는 순간)과 비교(`.cmp`: 늘어난 내내·거리비례). 엔트리 핵심 = `속도에 (기준위치 − 자신의 y좌푯값) × 탄성계수 더하기`. 중간 편(CTA→11편). 복원력 = 11편 구심력 전방 다리.
 - [x] **11편 「원운동」 추가** — [entry-game-11-circular.html](entry-game-11-circular.html) · 설계 [entry-game-10-11-spring-circular.html](entry-game-10-11-spring-circular.html) (PR #29)
