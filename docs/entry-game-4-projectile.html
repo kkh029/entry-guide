@@ -269,19 +269,31 @@
     <div class="try-demo">
       <div class="demo-title"><span class="pill">직접 해보기</span> 새총을 당겨서 돼지를 맞춰봐요!</div>
       <div class="try-canvas-wrap idle" id="demoStage4" tabindex="0" aria-label="슬링샷으로 새를 발사하는 데모">
-        <canvas id="demoCanvas4" width="760" height="320"></canvas>
+        <canvas id="demoCanvas4" width="760" height="400"></canvas>
         <div class="try-hud">
           <div class="hud-row"><span><span class="hud-key">각도</span> <b class="ang" id="hudAngle">—</b>°</span> <span><span class="hud-key">힘</span> <b id="hudPower">—</b></span></div>
           <div class="hud-row"><span><span class="hud-key">vx</span> <b class="vx" id="hudVx">—</b></span> <span><span class="hud-key">vy</span> <b class="vy" id="hudVy">—</b></span></div>
         </div>
-        <div class="try-focus-msg">🖱️ 새를 클릭한 뒤 뒤로 당겼다가 놓으세요<br>(또는 화면 클릭 후 <kbd>←</kbd> <kbd>→</kbd>로 각도, <kbd>↑</kbd> <kbd>↓</kbd>로 힘, <kbd>스페이스</kbd>로 발사)</div>
+        <div class="try-focus-msg">🖱️ 새를 당겼다가 놓아 쏘거나<br>아래 ◀ ▶(각도)·▲ ▼(힘) 버튼으로 조준한 뒤 🚀 발사!</div>
       </div>
       <div class="try-controls">
         <button id="demoFire4">🚀 발사</button>
         <button id="demoReset4" class="secondary">↺ 다시</button>
         <span class="stat-row">맞춘 횟수 <b id="hudHits">0</b></span>
       </div>
-      <div class="try-hint">💡 같은 힘이라면 <b>평평한 바닥·같은 높이·공기 저항이 없을 때</b> 45°에서 가장 멀리 날아가요. 너무 위로 쏘면 멀리 못 가고, 너무 옆으로 쏘면 금방 떨어져요. 직접 비교해봐요!</div>
+      <div class="try-pad" aria-label="조준 버튼">
+        <span class="pad-group">
+          <span class="pad-cap">각도</span>
+          <button id="demoPadAngL4" class="pad-dir" type="button" aria-label="각도 올리기">◀</button>
+          <button id="demoPadAngR4" class="pad-dir" type="button" aria-label="각도 내리기">▶</button>
+        </span>
+        <span class="pad-group">
+          <span class="pad-cap">힘</span>
+          <button id="demoPadPowU4" class="pad-dir" type="button" aria-label="힘 키우기">▲</button>
+          <button id="demoPadPowD4" class="pad-dir" type="button" aria-label="힘 줄이기">▼</button>
+        </span>
+      </div>
+      <div class="try-hint">💡 같은 힘이라면 <b>평평한 바닥·같은 높이·공기 저항이 없을 때</b> 45°에서 가장 멀리 날아가요. 마우스로 당기거나 <b>◀ ▶·▲ ▼ 버튼</b>으로 조준해 직접 비교해봐요!</div>
     </div>
   </section>
 
@@ -872,6 +884,34 @@
     fire();
   });
   resetBtn.addEventListener('click', reset);
+
+  // 모바일 터치 조작 — 키보드 없이 ◀▶(각도)·▲▼(힘) 버튼을 꾹 눌러 조준(반복)
+  function repeatPad(btn, step){
+    let timer = null;
+    const tick = () => {
+      if (state === 'flying' || state === 'landed') return;   // 키보드와 동일: 날아가는/떨어진 뒤엔 무시
+      state = 'ready';
+      wrap.classList.remove('idle');
+      step();
+      updateHud();
+      render();
+    };
+    const start = e => {
+      e.preventDefault();                                     // 포커스 이동·스크롤 방지
+      btn.classList.add('pressing');
+      tick();
+      timer = setInterval(tick, 70);
+    };
+    const stop = () => { if (timer){ clearInterval(timer); timer = null; } btn.classList.remove('pressing'); };
+    btn.addEventListener('pointerdown', start);
+    btn.addEventListener('pointerup', stop);
+    btn.addEventListener('pointerleave', stop);
+    btn.addEventListener('pointercancel', stop);
+  }
+  repeatPad(document.getElementById('demoPadAngL4'), () => { aimAngle = Math.min(180, aimAngle + 2); });
+  repeatPad(document.getElementById('demoPadAngR4'), () => { aimAngle = Math.max(0,   aimAngle - 2); });
+  repeatPad(document.getElementById('demoPadPowU4'), () => { aimPower = Math.min(maxDrag, aimPower + 4); });
+  repeatPad(document.getElementById('demoPadPowD4'), () => { aimPower = Math.max(10,  aimPower - 4); });
 
   reset();
 })();

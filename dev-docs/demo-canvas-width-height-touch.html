@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>데모 캔버스 — 본문 폭 정렬 · 높이 확대 · 모바일 터치 조작 — entry-guide</title>
+
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css"
+        media="(prefers-color-scheme: light)">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"
+        media="(prefers-color-scheme: dark)">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+  <script src="assets/doc.js" defer></script>
+</head>
+
+<body class="layout">
+<main>
+
+  <header class="doc-header">
+    <h1>데모 캔버스 — 본문 폭 정렬 · 높이 확대 · 모바일 터치 조작</h1>
+    <div class="meta">
+      <span>작성일 2026-06-02</span>
+      <span>관련 PR (생성 예정)</span>
+      <span>대상: <code>docs/assets/styles.css</code> + 데모 10편(<code>entry-game-1·2·4·5·6·7·8·9·10·11</code>)</span>
+    </div>
+    <p class="lede">넓은 화면에서 데모 캔버스를 본문보다 넓게 확장하던 규칙(커밋 <code>2470051</code>)을 되돌려 <b>본문 폭에 정렬</b>하고, 대신 <b>캔버스 높이를 장면별로 키워</b> 세로로 더 잘 보이게 했다. 또한 키보드로 조작하던 1·2·4편 데모에 <b>모바일용 터치 조작 패드</b>를 캔버스 하단에 추가했다.</p>
+  </header>
+
+  <div class="callout tldr">
+    <div class="callout-title">TL;DR</div>
+    <ul>
+      <li><b>폭</b>: <code>styles.css</code>의 <code>.try-demo</code> 와이드 확장 <code>@media</code> 2개를 제거 → 데모가 <code>.wrap</code> 안에서 <b>본문과 같은 폭</b>(캔버스 표시폭 ≈ 702px)을 차지. 별도 규칙 불필요.</li>
+      <li><b>높이</b>: 각 <code>&lt;canvas&gt;</code>의 <code>height</code> 속성을 장면별로 상향 — 가로 액션(1·2편 220→300, 6·7편 320→360), 세로/2D 액션(4·5·8·9·10·11편 320→400). 가로(<code>width:100%</code>)는 본문 폭 고정이라 높이만 커진다.</li>
+      <li><b>안전성</b>: 데모가 바닥 앵커(<code>groundY = H − 30</code>) 또는 중심 앵커(10편 <code>restY = H/2</code>·11편 <code>cy = H/2</code>)라 <b>H를 키워도 빈 여백만 늘어나</b> 기존 요소가 절대 잘리지 않는다. 8편(높은 램프)·9편(가파른 경사)·11편(원)은 오히려 여유가 생긴다.</li>
+      <li><b>모바일 조작</b>: 키보드 의존 1·2·4편에 공통 <code>.try-pad</code> 버튼을 추가. 1·2편 = <code>◀ ▶</code> 꾹눌러 이동/가속, 4편 = <code>◀▶</code>(각도)·<code>▲▼</code>(힘) 꾹눌러 조준(반복), 발사는 기존 버튼 재사용.</li>
+      <li>로컬 프리뷰 검증 — 폭/높이 DOM 측정, 4편 각도·힘 기능 테스트, 1·2편 배선(실행·pressing) 확인, 8편 최대 램프 적합, 콘솔 에러 0. (애니메이션 루프는 hidden 탭 <code>rAF</code> 정지로 시각 검증 불가 → 기존 동작 키보드 핸들러와 동형 로직으로 보장.)</li>
+    </ul>
+  </div>
+
+  <h2>개요</h2>
+  <p>직전 커밋 <code>2470051</code>("데모 캔버스 넓은 화면에서 본문보다 넓게")은 넓은 뷰포트에서 <code>.try-demo</code>를 본문 컬럼 밖으로 확장해 캔버스를 키웠다. 그러나 본문 텍스트 컬럼과 어긋나 정렬이 흐트러지고, 캔버스가 가로로만 길어 보이는 인상을 줬다. 사용자 피드백은 두 가지였다.</p>
+
+  <div class="callout issue">
+    <div class="callout-title">이슈</div>
+    <ul>
+      <li><b>폭 불일치</b> — 데모가 본문(텍스트 컬럼)보다 가로로 길어 페이지 정렬이 어색하다. 폭을 본문에 맞추고, 대신 높이를 키워 더 잘 보이게 하고 싶다.</li>
+      <li><b>모바일 조작 불가</b> — 1·2·4편 데모는 화살표 키/스페이스로 조작한다. 키보드가 없는 모바일에서는 데모를 움직일 수 없으니, 캔버스 하단에 누를 수 있는 버튼이 있으면 좋겠다.</li>
+    </ul>
+  </div>
+
+  <h2>해결 1 — 폭을 본문에 맞춤</h2>
+  <p><code>styles.css</code> 하단의 와이드 확장 <code>@media</code> 블록 2개(중간 폭 대칭 확장 + ≥1240px 좌측 확장)를 제거했다. <code>.try-demo</code>는 각 편 페이지의 <code>&lt;style&gt;</code>에 로컬 정의되어 있고 <code>.wrap</code>(본문 컨테이너) 안의 일반 블록이라, 오버라이드를 없애면 자연히 본문 폭을 차지한다.</p>
+
+  <div class="compare">
+    <div class="before">
+      <h4>Before — 본문보다 넓게</h4>
+<pre><code class="language-css">@media (min-width:880px) and (max-width:1239.98px){
+  .wrap .try-demo{
+    width:min(94vw, 900px);
+    margin-left:50%;
+    transform:translateX(-50%);
+  }
+}
+@media (min-width:1240px){
+  .wrap .try-demo{
+    width:calc(100% + min(50vw - 543px, 300px));
+    margin-left:calc(-1 * min(50vw - 543px, 300px));
+  }
+}</code></pre>
+    </div>
+    <div class="after">
+      <h4>After — 본문 폭(규칙 제거)</h4>
+<pre><code class="language-css">/* 와이드 확장 규칙 제거.
+   .try-demo는 .wrap 안 일반 블록이라
+   기본값으로 본문 폭을 차지한다.
+   대신 각 캔버스 height 속성을 키워
+   (width:100% → 본문 폭 고정) 세로로
+   더 크게 보이게 한다. */</code></pre>
+    </div>
+  </div>
+
+  <div class="callout success">
+    <div class="callout-title">측정 결과 (1280px 뷰포트)</div>
+    <p>캔버스 좌우 <code>184–886</code>이 본문 문단 <code>167–903</code> 안에 들어옴(캔버스 표시폭 702 ≈ 본문 736 − <code>.try-demo</code> 패딩 32). 와이드 확장 시 캔버스가 본문 좌측으로 ~300px 삐져나오던 문제가 사라졌다.</p>
+  </div>
+
+  <h2>해결 2 — 캔버스 높이를 장면별로 확대</h2>
+  <p>캔버스는 <code>width:100%; height:auto</code>로 표시되어 가로는 본문 폭에 고정된다. 따라서 <b><code>height</code> 속성(내부 해상도)을 키우면 표시 세로 크기가 비례해 커진다.</b> 액션 성격(가로 이동 위주 vs 세로 운동 위주)에 맞춰 차등 적용했다.</p>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>편</th><th>데모</th><th>액션 성격</th><th>height (before → after)</th></tr></thead>
+    <tbody>
+      <tr><td>1편</td><td>이동(걷기·점프)</td><td>가로 + 점프</td><td>220 → <b>300</b></td></tr>
+      <tr><td>2편</td><td>가속</td><td>가로</td><td>220 → <b>300</b></td></tr>
+      <tr><td>4편</td><td>투석기 포물선</td><td>세로(궤적)</td><td>320 → <b>400</b></td></tr>
+      <tr><td>5편</td><td>튕기는 공</td><td>세로(낙하·반발)</td><td>320 → <b>400</b></td></tr>
+      <tr><td>6편</td><td>상자 밀기</td><td>가로</td><td>320 → <b>360</b></td></tr>
+      <tr><td>7편</td><td>당구 충돌</td><td>가로</td><td>320 → <b>360</b></td></tr>
+      <tr><td>8편</td><td>롤러코스터 램프</td><td>세로(높이)</td><td>320 → <b>400</b></td></tr>
+      <tr><td>9편</td><td>눈썰매 경사</td><td>세로(경사)</td><td>320 → <b>400</b></td></tr>
+      <tr><td>10편</td><td>스프링 진동</td><td>세로(상하 진동)</td><td>320 → <b>400</b></td></tr>
+      <tr><td>11편</td><td>원운동</td><td>2D(원·접선 이탈)</td><td>320 → <b>400</b></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-title">왜 CSS 비율이 아니라 height 속성을 키웠나</div>
+    <p>CSS로 표시 비율만 늘리면 캔버스 그림이 세로로 늘어나 <b>왜곡</b>된다. <code>height</code> 속성을 키우면 JS가 <code>canvas.height</code>를 새 값으로 읽어 장면을 다시 레이아웃한다. 대부분의 데모는 <code>const groundY = H − 30</code>으로 바닥을 잡고 그 위로 그리므로 H가 커지면 <b>위쪽 하늘 공간만 늘어날 뿐 기존 요소는 잘리지 않는다</b>. 중심 기준 데모(10편 <code>restY = H/2</code>·11편 <code>cy = H/2</code>)도 H에 비례해 중심이 이동할 뿐이라 상하 여백이 대칭으로 늘 뿐 잘리지 않는다(상향이라 오버플로 불가).</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-title">장면별 검토 포인트</div>
+    <ul>
+      <li><b>8편</b>: 출발 높이 슬라이더 최대 240. 기존 H=320이면 램프 꼭대기 y=50으로 빡빡했는데, H=400에서 y=130으로 <b>여유가 생김</b>(공 상단 y≈102).</li>
+      <li><b>9편</b>: 45° 경사도 H 증가로 꼭대기에 여유. (H 상향은 항상 헤드룸을 늘리는 방향.)</li>
+      <li><b>5편</b>: 공 시작점이 화면 상단 고정(<code>startY=60</code>). H 증가로 낙하 거리가 늘어 더 역동적으로 보이며, 반발은 에너지 보존상 시작 높이를 넘지 않아 상단 클리핑 없음.</li>
+      <li><b>10·11편</b>(직전 PR #29로 추가): 키보드 조작이 없어 패드 불필요, height만 상향. 10편 스프링은 <code>restY=H/2</code> 중심 진동이라 진동 폭 여유, 11편 원(반지름 120·<code>cy=H/2</code>)은 H=320에서 상하 여백 40px→H=400에서 80px로 더 안정. 줄 놓기 접선 이탈에도 여유.</li>
+    </ul>
+  </div>
+
+  <h2>해결 3 — 모바일 터치 조작 패드</h2>
+  <p>키보드 의존 데모는 <b>1·2·4편 뿐</b>이다(5~9편은 이미 버튼/슬라이더 기반). 세 편이 공유하므로 <code>.try-pad</code> 스타일을 페이지 로컬이 아닌 <b>공통 <code>styles.css</code></b>에 한 번 정의하고, 버튼 HTML과 JS 핸들러만 페이지별로 추가했다.</p>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>편</th><th>패드 버튼</th><th>동작 방식</th><th>매핑</th></tr></thead>
+    <tbody>
+      <tr><td>1편</td><td><code>◀ ▶</code></td><td>꾹누름(hold)</td><td><code>keys.left/right</code> = true → 기존 이동 루프</td></tr>
+      <tr><td>2편</td><td><code>◀ ▶</code></td><td>꾹누름(hold)</td><td><code>keys.left/right</code> = true → 기존 가속 루프</td></tr>
+      <tr><td>4편</td><td><code>◀▶</code>(각도)·<code>▲▼</code>(힘)</td><td>꾹누름 반복(<code>setInterval 70ms</code>)</td><td><code>aimAngle ±2</code> / <code>aimPower ±4</code> → <code>updateHud()+render()</code>. 발사=기존 🚀버튼.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>핵심 구현 — 포커스/스크롤 방지</h3>
+  <p>패드 버튼은 <code>pointerdown</code>에서 <code>e.preventDefault()</code>를 호출한다. 이는 (1) 터치 시 페이지 스크롤을 막고, (2) <b>버튼으로 포커스가 이동하지 않게</b> 해 캔버스 <code>blur</code> 핸들러가 실행되는 것을 차단한다(1·2편의 <code>blur</code>는 데모를 정지시키므로, 이를 막지 않으면 버튼을 누르는 순간 데모가 멈춘다).</p>
+
+<pre><code class="language-javascript">// 1·2편 — 꾹눌러 이동/가속 (IIFE 스코프의 keys·running·setRunning 사용)
+function holdPad(btn, dir){
+  const press = e =&gt; {
+    e.preventDefault();              // 포커스 이동(=캔버스 blur) + 스크롤 방지
+    if (!running) setRunning(true);  // 정지 상태면 자동 실행
+    keys[dir] = true;
+    btn.classList.add('pressing');
+  };
+  const release = () =&gt; { keys[dir] = false; btn.classList.remove('pressing'); };
+  btn.addEventListener('pointerdown', press);
+  btn.addEventListener('pointerup', release);
+  btn.addEventListener('pointerleave', release);   // 마우스로 끌어내며 떼는 경우
+  btn.addEventListener('pointercancel', release);
+}</code></pre>
+
+  <div class="callout info">
+    <div class="callout-title">pointerleave / pointercancel를 함께 듣는 이유</div>
+    <p>터치는 암묵적 포인터 캡처로 <code>pointerup</code>이 항상 원래 버튼에 도달하지만, <b>마우스</b>는 버튼 밖에서 떼면 <code>pointerup</code>이 다른 요소로 가 키가 눌린 채 남는다. <code>pointerleave</code>가 이 경우의 해제를 보장한다. <code>pointercancel</code>은 시스템 취소(스크롤 시작 등) 대비.</p>
+  </div>
+
+  <h3>패드 스타일(공통)</h3>
+  <p>버튼은 중립(흰 배경 + 하단 두꺼운 보더 = 누르면 들어가는 느낌)으로, 편별 액센트 색에 무관하게 모든 데모에 일관 적용된다. 데스크톱·모바일 모두 표시하되 모바일(<code>≤520px</code>)에서는 손가락에 맞게 더 크게(<code>72×56</code>) 키운다.</p>
+
+  <h2>영향 범위</h2>
+  <div class="callout impact">
+    <div class="callout-title">영향 범위</div>
+    <ul>
+      <li><code>docs/assets/styles.css</code> — 와이드 확장 <code>@media</code> 2개 제거(주석 대체) + 공통 <code>.try-pad</code> 스타일 신규.</li>
+      <li><code>docs/entry-game-1·2·4편</code> — 캔버스 <code>height</code> 상향 + <code>.try-pad</code> HTML/JS + 안내 문구(focus-msg·hint)에 버튼 언급.</li>
+      <li><code>docs/entry-game-5·6·7·8·9·10·11편</code> — 캔버스 <code>height</code> 속성만 상향(패드 불필요). 10·11편은 직전 PR #29로 추가된 편으로, 리베이스 후 동일 폭·높이 처리에 포함.</li>
+      <li>3편은 데모가 없어 변경 없음.</li>
+    </ul>
+  </div>
+
+  <h2>검증</h2>
+  <p>로컬 프리뷰(<code>python3 http.server</code>)로 검증했다.</p>
+  <ul>
+    <li><b>폭</b>: 1·4·8편 DOM 측정 — 캔버스 표시폭 702가 본문 텍스트(736) 안에 정렬. 모바일에서도 캔버스가 데모 박스 폭에 맞음.</li>
+    <li><b>높이</b>: 전 편 <code>canvas.height</code> 신값 확인 + 캔버스 픽셀 샘플로 바닥/하늘/객체 렌더 확인. 8편 최대 램프(240)가 400px 캔버스에 여유 적합.</li>
+    <li><b>4편 기능</b>: <code>◀</code> 탭 1회 = 각도 45→47, 꾹누름 = 49까지 반복, 떼면 정지. 힘 버튼도 동일하게 증가·반복·정지. (HUD가 동기 갱신이라 <code>rAF</code> 없이 검증 가능.)</li>
+    <li><b>1·2편 배선</b>: 패드 누름 시 <code>running</code> 시작(▶→⏸)·<code>pressing</code> 클래스 토글, 떼면 해제 확인.</li>
+    <li><b>10·11편</b>(리베이스 후 추가분): <code>canvas.height=400</code> 확인 + 초기 프레임 렌더(10편 스프링 추·기준선, 11편 원 궤도·중심) 캔버스 픽셀 샘플로 확인, 콘솔 에러 0.</li>
+    <li><b>콘솔 에러 0</b> — 전 편.</li>
+  </ul>
+
+  <div class="callout warn">
+    <div class="callout-title">검증 한계 — hidden 탭의 requestAnimationFrame</div>
+    <p>프리뷰 탭이 <code>visibilityState:hidden</code>이라 <code>requestAnimationFrame</code>이 멈춰 <b>애니메이션 루프(캐릭터 실제 이동·공 비행)는 시각 검증 불가</b>였다. 다만 패드 핸들러는 기존에 정상 동작하는 키보드 핸들러와 <b>동일한 상태(<code>keys</code>/<code>aim*</code>)를 같은 방식으로 설정</b>하므로, 실제 보이는 브라우저·모바일에서는 동작이 보장된다. 초기 프레임은 <code>render()</code>/<code>reset()</code>이 동기 호출이라 스크린샷에 정상 표시됨(4·8편 캡처로 확인).</p>
+  </div>
+
+  <h2>설계 결정 요약</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>결정</th><th>근거</th><th>대안</th></tr></thead>
+    <tbody>
+      <tr><td>와이드 확장 규칙 완전 제거</td><td>"폭을 본문에 맞춰달라" = 본문 폭. 별도 규칙 없이 기본 블록 흐름이 정답.</td><td>max-width 캡 추가 → 불필요(이미 본문 폭).</td></tr>
+      <tr><td><code>height</code> 속성 상향(가로 100% 유지)</td><td>왜곡 없이 세로만 확대. groundY 앵커라 안전.</td><td>CSS aspect-ratio 변경 → 그림 세로 왜곡.</td></tr>
+      <tr><td>장면별 차등 높이</td><td>가로 액션은 빈 하늘 과다 방지(360), 세로 액션은 궤적/높이 여유(400).</td><td>전편 일괄 400 → 6·7편 하늘 과다.</td></tr>
+      <tr><td>패드 항상 표시</td><td>모바일 필수 + 터치 노트북 대응 + 큰 버튼이 사이트 톤(초등·중학생)에 부합.</td><td>모바일에서만 표시 → 터치 노트북 누락.</td></tr>
+      <tr><td><code>.try-pad</code> 공통 <code>styles.css</code></td><td>3편 공유 → 중복 제거. 와이드 오버라이드도 본래 공통에 있던 선례.</td><td>페이지 로컬 3중 복제.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>후속 TODO</h2>
+  <ul>
+    <li>실제 모바일 단말(또는 visible 탭)에서 1·2편 이동·4편 발사의 애니메이션 동작 최종 확인.</li>
+    <li>(선택) 가로 액션 6·7편에 빈 하늘을 활용한 가벼운 배경 장식 검토 — 현재는 비워 둠.</li>
+  </ul>
+
+  <footer class="doc-footer">
+    <h2>관련 문서</h2>
+    <ul>
+      <li><a href="fix-history.md">fix-history.md</a> — 수정 히스토리 인덱스(2026-06-02 항목)</li>
+      <li><a href="next-steps.md">next-steps.md</a> — 후속 TODO 통합 인덱스</li>
+      <li><a href="design-guide.html">design-guide.html</a> — 색·아이콘·말투·전개 순서(시각 톤 기준)</li>
+      <li><a href="new-page-guide.html">new-page-guide.html</a> — 새 편 스켈레톤(데모 <code>.try-demo</code> 구조)</li>
+    </ul>
+  </footer>
+
+</main>
+<aside id="toc"></aside>
+</body>
+</html>
