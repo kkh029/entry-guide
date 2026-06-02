@@ -191,6 +191,86 @@
     transition:transform .12s ease;text-decoration:none;
   }
   .cta a.go:hover{transform:translateY(-1px);}
+
+  /* ── 인터랙티브 데모 (관성·마찰) ── */
+  .try-demo{
+    background:#fff;border:1px solid var(--border);
+    border-radius:12px;padding:16px 16px 14px;margin:16px 0 6px;
+  }
+  .try-demo .demo-title{
+    font-family:'Jua',sans-serif;font-size:16px;color:var(--ink);
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  }
+  .try-demo .demo-title .pill{
+    background:var(--c3);color:#fff;font-family:'Jua',sans-serif;
+    font-size:11px;padding:2px 9px;border-radius:20px;letter-spacing:.5px;
+  }
+  .try-canvas-wrap{
+    position:relative;background:linear-gradient(180deg,var(--sky1),var(--sky2));
+    border-radius:10px;overflow:hidden;outline:none;cursor:pointer;
+  }
+  .try-canvas-wrap:focus{box-shadow:0 0 0 3px rgba(122,95,176,.35);}
+  .try-canvas-wrap canvas{display:block;width:100%;height:auto;}
+  .try-hud{
+    position:absolute;top:8px;left:10px;
+    font-family:'Jua',sans-serif;font-size:13px;
+    background:rgba(255,255,255,.85);color:var(--ink);
+    padding:3px 10px;border-radius:14px;
+  }
+  .try-hud.vel{
+    top:8px;left:auto;right:10px;
+    background:rgba(122,95,176,.18);color:var(--ink);
+  }
+  .try-focus-msg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    text-align:center;padding:0 18px;
+    font-family:'Jua',sans-serif;font-size:14.5px;color:var(--ink);
+    background:rgba(255,255,255,.55);pointer-events:none;
+    opacity:0;transition:opacity .15s ease;
+  }
+  .try-canvas-wrap.idle .try-focus-msg{opacity:1;}
+  .try-controls{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;
+  }
+  .try-controls button{
+    font-family:'Jua',sans-serif;font-size:14px;
+    background:var(--c3);color:#fff;border:none;
+    padding:7px 16px;border-radius:20px;
+    box-shadow:0 2px 0 #5e4790;cursor:pointer;
+    transition:transform .1s ease;
+  }
+  .try-controls button:active{transform:translateY(1px);box-shadow:0 1px 0 #5e4790;}
+  .try-controls button.secondary{
+    background:#fff;color:var(--ink);
+    border:1px solid var(--border);box-shadow:0 2px 0 var(--border);
+  }
+  .try-controls button.secondary:active{box-shadow:0 1px 0 var(--border);}
+  .try-controls .surf-pick{
+    display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-left:auto;
+    font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);
+  }
+  .try-controls .surf-pick .surf{
+    background:#fff;color:var(--ink);
+    border:1px solid var(--border);box-shadow:0 2px 0 var(--border);
+    padding:6px 11px;font-size:13px;
+  }
+  .try-controls .surf-pick .surf:active{box-shadow:0 1px 0 var(--border);}
+  .try-controls .surf-pick .surf.on{
+    background:var(--c3);color:#fff;border-color:var(--c3);box-shadow:0 2px 0 #5e4790;
+  }
+  .try-hint{
+    font-family:'Gowun Dodum',sans-serif;font-size:13.5px;
+    color:var(--soft);margin-top:8px;line-height:1.65;
+  }
+  .try-hint kbd{
+    display:inline-block;background:#fafaf6;
+    border:1px solid var(--border);border-bottom-width:2px;
+    border-radius:5px;padding:1px 8px;
+    font-family:'Jua',sans-serif;font-size:12px;color:var(--ink);
+  }
+  @media (max-width:520px){
+    .try-controls .surf-pick{margin-left:0;width:100%;justify-content:flex-start;}
+  }
 </style>
 </head>
 <body>
@@ -244,6 +324,36 @@
       </ul>
     </div>
   </div>
+
+  <section class="card c-purple">
+    <h2>🛷 먼저 해볼까요? — 밀었다가 손을 떼보세요</h2>
+    <p>2편에서는 키를 떼도 캐릭터가 <b>안 멈춰서</b> 조금 답답했죠? 이번엔 <b>바닥</b>을 바꿔가며 직접 느껴봐요. 꾹 눌러 밀다가 <b>손을 떼면</b> — <b>관성</b>으로 주르륵 미끄러지다가, <b>마찰</b>이 있는 바닥에서는 스르르 멈춰요. 어떤 바닥이 가장 멀리 미끄러질까요? 🤔</p>
+
+    <div class="try-demo">
+      <div class="demo-title"><span class="pill">직접 해보기</span> 꾹 눌러 밀고, 손을 떼서 미끄러짐을 관찰해요!</div>
+      <div class="try-canvas-wrap idle" id="demoStage3" tabindex="0" aria-label="바닥을 바꿔가며 밀고 손을 떼는 관성·마찰 데모">
+        <canvas id="demoCanvas3" width="720" height="400"></canvas>
+        <div class="try-hud">속도: <b id="demoVel3">0.0</b></div>
+        <div class="try-hud vel">바닥: <b id="demoSurf3">잔디밭</b></div>
+        <div class="try-focus-msg">▶ 실행을 누른 뒤<br>← → 키나 아래 ◀ ▶ 버튼을 꾹 눌렀다 떼보세요</div>
+      </div>
+      <div class="try-controls">
+        <button id="demoRun3">▶ 실행</button>
+        <button id="demoReset3" class="secondary">↺ 처음으로</button>
+        <span class="surf-pick" role="group" aria-label="바닥 고르기">바닥:
+          <button class="surf" type="button" data-fr="0.7"  data-name="모래밭" id="surfSand3">🏜️ 모래</button>
+          <button class="surf on" type="button" data-fr="0.85" data-name="잔디밭" id="surfGrass3">🌿 잔디</button>
+          <button class="surf" type="button" data-fr="0.95" data-name="빙판" id="surfIce3">🧊 빙판</button>
+          <button class="surf" type="button" data-fr="1" data-name="우주" id="surfSpace3">🚀 우주</button>
+        </span>
+      </div>
+      <div class="try-pad" aria-label="이동 버튼">
+        <button id="demoPadL3" class="pad-dir" type="button" aria-label="왼쪽으로 밀기">◀</button>
+        <button id="demoPadR3" class="pad-dir" type="button" aria-label="오른쪽으로 밀기">▶</button>
+      </div>
+      <div class="try-hint">⌨️ <kbd>←</kbd> <kbd>→</kbd> 키나 <b>◀ ▶ 버튼</b>을 <b>꾹 눌러</b> 밀고, <b>손을 떼면</b> — <b>관성</b>으로 계속 가다가 <b>마찰</b>로 점점 느려져 멈춰요. <b>🚀 우주(마찰 0)</b>에서는 2편처럼 <b>벽에 닿을 때까지 안 멈춰요!</b> 🧊 빙판은 멀리, 🏜️ 모래는 금방 멈추는 이유는 아래 <b>마찰</b> 코너에서 숫자로 확인해요.</div>
+    </div>
+  </section>
 
   <section class="card">
     <h2>🔬 그런데… ‘물리 엔진’이 뭐예요?</h2>
@@ -837,6 +947,177 @@
     </span>
   </footer>
 </div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('demoCanvas3');
+  if (!canvas) return;
+  const ctx       = canvas.getContext('2d');
+  const wrap      = document.getElementById('demoStage3');
+  const runBtn    = document.getElementById('demoRun3');
+  const resetBtn  = document.getElementById('demoReset3');
+  const velLabel  = document.getElementById('demoVel3');
+  const surfLabel = document.getElementById('demoSurf3');
+  const surfBtns  = document.querySelectorAll('.try-demo .surf');
+
+  const W = canvas.width, H = canvas.height;
+  const groundY = H - 30;
+  const heroW = 38, heroH = 44;
+  const startX = 70;
+  const PUSH = 1.0;            // 꾹 누르는 동안 더해지는 미는 힘
+  const MAXV = 10;             // 최고 속도 제한
+  let heroX = startX;
+  let vel = 0;
+  let friction = 0.85;        // 기본 = 잔디밭
+  let surfName = '잔디밭';
+  let running = false;
+  const keys = { left:false, right:false };
+
+  // 바닥별 색 [윗면, 줄무늬, 위쪽 가장자리]
+  const SURF = {
+    '모래밭': ['#d9c08a', '#c4a86a', '#e7d4a6'],
+    '잔디밭': ['#7ea884', '#6a946f', '#9cc1a1'],
+    '빙판':   ['#cfe1ec', '#b6cdda', '#e4f0f7'],
+    '우주':   ['#5b5470', '#494360', '#7b7493']
+  };
+
+  // 군인 스프라이트 (오른쪽 기본, 이동 방향에 따라 좌우 반전)
+  const sprIdle = new Image(); sprIdle.src = 'assets/characters/soldier-idle.png';
+  const sprWalk = new Image(); sprWalk.src = 'assets/characters/soldier-walk.png';
+  const SPRSET = { idle:{img:sprIdle, frames:6}, walk:{img:sprWalk, frames:8} };
+  const FW = 15, FH = 19, SCALE = 3;
+  let sprFrame = 0, sprTick = 0, facing = 1;
+  sprIdle.onload = render; sprWalk.onload = render;
+
+  function drawClouds(){
+    const puff = (cx, cy, s, a) => {
+      ctx.fillStyle = 'rgba(255,255,255,' + a + ')';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, s, s * 0.62, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx - s * 0.82, cy + s * 0.20, s * 0.64, s * 0.48, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx + s * 0.82, cy + s * 0.20, s * 0.64, s * 0.48, 0, 0, Math.PI * 2);
+      ctx.fill();
+    };
+    puff(W * 0.16, 66, 30, .52);
+    puff(W * 0.82, 50, 23, .42);
+    puff(W * 0.50, 118, 18, .28);
+  }
+  function drawGround(){
+    ctx.clearRect(0, 0, W, H);
+    drawClouds();
+    const c = SURF[surfName] || SURF['잔디밭'];
+    ctx.fillStyle = c[0]; ctx.fillRect(0, groundY, W, H - groundY);
+    ctx.fillStyle = c[1]; for (let x = 0; x < W; x += 28) ctx.fillRect(x + 24, groundY, 4, H - groundY);
+    ctx.fillStyle = c[2]; ctx.fillRect(0, groundY - 5, W, 5);
+  }
+  function drawHero(){
+    const moving = Math.abs(vel) > 0.3;
+    if (vel > 0.3) facing = 1; else if (vel < -0.3) facing = -1;
+    const set = moving ? SPRSET.walk : SPRSET.idle;
+    ctx.fillStyle = 'rgba(0,0,0,.13)';
+    ctx.beginPath();
+    ctx.ellipse(heroX + heroW/2, groundY - 1, heroW/2 + 2, 4, 0, 0, Math.PI*2);
+    ctx.fill();
+    const dw = FW*SCALE, dh = FH*SCALE, cx = heroX + heroW/2, dy = groundY - dh + 3;
+    if (!set.img.complete || set.img.naturalWidth === 0){   // 로드 전 폴백
+      ctx.fillStyle = '#7a5fb0';
+      ctx.fillRect(heroX, groundY - heroH, heroW, heroH);
+      return;
+    }
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.translate(cx, dy);
+    ctx.scale(facing, 1);
+    ctx.drawImage(set.img, (sprFrame % set.frames)*FW, 0, FW, FH, -dw/2, 0, dw, dh);
+    ctx.restore();
+  }
+  function render(){
+    drawGround();
+    drawHero();
+    velLabel.textContent = vel.toFixed(1);
+    surfLabel.textContent = surfName;
+  }
+  function loop(){
+    if (!running) return;
+    if (keys.right) vel += PUSH;
+    if (keys.left)  vel -= PUSH;
+    vel *= friction;                       // 마찰: 매 프레임 속도에 1보다 작은 수 곱하기
+    if (vel >  MAXV) vel =  MAXV;
+    if (vel < -MAXV) vel = -MAXV;
+    if (!keys.left && !keys.right && Math.abs(vel) < 0.05) vel = 0;   // 거의 멈추면 정지
+    heroX += vel;
+    if (heroX < 6)              { heroX = 6;              vel = 0; }
+    if (heroX > W - heroW - 6)  { heroX = W - heroW - 6;  vel = 0; }
+    if (Math.abs(vel) > 0.3 && (++sprTick % 5 === 0)) sprFrame++;
+    render();
+    requestAnimationFrame(loop);
+  }
+  function setRunning(on){
+    running = on;
+    runBtn.textContent = on ? '⏸ 정지' : '▶ 실행';
+    wrap.classList.toggle('idle', !on);
+    if (on){
+      wrap.focus();
+      requestAnimationFrame(loop);
+    } else {
+      keys.left = keys.right = false;
+    }
+  }
+  function reset(){
+    heroX = startX; vel = 0;
+    keys.left = keys.right = false;
+    render();
+  }
+
+  runBtn.addEventListener('click', () => setRunning(!running));
+  resetBtn.addEventListener('click', reset);
+  surfBtns.forEach(b => {
+    b.addEventListener('click', () => {
+      friction = parseFloat(b.dataset.fr);
+      surfName = b.dataset.name;
+      surfBtns.forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      render();
+    });
+  });
+  wrap.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  { keys.left  = true; e.preventDefault(); }
+    if (e.key === 'ArrowRight') { keys.right = true; e.preventDefault(); }
+  });
+  wrap.addEventListener('keyup', e => {
+    if (e.key === 'ArrowLeft')  keys.left  = false;
+    if (e.key === 'ArrowRight') keys.right = false;
+  });
+  wrap.addEventListener('blur', () => {
+    keys.left = keys.right = false;
+    if (running) setRunning(false);
+  });
+  wrap.addEventListener('click', () => {
+    wrap.focus();
+    if (!running) setRunning(true);
+  });
+
+  // 모바일 터치 조작 — ◀ ▶ 버튼을 꾹 눌러 밀기
+  function holdPad(btn, dir){
+    if (!btn) return;
+    const press = e => {
+      e.preventDefault();                 // 포커스 이동(캔버스 blur) + 스크롤 방지
+      if (!running) setRunning(true);
+      keys[dir] = true;
+      btn.classList.add('pressing');
+    };
+    const release = () => { keys[dir] = false; btn.classList.remove('pressing'); };
+    btn.addEventListener('pointerdown', press);
+    btn.addEventListener('pointerup', release);
+    btn.addEventListener('pointerleave', release);
+    btn.addEventListener('pointercancel', release);
+  }
+  holdPad(document.getElementById('demoPadL3'), 'left');
+  holdPad(document.getElementById('demoPadR3'), 'right');
+
+  render();
+})();
+</script>
 
 <nav class="toc-sidebar">
   <div class="toc-title">이 페이지 목차</div>

@@ -205,7 +205,7 @@
     <div class="try-demo">
       <div class="demo-title"><span class="pill">직접 해보기</span> 상자를 밀어 🎯 버튼까지 옮겨봐요!</div>
       <div class="try-canvas-wrap idle" id="demoStage6" tabindex="0" aria-label="상자를 밀어 버튼으로 옮기는 데모">
-        <canvas id="demoCanvas6" width="720" height="360"></canvas>
+        <canvas id="demoCanvas6" width="720" height="400"></canvas>
         <div class="try-hud">속도: <b id="demoVel6">0.0</b></div>
         <div class="try-hud vel">가속도(힘÷질량): <b id="demoAcc6">0.15</b></div>
         <div class="try-focus-msg">▶ 밀기 버튼을 누르거나<br>이 화면을 클릭하면 상자를 밀어요</div>
@@ -489,8 +489,23 @@
   let x = startX, vel = 0;
   let pushing = false, success = false, running = false;
 
+  function drawClouds(){
+    // 높이 확대로 생긴 위쪽 하늘을 부드러운 구름으로 채움 (정적 장식)
+    const puff = (cx, cy, s, a) => {
+      ctx.fillStyle = 'rgba(255,255,255,' + a + ')';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, s, s * 0.62, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx - s * 0.82, cy + s * 0.20, s * 0.64, s * 0.48, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx + s * 0.82, cy + s * 0.20, s * 0.64, s * 0.48, 0, 0, Math.PI * 2);
+      ctx.fill();
+    };
+    puff(W * 0.16, 66, 30, .52);
+    puff(W * 0.82, 50, 23, .42);
+    puff(W * 0.50, 118, 18, .28);
+  }
   function drawGround(){
     ctx.clearRect(0, 0, W, H);
+    drawClouds();
     ctx.fillStyle = '#a17a52';
     ctx.fillRect(0, groundY, W, H - groundY);
     ctx.fillStyle = '#8e6c47';
@@ -560,8 +575,8 @@
   function togglePush(){
     if (success) return;          // 성공 후엔 ↺ 처음으로
     pushing = !pushing;
+    startLoop();                  // running=true를 먼저 켜야 (updateBtn의 idle 토글이 올바르게 평가됨)
     updateBtn();
-    startLoop();
   }
   function reset(){
     x = startX; vel = 0; pushing = false; success = false; running = false;

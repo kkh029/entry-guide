@@ -262,7 +262,7 @@
     <div class="try-demo">
       <div class="demo-title"><span class="pill">직접 해보기</span> 위 블록이 어떻게 동작하는지 눌러서 확인해 보세요!</div>
       <div class="try-canvas-wrap idle" id="demoStage1" tabindex="0" aria-label="화살표 키로 캐릭터 움직이기 데모">
-        <canvas id="demoCanvas1" width="720" height="300"></canvas>
+        <canvas id="demoCanvas1" width="720" height="400"></canvas>
         <div class="try-hud">x 좌표: <b id="demoX1">0</b></div>
         <div class="try-focus-msg">▶ 실행을 누른 뒤<br>← → 키나 아래 ◀ ▶ 버튼으로 움직여요</div>
       </div>
@@ -466,8 +466,23 @@
     ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
     ctx.closePath();
   }
+  function drawClouds(){
+    // 높이 확대로 생긴 위쪽 하늘을 부드러운 구름으로 채움 (정적 장식)
+    const puff = (cx, cy, s, a) => {
+      ctx.fillStyle = 'rgba(255,255,255,' + a + ')';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, s, s * 0.62, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx - s * 0.82, cy + s * 0.20, s * 0.64, s * 0.48, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx + s * 0.82, cy + s * 0.20, s * 0.64, s * 0.48, 0, 0, Math.PI * 2);
+      ctx.fill();
+    };
+    puff(W * 0.16, 66, 30, .52);
+    puff(W * 0.82, 50, 23, .42);
+    puff(W * 0.50, 118, 18, .28);
+  }
   function drawGround(){
     ctx.clearRect(0, 0, W, H);
+    drawClouds();
     ctx.fillStyle = '#a17a52';
     ctx.fillRect(0, groundY, W, H - groundY);
     ctx.fillStyle = '#8e6c47';

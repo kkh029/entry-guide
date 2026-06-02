@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>데모 높이 통일 + 6편 오버레이 버그 + 3·11편 신규 데모 — entry-guide</title>
+
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css"
+        media="(prefers-color-scheme: light)">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"
+        media="(prefers-color-scheme: dark)">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+  <script src="assets/doc.js" defer></script>
+</head>
+
+<body class="layout">
+<main>
+
+  <header class="doc-header">
+    <h1>데모 높이 통일 · 6편 오버레이 버그 · 3·11편 신규 데모</h1>
+    <div class="meta">
+      <span>작성일 2026-06-02</span>
+      <span>관련 PR <a href="https://github.com/kkh029/entry-guide/pull/31">#31</a></span>
+      <span>대상: <code>entry-game-1·2·3·6·7·11</code> + <code>assets/styles.css</code></span>
+    </div>
+    <p class="lede">사용자 피드백 4가지(높이 일부만 반영·6편 흰 오버레이·데모 없는 편·11편 스프링 연관 설명만)를 한 사이클에 해결 — 캔버스 높이를 <b>전 편 400으로 통일</b>하고 빈 하늘에 구름 배경을 채우고, 6편 시작 오버레이 버그를 고치고, <b>3편(관성)·11편(스프링→원운동) 데모 2개</b>를 신규 추가했다.</p>
+  </header>
+
+  <div class="callout tldr">
+    <div class="callout-title">TL;DR</div>
+    <ul>
+      <li><b>높이 통일</b>: 가로 액션을 일부러 낮게(1·2편 300, 6·7편 360) 뒀던 차등 설계를 거두고 <b>전 편 400</b>으로 통일. 늘어난 상단 하늘은 각 데모의 <code>drawClouds()</code> 구름으로 채워 휑함 방지(직전 PR #30의 미해결 TODO 해소).</li>
+      <li><b>6편 버그</b>: <code>togglePush()</code>에서 <code>updateBtn()</code>이 <code>startLoop()</code>보다 먼저 호출돼 <code>running=false</code> 상태로 <code>idle</code> 토글이 평가 → 흰 ‘시작 대기’ 오버레이가 시작 후에도 잔류. 두 줄 순서를 바꿔 해결(5·7편 정상 패턴과 동일).</li>
+      <li><b>3편 데모 신규</b>: 11편 중 유일하게 데모가 없던 3편(관성)에 <b>밀기→관성 미끄러짐→표면별 마찰 정지</b> 데모 추가. 표면 4종(모래 0.7·잔디 0.85·빙판 0.95·우주 1.0)은 같은 페이지 마찰 섹션 값과 정렬, 우주=마찰0이 2편의 ‘안 멈추는 문제’를 시연.</li>
+      <li><b>11편 데모 신규</b>: ‘구심력 = 10편 복원력’ 한 문장 설명을 <b>전용 데모</b>로 구체화. 같은 중심 당기는 힘을 x·y 양쪽에 걸어 옆 속도 0이면 직선 진동(=10편), 적당하면 원운동. 회전 코일(=용수철)+구심력 화살표 시각화.</li>
+      <li>preview MCP <code>eval</code>로 전 편 검증: <code>canvas.height=400</code>·구름 픽셀·6편 <code>idle</code> 제거·3·11편 신규 데모 배선·콘솔 에러 0.</li>
+    </ul>
+  </div>
+
+  <h2>개요</h2>
+  <p>직전 PR <a href="https://github.com/kkh029/entry-guide/pull/30">#30</a>(<a href="demo-canvas-width-height-touch.html">demo-canvas-width-height-touch.html</a>)에서 데모 캔버스를 본문 폭에 맞추고 높이를 장면별로 키웠다. 그 뒤 사용자가 네 가지를 지적했고, 이번 사이클에서 한 번에 처리했다.</p>
+
+  <div class="callout issue">
+    <div class="callout-title">이슈</div>
+    <ul>
+      <li><b>높이가 일부만 늘어난 듯</b> — 사실 가로 액션(1·2편 300, 6·7편 360)을 세로/2D 액션(400)보다 일부러 낮게 둔 차등 설계였다. 사용자는 통일을 원함.</li>
+      <li><b>6편 흰 오버레이 잔류</b> — ‘힘과 질량’ 데모가 흰 ‘시작 대기’ 화면으로 시작하는데, ▶ 밀기를 눌러도 그 흰 막이 사라지지 않음.</li>
+      <li><b>데모 없는 편</b> — 게임 11편 중 3편(관성)만 캔버스 데모가 없음.</li>
+      <li><b>11편 스프링 연관 설명이 한 문장</b> — ‘구심력 = 10편 복원력’을 tip 박스 한 문단으로만 설명해 이해가 어려움(데모 없음).</li>
+    </ul>
+  </div>
+
+  <h2>해결 1 — 캔버스 높이 400 통일 + 빈 하늘 구름</h2>
+  <p>캔버스는 <code>width:100%; height:auto</code>로 표시돼 가로는 본문 폭에 고정되므로, <code>height</code> 속성만 키우면 표시 세로가 비례해 커진다(왜곡 없음). PR #30에서 가로 액션을 ‘빈 하늘 과다 방지’로 낮춰 뒀는데, 이번엔 그 우려를 <b>구름으로 채우는 방식</b>으로 흡수하고 전 편을 400으로 맞췄다.</p>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>편</th><th>액션 성격</th><th>height (PR #30 → 이번)</th><th>구름 배경</th></tr></thead>
+    <tbody>
+      <tr><td>1편 이동</td><td>가로+점프</td><td>300 → <b>400</b></td><td>추가</td></tr>
+      <tr><td>2편 가속</td><td>가로</td><td>300 → <b>400</b></td><td>추가</td></tr>
+      <tr><td>6편 힘·질량</td><td>가로</td><td>360 → <b>400</b></td><td>추가</td></tr>
+      <tr><td>7편 충돌</td><td>가로</td><td>360 → <b>400</b></td><td>추가</td></tr>
+      <tr><td>4·5·8·9·10·11편</td><td>세로/2D</td><td>400 (유지)</td><td>해당 없음(앵커 가득)</td></tr>
+      <tr><td>3편 관성(신규)</td><td>가로</td><td>— → <b>400</b></td><td>추가</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>모든 데모가 <code>drawGround()</code> 첫 줄에서 <code>ctx.clearRect(0,0,W,H)</code>로 캔버스를 비우고 하늘 영역은 <b>투명</b>으로 남겨 CSS 그라데이션(<code>--sky1/--sky2</code>)이 비치는 구조다. 늘어난 상단을 채우기 위해 <code>clearRect</code> 직후 <code>drawClouds()</code>를 호출하도록 했다(바닥·객체·HUD보다 뒤에 깔림).</p>
+
+<pre><code class="language-javascript">function drawClouds(){              // 1·2·3·6·7편 공통(저채도 정적 구름)
+  const puff = (cx, cy, s, a) =&gt; {
+    ctx.fillStyle = 'rgba(255,255,255,' + a + ')';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, s, s * 0.62, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx - s * 0.82, cy + s * 0.20, s * 0.64, s * 0.48, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx + s * 0.82, cy + s * 0.20, s * 0.64, s * 0.48, 0, 0, Math.PI * 2);
+    ctx.fill();
+  };
+  puff(W * 0.16, 66, 30, .52); puff(W * 0.82, 50, 23, .42); puff(W * 0.50, 118, 18, .28);
+}
+function drawGround(){ ctx.clearRect(0,0,W,H); drawClouds(); /* …기존 바닥… */ }</code></pre>
+
+  <div class="callout info">
+    <div class="callout-title">왜 7편도 구름인가</div>
+    <p>당구 7편도 다른 가로 데모와 <b>똑같은 sky 그라데이션 + 갈색 바닥</b> 구조라(공이 바닥 위를 구름) 별도 펠트 처리 없이 같은 구름으로 일관 적용했다. 계획 단계에선 7편 특수 처리를 열어 뒀으나 실제 코드가 동형이라 통일이 더 단순·일관적.</p>
+  </div>
+
+  <h2>해결 2 — 6편 ‘시작 대기’ 오버레이 잔류 버그</h2>
+  <p>흰 오버레이는 <code>.try-focus-msg</code>(<code>rgba(255,255,255,.55)</code>) DOM 요소로, 부모 <code>.try-canvas-wrap.idle</code>일 때만 <code>opacity:1</code>이다. <code>updateBtn()</code>은 <code>wrap.classList.toggle('idle', !running &amp;&amp; !success)</code>로 idle을 토글한다.</p>
+
+  <div class="callout fix">
+    <div class="callout-title">원인 &amp; 해결</div>
+    <p><code>togglePush()</code>가 <code>updateBtn()</code>를 <b>먼저</b> 부르고 <code>startLoop()</code>(여기서 <code>running=true</code>)를 나중에 불렀다. 그래서 idle 토글이 평가되는 순간 <code>running</code>이 아직 <code>false</code> → <code>idle</code> 유지 → 흰 막 잔류. <b>두 줄의 순서를 바꿔</b> <code>running=true</code>가 먼저 켜지도록 했다(5편 <code>setRunning()</code>·7편 <code>launch()</code>의 정상 패턴과 동일).</p>
+  </div>
+
+  <div class="compare">
+    <div class="before">
+      <h4>Before — idle 잔류</h4>
+<pre><code class="language-javascript">function togglePush(){
+  if (success) return;
+  pushing = !pushing;
+  updateBtn();   // running=false 상태
+  startLoop();   // 여기서야 running=true
+}</code></pre>
+    </div>
+    <div class="after">
+      <h4>After — 시작 시 오버레이 제거</h4>
+<pre><code class="language-javascript">function togglePush(){
+  if (success) return;
+  pushing = !pushing;
+  startLoop();   // running=true 선설정
+  updateBtn();   // idle 토글이 올바르게 평가
+}</code></pre>
+    </div>
+  </div>
+
+  <h2>해결 3 — 3편 관성·마찰 데모 신규</h2>
+  <p>3편은 게임 11편 중 유일하게 캔버스 데모가 없었다. 2편의 <code>.try-demo</code>/<code>.try-pad</code> 구조를 베이스로(페이지 로컬 데모 CSS는 <code>--c3</code> 보라로 재색해 신규 추가) <code>.goals</code> 박스 다음에 데모 우선 섹션을 넣었다.</p>
+  <p>핵심은 2편 루프(<code>vel += accel; heroX += vel</code> — 마찰이 없어 안 멈춤)에 <b><code>vel *= friction</code>을 더한 것</b>이다. 꾹 눌러 밀다 떼면 관성으로 미끄러지다 마찰로 멈춘다. 표면 4종은 같은 페이지 마찰 섹션의 마찰계수·라벨과 정확히 정렬했고, 표면에 따라 바닥 색도 바뀐다.</p>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>표면</th><th>마찰계수</th><th>체감(떼었을 때)</th></tr></thead>
+    <tbody>
+      <tr><td>🏜️ 모래밭</td><td>0.7</td><td>거의 못 미끄러지고 금방 멈춤</td></tr>
+      <tr><td>🌿 잔디밭(기본)</td><td>0.85</td><td>적당히 미끄러지다 멈춤</td></tr>
+      <tr><td>🧊 빙판</td><td>0.95</td><td>쭉 미끄러짐</td></tr>
+      <tr><td>🚀 우주</td><td>1.0</td><td><b>벽에 닿을 때까지 안 멈춤</b> = 2편의 ‘안 멈추는 문제’ = 순수 관성</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-title">속도 캡으로 표면 비교를 선명하게</div>
+    <p>강한 마찰(0.7~0.95)+미는 힘이면 표면별 최고 속도(<code>PUSH/(1−fr)</code>)가 제각각이라, <code>MAXV=10</code>으로 캡해 ‘미끄러지는 거리’ 차이에 집중하게 했다. 우주(1.0)는 감속이 없어 캡 속도로 등속 → 벽까지 직진(뉴턴 1법칙).</p>
+  </div>
+
+  <h2>해결 4 — 11편 스프링→원운동 연결 데모 신규</h2>
+  <p>구심력 섹션의 ‘구심력 = 10편 복원력’ 설명(tip 한 문단)을 <b>전용 데모</b>로 구체화해, 위키 정의 tip과 ‘현실은 타원’ tip <b>사이</b>에 넣었다(타원 tip이 데모의 타원 거동을 바로 설명).</p>
+
+  <div class="callout fix">
+    <div class="callout-title">핵심 아이디어</div>
+    <p>10편 스프링 힘 <code>force=(restY−y)·k</code>를 <b>x·y 양쪽</b>으로 일반화: 매 프레임 <code>vx += K·(cx−bx); vy += K·(cy−by)</code>. 힘은 항상 중심을 향하고(=복원력=구심력), <b>옆으로 미는 처음 속도</b>만 다르다 — 0이면 직선 진동(10편 스프링을 눕힌 모습), 딱 맞으면(<code>R·√K</code>) 동그란 원운동. 같은 식인데 시작 속도가 운동을 가른다.</p>
+  </div>
+
+  <ul>
+    <li><b>회전 코일</b>: 중심↔공을 잇는 용수철 코일(10편 <code>drawSpring</code> 지그재그를 <code>rotate</code>로 임의 방향에 그림) = ‘중심으로 당기는 힘’의 시각적 정체.</li>
+    <li><b>구심력 화살표</b>: 공에서 중심 방향으로 항상 향하는 빨간 화살표.</li>
+    <li><b>모드 토글</b>(<code>.mode-pick</code>, <code>--c11</code>): ↕ 직선 진동 / 🌀 원운동. 가이드도 모드에 맞춰 직선/원으로 바뀌고, 자취(trail)가 선 vs 원을 그려 전환을 증명.</li>
+    <li>기존 원운동 데모(<code>demoCanvas11</code>)와 충돌 없게 <b>별도 IIFE</b>(<code>demoCanvasLink11</code>)로 추가.</li>
+  </ul>
+
+  <div class="callout warn">
+    <div class="callout-title">정확성 — 선형 복원력은 타원</div>
+    <p>2D 선형 복원력(<code>F=−k·r</code>)의 궤도는 일반적으로 <b>중심 타원</b>이고 딱 맞는 속도일 때만 원이다. 이는 같은 섹션의 <code>.tip.real</code>(현실 = 타원, 게임 = 반지름 고정+각도 증가로 깔끔한 원)이 이미 설명하므로, 데모를 그 tip 바로 앞에 배치해 자연스럽게 이어지게 했다.</p>
+  </div>
+
+  <h2>영향 범위</h2>
+  <div class="callout impact">
+    <div class="callout-title">영향 범위</div>
+    <ul>
+      <li><code>docs/entry-game-1·2·7-*.html</code> — 캔버스 <code>height</code> 400 + <code>drawClouds()</code>.</li>
+      <li><code>docs/entry-game-6-force.html</code> — height 400 + <code>drawClouds()</code> + <code>togglePush()</code> 순서 수정.</li>
+      <li><code>docs/entry-game-3-inertia.html</code> — 페이지 로컬 데모 CSS(보라) + 관성 데모 섹션 + IIFE 스크립트 신규.</li>
+      <li><code>docs/entry-game-11-circular.html</code> — <code>.mode-pick</code> CSS + 연결 데모 블록 + 별도 IIFE 신규.</li>
+      <li><code>docs/assets/styles.css</code> — 높이 주석을 ‘전 편 400 통일 + 가로 액션 구름’으로 갱신.</li>
+    </ul>
+  </div>
+
+  <h2>검증</h2>
+  <p>로컬 프리뷰(<code>python3 http.server</code>) + preview MCP <code>eval</code>로 검증했다. 캔버스 <code>rAF</code>는 hidden 탭에서 멈추므로(스크린샷도 빈 화면), <b>초기 <code>render()</code>(동기 호출) 결과를 <code>getImageData</code> 픽셀·HUD·DOM 상태로 읽어</b> 검증했다.</p>
+  <div class="callout success">
+    <div class="callout-title">검증 결과 (콘솔 에러 0)</div>
+    <ul>
+      <li><b>1·2·6·7편</b>: <code>canvas.height===400</code>, 구름 픽셀 <code>[255,255,255,133]</code>, 바닥 렌더 확인.</li>
+      <li><b>6편 버그</b>: ▶ 밀기 클릭 후 <code>#demoStage6</code>에서 <code>idle</code> 제거(<code>idle_before=true → after=false</code>), 버튼 ‘▶ 밀기’→‘⏸ 멈춤’.</li>
+      <li><b>3편</b>: <code>height=400</code>·구름·잔디 바닥, 표면 전환 시 마찰·바닥색·HUD 갱신(빙판 <code>[182,205,218]</code>·우주 <code>[73,67,96]</code>), ▶ 실행 토글.</li>
+      <li><b>11편</b>: 신규 <code>height=400</code>, 공·코일·구심력 화살표 렌더(공 픽셀 = render 전 파이프라인 실행 증거), 직선↔원운동 전환+자동 실행, 기존 <code>demoCanvas11</code> 무회귀.</li>
+    </ul>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-title">검증 한계</div>
+    <p>hidden 탭 <code>rAF</code> 정지로 실제 애니메이션(미끄러짐 거리, 원 궤도 자취)은 시각검증 불가. 초기 프레임·DOM 배선·픽셀은 검증됨. 실기기/visible 탭에서 3편 표면별 미끄러짐 거리, 11편 원 궤도 자취는 한 번 확인 권장(후속 TODO).</p>
+  </div>
+
+  <h2>후속 TODO</h2>
+  <ul>
+    <li>실기기/visible 탭에서 3편 표면별 미끄러짐 거리 + 11편 직선↔원운동 자취 최종 확인(전 데모 공통 hidden-탭 한계).</li>
+    <li>(선택) 11편 연결 데모에 ‘옆 속도 슬라이더’를 더해 타원↔원 연속 변화를 보여줄 수 있음(현재는 직선/원 2모드).</li>
+  </ul>
+
+  <footer class="doc-footer">
+    <h2>관련 문서</h2>
+    <ul>
+      <li><a href="demo-canvas-width-height-touch.html">demo-canvas-width-height-touch.html</a> — 직전 폭·높이·터치 작업(PR #30). 이번에 높이 표가 400 통일로 갱신됨.</li>
+      <li><a href="entry-game-10-11-spring-circular.html">entry-game-10-11-spring-circular.html</a> — 10·11편 설계(복원력=구심력 다리). 이번 11편 연결 데모의 개념 근거.</li>
+      <li><a href="concept-implementation-separation.html">concept-implementation-separation.html</a> — 개념↔구현 분리(3편 데모-우선 패턴 근거).</li>
+      <li><a href="fix-history.md">fix-history.md</a> — 수정 히스토리 인덱스(2026-06-02 항목).</li>
+      <li><a href="next-steps.md">next-steps.md</a> — 후속 TODO 통합 인덱스.</li>
+    </ul>
+  </footer>
+
+</main>
+<aside id="toc"></aside>
+</body>
+</html>
