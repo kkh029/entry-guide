@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>엔트리 게임 만들기 ⑪ 원운동</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="assets/entry-blocks/renderer.js" defer></script>
+<style>
+  /* 11편 — 헤더 스테이지 (위성이 중심을 빙빙 돈다) */
+  .center11{
+    position:absolute;left:50%;top:52px;width:14px;height:14px;border-radius:50%;
+    transform:translate(-50%,-50%);background:#9aa4ad;box-shadow:inset -2px -2px 0 #7a848d;}
+  .orbit11{
+    position:absolute;left:50%;top:52px;width:0;height:0;
+    animation:orbit-spin 3s linear infinite;}
+  .orbit11 .tether{
+    position:absolute;left:0;top:-1px;width:36px;height:2px;
+    background:rgba(192,116,74,.4);transform-origin:left center;}
+  .orbit11 .sat{
+    position:absolute;left:28px;top:-9px;width:18px;height:18px;border-radius:50%;
+    background:var(--c11);box-shadow:inset -3px -3px 0 #94562f;}
+  .orbit11 .sat::after{content:"";position:absolute;top:3px;left:4px;width:5px;height:5px;background:rgba(255,255,255,.5);border-radius:50%;}
+  @keyframes orbit-spin{to{transform:rotate(360deg);}}
+
+  /* 변수 안내 박스 */
+  .var-intro{
+    background:#fafaf6;
+    border:1px dashed var(--c11);
+    border-radius:10px;padding:14px 16px;margin:16px 0;
+    display:flex;gap:12px;align-items:center;}
+  .var-intro .vi-icon{font-size:26px;flex-shrink:0;}
+  .var-intro .vi-text{flex:1;font-size:14.5px;line-height:1.6;color:var(--ink);}
+  .var-intro .vi-text b{color:var(--c11);}
+
+  /* 코드 찾기 활동 */
+  .quiz-list{
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 18px;margin:16px 0;
+    font-size:14.5px;line-height:2.2;}
+  .quiz-list .hint{color:var(--c11);font-size:13px;}
+  .quiz-list code{background:#fff;padding:1px 7px;border-radius:5px;font-size:13px;border:1px solid var(--border);}
+
+  /* 참고자료 */
+  .meta-box{
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 18px;margin-top:14px;
+    font-size:13px;color:var(--soft);line-height:1.95;}
+  .meta-box b{font-size:13.5px;color:var(--ink);}
+  .meta-box a{color:var(--c11);text-decoration:underline;text-underline-offset:2px;}
+
+  /* CTA */
+  .cta{
+    background:linear-gradient(180deg,#f6ece3,#fafaf6);
+    border:1px solid var(--border-s);
+    border-radius:12px;padding:22px 20px;
+    text-align:center;margin:22px 0;}
+  .cta h3{font-family:'Jua',sans-serif;font-size:20px;color:var(--ink);margin-bottom:6px;}
+  .cta p{font-size:15px;color:var(--soft);margin-bottom:12px;}
+  .cta a.go{
+    display:inline-block;background:var(--c11);color:#fff;
+    font-family:'Jua',sans-serif;font-size:16px;
+    padding:10px 22px;border-radius:30px;
+    box-shadow:0 3px 0 #94562f;
+    transition:transform .12s ease;text-decoration:none;}
+  .cta a.go:hover{transform:translateY(-1px);}
+
+  /* 직접 해보기 — 인터랙티브 데모 */
+  .try-demo{
+    background:#fff;border:1px solid var(--border);
+    border-radius:12px;padding:16px 16px 14px;margin:16px 0 6px;}
+  .try-demo .demo-title{
+    font-family:'Jua',sans-serif;font-size:16px;color:var(--ink);
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .try-demo .demo-title .pill{
+    background:var(--c11);color:#fff;font-family:'Jua',sans-serif;
+    font-size:11px;padding:2px 9px;border-radius:20px;letter-spacing:.5px;}
+  .try-canvas-wrap{
+    position:relative;background:linear-gradient(180deg,var(--sky1),var(--sky2));
+    border-radius:10px;overflow:hidden;outline:none;cursor:pointer;}
+  .try-canvas-wrap:focus{box-shadow:0 0 0 3px rgba(192,116,74,.40);}
+  .try-canvas-wrap canvas{display:block;width:100%;height:auto;}
+  .try-hud{
+    position:absolute;top:8px;left:10px;
+    font-family:'Jua',sans-serif;font-size:13px;
+    background:rgba(255,255,255,.85);color:var(--ink);
+    padding:3px 10px;border-radius:14px;}
+  .try-hud.vel{
+    top:8px;left:auto;right:10px;
+    background:rgba(192,116,74,.18);color:var(--ink);}
+  .try-focus-msg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    text-align:center;padding:0 18px;
+    font-family:'Jua',sans-serif;font-size:14.5px;color:var(--ink);
+    background:rgba(255,255,255,.55);pointer-events:none;
+    opacity:0;transition:opacity .15s ease;}
+  .try-canvas-wrap.idle .try-focus-msg{opacity:1;}
+  .try-controls{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;}
+  .try-controls button{
+    font-family:'Jua',sans-serif;font-size:14px;
+    background:var(--c11);color:#fff;border:none;
+    padding:7px 16px;border-radius:20px;
+    box-shadow:0 2px 0 #94562f;cursor:pointer;
+    transition:transform .1s ease;}
+  .try-controls button:active{transform:translateY(1px);box-shadow:0 1px 0 #94562f;}
+  .try-controls button.secondary{
+    background:#fff;color:var(--ink);
+    border:1px solid var(--border);box-shadow:0 2px 0 var(--border);}
+  .try-controls button.secondary:active{box-shadow:0 1px 0 var(--border);}
+  .try-controls button.release{
+    background:#fff;color:var(--c11);
+    border:1px solid var(--c11);box-shadow:0 2px 0 #e3c3b2;}
+  .try-controls button.release:active{box-shadow:0 1px 0 #e3c3b2;}
+  .try-controls .ctl-sliders{
+    display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin-left:auto;}
+  .try-controls .speed-row{
+    display:flex;align-items:center;gap:8px;
+    font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);}
+  .try-controls .speed-row input[type=range]{width:96px;}
+  .try-controls .speed-row b{color:var(--ink);min-width:30px;display:inline-block;text-align:center;}
+  .try-hint{
+    font-family:'Gowun Dodum',sans-serif;font-size:13.5px;
+    color:var(--soft);margin-top:8px;line-height:1.65;}
+  .try-hint kbd{
+    display:inline-block;background:#fafaf6;
+    border:1px solid var(--border);border-bottom-width:2px;
+    border-radius:5px;padding:1px 8px;
+    font-family:'Jua',sans-serif;font-size:12px;color:var(--ink);}
+  @media (max-width:560px){
+    .try-controls .ctl-sliders{margin-left:0;width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="home-link">🏠</a>
+
+<header>
+  <span class="badge">엔트리 게임 만들기 · 11편</span>
+  <h1>원운동<br>— 빙글빙글 도는 위성 만들기</h1>
+  <p class="sub">고무줄에 매단 공을 돌리면 왜 동그라미를 그릴까? 중심으로 계속 당기는 힘의 비밀 🪐</p>
+</header>
+
+<div class="stage">
+  <div class="center11"></div>
+  <div class="orbit11"><div class="tether"></div><div class="sat"></div></div>
+  <div class="ground"></div>
+</div>
+
+<div class="wrap">
+
+  <section class="card">
+    <p class="big">🪐 머리 위로 <b>고무줄에 매단 공</b>을 빙빙 돌려본 적 있나요? 공은 자꾸 바깥으로 나가려 하는데, 고무줄이 <b>계속 중심으로 잡아당겨서</b> 동그란 길을 그려요.</p>
+
+    <p>그런데 이 ‘중심으로 당기는 힘’… 어디서 봤죠? 맞아요, <b>10편 스프링의 복원력</b>이에요! 오늘은 그 힘이 <b>구심력</b>이 되어 물체를 빙빙 돌리는 비밀을 풀고, <b>4편의 cos·sin</b>으로 깔끔하게 도는 위성·톱날을 만들어봐요. 🌀</p>
+
+    <div class="legend">
+      <div class="entry-block" data-block='{"shape":"stack","category":"START",   "marker":false,"contents":[{"type":"text","value":"시작"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"FLOW",    "marker":false,"contents":[{"type":"text","value":"흐름(반복·만일)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"MOVING",  "marker":false,"contents":[{"type":"text","value":"움직임"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"JUDGE",   "marker":false,"contents":[{"type":"text","value":"판단"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"VARIABLE","marker":false,"contents":[{"type":"text","value":"자료(변수)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"CALC",    "marker":false,"contents":[{"type":"text","value":"계산"}]}'></div>
+    </div>
+  </section>
+
+  <div class="goals">
+    <div class="goal-col phys">
+      <div class="goal-head">🔬 오늘 배우는 물리 개념</div>
+      <ul>
+        <li><b>구심력</b> — 원의 <b>중심으로 계속 당기는 힘</b></li>
+        <li>구심력 = <b>10편의 복원력</b>과 같은 힘!</li>
+        <li><b>방향</b>이 계속 바뀜 (2편: 속도엔 방향이!)</li>
+        <li>줄을 놓으면 <b>접선</b>으로 날아감 (3편 관성)</li>
+      </ul>
+    </div>
+    <div class="goal-col code">
+      <div class="goal-head">🧩 엔트리로 만드는 것</div>
+      <ul>
+        <li><b>‘각도’·‘반지름’·‘회전속도’</b> 변수</li>
+        <li>매 프레임 <b>각도 += 회전속도</b></li>
+        <li>x = 반지름 × <b>cos(각도)</b>, y = 반지름 × <b>sin(각도)</b> (4편!)</li>
+      </ul>
+    </div>
+  </div>
+
+  <section class="card c-circular">
+    <div class="step-no">1</div>
+    <h2>직접 돌려보자</h2>
+    <p>백 마디 설명보다 한 번 해보는 게 빨라요! 아래 공을 빙글빙글 돌려봐요. <b>회전속도</b>를 키우면 빨리 돌고, <b>반지름</b>을 키우면 큰 원을 그려요. 그리고 <b>🪢 줄 놓기</b>를 누르면 공이 어디로 날아갈지… 먼저 예측해 봐요! 🪐</p>
+
+    <div class="try-demo">
+      <div class="demo-title"><span class="pill">직접 해보기</span> 공을 빙빙 돌리고, 줄을 놓아봐요!</div>
+      <div class="try-canvas-wrap idle" id="demoStage11" tabindex="0" aria-label="공이 중심을 도는 원운동 데모">
+        <canvas id="demoCanvas11" width="720" height="320"></canvas>
+        <div class="try-hud">각도: <b id="demoAngle11">0</b>°</div>
+        <div class="try-hud vel">상태: <b id="demoStatus11">도는 중</b></div>
+        <div class="try-focus-msg">▶ 출발 버튼을 누르거나<br>이 화면을 클릭하면 공이 빙빙 돌아요</div>
+      </div>
+      <div class="try-controls">
+        <button id="demoRun11">▶ 출발</button>
+        <button id="demoReset11" class="secondary">↺ 처음으로</button>
+        <button id="demoRelease11" class="release">🪢 줄 놓기</button>
+        <span class="ctl-sliders">
+          <span class="speed-row">반지름 <b id="demoRadVal11">120</b>
+            <input type="range" id="demoRad11" min="50" max="140" step="5" value="120" aria-label="반지름">
+          </span>
+          <span class="speed-row">회전속도 <b id="demoOmVal11">4</b>
+            <input type="range" id="demoOm11" min="1" max="6" step="0.5" value="4" aria-label="회전속도">
+          </span>
+        </span>
+      </div>
+      <div class="try-hint">🪐 <b>회전속도</b>를 키우면 빨리 돌고, <b>반지름</b>을 키우면 큰 원! <kbd>🪢 줄 놓기</kbd>를 누르면 — 공이 원을 안 따라가고 <b>그 순간 방향(접선)으로 곧장 날아가요</b>(3편 관성!). 진짜 고무줄을 놓으면 정확히 이렇게 돼요.</div>
+    </div>
+  </section>
+
+  <section class="card c-circular">
+    <div class="step-no">2</div>
+    <h2>🔬 구심력 — 중심으로 계속 당기는 힘</h2>
+
+    <div class="tip bonus">
+      <b>🔗 10편을 기억하나요?</b><br>
+      10편 스프링은 늘어나면 <b>기준점(중심)으로</b> 당기는 <b>복원력</b>이 있었죠. 원운동도 똑같아요 — 공이 원을 그리며 돌려면, <b>중심으로 계속 당기는 힘</b>이 필요해요. 이 힘을 <b>구심력</b>이라고 불러요. <b>구심력은 10편의 복원력과 똑같은 ‘중심으로 당기는 힘’</b>이에요!
+    </div>
+
+    <p>공은 원래 <b>똑바로 직진</b>하려고 해요(3편 관성!). 그런데 고무줄이 자꾸 <b>중심으로</b> 잡아당기니까, 직진하려던 길이 <b>계속 안쪽으로 휘어서</b> 동그란 원이 되는 거예요. 머리 위로 고무줄에 매단 공을 돌리는 모습을 떠올려 봐요 — <b>손</b>이 바로 중심이고, <b>고무줄</b>이 구심력이에요! 🪐</p>
+
+    <div class="tip">
+      <b>📖 구심력이란?</b><br>
+      “원을 그리며 도는 물체에는 항상 <b>원의 중심을 향하는 힘</b>이 작용해요. 이 힘이 없으면 물체는 곧장 날아가 버려요.”<br>
+      <small style="opacity:.7;">— <a href="https://ko.wikipedia.org/wiki/%EA%B5%AC%EC%8B%AC%EB%A0%A5" target="_blank" rel="noopener" style="color:var(--c11);">위키백과, “구심력”</a> (내용 재작성)</small>
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 고무줄(스프링) 힘으로 도는 물체는 보통 <b>완벽한 원이 아니라 타원</b>을 그려요. 딱 맞는 빠르기일 때만 동그란 원이 되고, 빠르기가 안 맞으면 원이 <b>늘었다 줄었다</b> 해요.<br>
+      <b>🎮 게임에서는</b> 그 복잡한 계산 대신, <b>반지름을 고정</b>하고 <b>각도만 조금씩 키워서</b> 항상 <b>깔끔한 원</b>을 그려요(아래 🧩). 진짜 힘으로 도는 건 ⭐ 도전에서 맛봐요!
+    </div>
+  </section>
+
+  <section class="card c-circular">
+    <div class="step-no">3</div>
+    <h2>🔬 빠르기는 그대로, 방향이 계속 바뀐다</h2>
+    <p>2편에서 <b>속도엔 방향이 들어있다</b>고 했죠? 🧭 원운동에서는 도는 <b>빠르기</b>는 일정한데, <b>방향이 매 순간</b> 바뀌어요. 위로 가다가 오른쪽, 아래, 왼쪽… 계속 돌죠. 그래서 “속도가 계속 변한다”고 말할 수 있어요(방향이 변하니까!).</p>
+
+    <p>그럼 <b>줄을 탁 놓으면</b> 어떻게 될까요? 중심으로 당기는 힘이 사라지니, 공은 더 이상 휘지 않고 <b>그 순간 가던 방향(접선)으로 곧장 날아가요</b> — 바로 <b>3편의 관성</b>이에요! 위 데모에서 <b>🪢 줄 놓기</b>를 눌러 직접 확인해 봐요.</p>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 망치던지기 선수가 빙빙 돌리다 줄을 놓으면, 해머가 <b>접선 방향</b>으로 멀리 날아가요.<br>
+      <b>🎮 게임에서는</b> ‘각도 키우기’를 멈추고 <b>마지막 방향으로 직진</b>시키면 똑같이 표현돼요.
+    </div>
+  </section>
+
+  <section class="card c-circular">
+    <div class="step-no">4</div>
+    <h2>🧩 엔트리로 원운동 만들기</h2>
+    <p>이제 엔트리로 만들어봐요! <b>4편</b>에서 발사할 때 쓴 <b>cos·sin</b> 기억나죠? 그땐 한 번만 썼지만, 이번엔 <b>매 프레임</b> 각도를 조금씩 키우면서 cos·sin으로 위치를 정하면 — 점이 <b>완벽한 원</b>을 그려요!</p>
+
+    <div class="var-intro">
+      <div class="vi-icon">🪐</div>
+      <div class="vi-text">
+        변수 세 개! <b>‘각도’</b>는 지금까지 돈 각도(0부터 시작), <b>‘반지름’</b>은 원의 크기, <b>‘회전속도’</b>는 한 프레임에 더할 각도(<b>2~5</b>°)예요. 중심은 화면 한가운데(0,0)로 둘게요!
+      </div>
+    </div>
+
+    <p style="font-weight:700;color:var(--soft);">▶ <b>공</b> 오브젝트의 시작 블록 안에 이렇게 쌓아주세요.</p>
+
+    <div class="entry-code" data-blocks='[
+      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+      {"shape":"stack","category":"VARIABLE","contents":[
+        {"type":"dropdown","value":"반지름"},{"type":"text","value":"을"},
+        {"type":"input","value":"120"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"stack","category":"VARIABLE","note":"클수록 빨리 / 음수면 반대로 돌아요","contents":[
+        {"type":"dropdown","value":"회전속도"},{"type":"text","value":"를"},
+        {"type":"input","value":"4"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"stack","category":"VARIABLE","contents":[
+        {"type":"dropdown","value":"각도"},{"type":"text","value":"를"},
+        {"type":"input","value":"0"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+        {"shape":"stack","category":"VARIABLE","contents":[
+          {"type":"dropdown","value":"각도"},{"type":"text","value":"에"},
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"회전속도"}]}},
+          {"type":"text","value":"만큼 더하기"}
+        ]},
+        {"shape":"stack","category":"MOVING","contents":[
+          {"type":"text","value":"x 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+            {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"반지름"}]}},
+            {"type":"text","value":"×"},
+            {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+              {"type":"dropdown","value":"cos"},
+              {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"각도"}]}},
+              {"type":"text","value":"의 값"}
+            ]}}
+          ]}},
+          {"type":"text","value":"(으)로 정하기"}
+        ]},
+        {"shape":"stack","category":"MOVING","contents":[
+          {"type":"text","value":"y 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+            {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"반지름"}]}},
+            {"type":"text","value":"×"},
+            {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+              {"type":"dropdown","value":"sin"},
+              {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"각도"}]}},
+              {"type":"text","value":"의 값"}
+            ]}}
+          ]}},
+          {"type":"text","value":"(으)로 정하기"}
+        ]}
+      ]}
+    ]'></div>
+
+    <div class="tip">
+      <b>🔬 반복 안 세 줄이 원운동의 핵심이에요!</b><br>
+      ① <b>각도에 회전속도 더하기</b> — 매 프레임 각도를 조금씩 키워 <b>빙글</b> 돌려요.<br>
+      ② <b>x 좌표 = 반지름 × cos(각도)</b> — 4편의 cos! 각도에 따라 <b>좌우</b> 위치가 정해져요.<br>
+      ③ <b>y 좌표 = 반지름 × sin(각도)</b> — 4편의 sin! <b>위아래</b> 위치가 정해져요.<br>
+      <b>cos·sin</b>이 짝을 이루면, 각도가 0→360° 도는 동안 점이 <b>완벽한 원</b>을 그려요! 위치를 <b>‘만큼 바꾸기’가 아니라 ‘(으)로 정하기’</b>로 매번 새로 정하는 게 포인트예요.
+    </div>
+
+    <div class="tip bonus">
+      <b>🧪 숫자를 바꿔 봐요!</b><br>
+      ① <b>회전속도</b> ↑ : 더 <b>빨리</b> 돌아요.<br>
+      ② <b>반지름</b> ↑ : 더 <b>큰 원</b>을 그려요.<br>
+      ③ <b>회전속도</b>를 <b>음수</b>로 : <b>반대 방향</b>으로 돌아요!<br>
+      ④ x·y에 <b>중심x·중심y</b>를 더하면(예: 캐릭터 위치), 캐릭터를 <b>따라다니며 도는 위성</b>이 돼요.
+    </div>
+
+    <div class="tip bonus">
+      <b>🌗 보너스: 도는 공의 그림자는 ‘스프링’이에요!</b><br>
+      빙글빙글 도는 공을 <b>한 방향(예: 위아래)에서만</b> 보면, 10편 스프링처럼 <b>통통 왕복</b>해요! 원운동의 <b>그림자</b>가 곧 진동이거든요. 그래서 <b>cos·sin</b>은 사촌 사이랍니다. 신기하죠? 😉
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🔧 안 될 때 확인!</h2>
+    <p>따라 하다 막히면 대부분 물리가 아니라 <b>블록 실수</b>예요. 아래를 확인해 봐요.</p>
+    <div class="fix">
+      <div class="fix-title">🔧 이렇게 안 되나요?</div>
+      <ul>
+        <li><b>안 돌고 가만히 있어요</b> → <b>계속 반복하기</b> 안에 <code>각도에 회전속도 더하기</code>가 있는지, x·y를 <b>cos·sin으로 매번 다시</b> 정하는지 확인</li>
+        <li><b>원이 안 그려지고 한 점만 찍혀요</b> → 위치를 <code>만큼 바꾸기</code>가 아니라 <b>(으)로 정하기</b>로 했는지(각도로부터 매번 새 위치!), <b>반지름</b>이 0이 아닌지 확인</li>
+        <li><b>원이 찌그러져요</b> → x에는 <b>cos</b>, y에는 <b>sin</b>을 썼는지(짝 바뀌면 찌그러져요), 반지름이 매 프레임 변하지 않는지 확인</li>
+        <li><b>너무 빨라서 끊겨 보여요</b> → <b>회전속도</b>가 너무 큼(2~5° 권장), 빠르게 돌릴 땐 3편 <b>서브스텝</b> 참고</li>
+        <li><b>cos·sin 값이 이상해요</b> → 각도 단위가 <b>도(°)</b>인지(4편과 동일) 확인</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card c-circular">
+    <div class="step-no">⭐</div>
+    <h2>⭐ 도전: 힘으로 도는 진짜 궤도</h2>
+    <p>각도 방식은 <b>항상 깔끔한 원</b>을 그려요. 그런데 10편 스프링처럼 <b>진짜 ‘당기는 힘’</b>으로 돌리면 어떨까요? 10편 코드를 <b>x·y 양쪽</b>에 걸어봐요!</p>
+
+    <div class="tip bonus">
+      <b>🔗 복원력 = 구심력, 코드로 증명!</b><br>
+      <b>‘x속도’·‘y속도’</b> 변수를 만들고, 처음에 옆으로 슬쩍 민 뒤(y속도 = 5), 매 프레임 <b>중심(0)으로 당기는 힘</b>을 양쪽에 더해요. 그러면 공이 <b>저절로</b> 중심 주위를 돌아요 — 10편 복원력과 똑같은 식이죠!
+      <div class="entry-code" style="margin:10px 0 0;" data-blocks='[
+        {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+        {"shape":"stack","category":"VARIABLE","contents":[
+          {"type":"dropdown","value":"x속도"},{"type":"text","value":"를"},
+          {"type":"input","value":"0"},{"type":"text","value":"로 정하기"}
+        ]},
+        {"shape":"stack","category":"VARIABLE","note":"옆으로 슬쩍 밀기 (접선 속도)","contents":[
+          {"type":"dropdown","value":"y속도"},{"type":"text","value":"를"},
+          {"type":"input","value":"5"},{"type":"text","value":"로 정하기"}
+        ]},
+        {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"x속도"},{"type":"text","value":"에"},
+            {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+              {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+                {"type":"input","value":"0"},{"type":"text","value":"−"},
+                {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"자신의 x 좌푯값"}]}}
+              ]}},
+              {"type":"text","value":"×"},
+              {"type":"input","value":"0.02"}
+            ]}},
+            {"type":"text","value":"만큼 더하기"}
+          ]},
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"y속도"},{"type":"text","value":"에"},
+            {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+              {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+                {"type":"input","value":"0"},{"type":"text","value":"−"},
+                {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"자신의 y 좌푯값"}]}}
+              ]}},
+              {"type":"text","value":"×"},
+              {"type":"input","value":"0.02"}
+            ]}},
+            {"type":"text","value":"만큼 더하기"}
+          ]},
+          {"shape":"stack","category":"MOVING","contents":[
+            {"type":"text","value":"x 좌표를"},
+            {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"x속도"}]}},
+            {"type":"text","value":"만큼 바꾸기"}
+          ]},
+          {"shape":"stack","category":"MOVING","contents":[
+            {"type":"text","value":"y 좌표를"},
+            {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"y속도"}]}},
+            {"type":"text","value":"만큼 바꾸기"}
+          ]}
+        ]}
+      ]'></div>
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실처럼</b> 이 방식은 처음 빠르기가 딱 맞지 않으면 원이 <b>타원</b>이 되거나 <b>늘었다 줄었다</b> 해요 — 그래서 게임에선 위(🧩)의 <b>각도 방식</b>으로 깔끔한 원을 만드는 거예요!
+    </div>
+
+    <div class="tip">
+      <b>🪚 다른 도전</b><br>
+      ① <b>회전하는 톱날·장애물</b> — 도는 공에 닿으면 게임 오버!<br>
+      ② <b>위성 여러 개</b> — 각도에 <b>+90·+180·+270</b>을 더한 점을 함께 그리면, 중심을 도는 위성 4개가 동시에 빙글빙글!
+    </div>
+  </section>
+
+  <section class="card c-circular">
+    <div class="step-no">★</div>
+    <h2>🔍 배운 내용을 코드에서 찾아봐요!</h2>
+    <p>아까 만든 코드 블록을 떠올리면서 아래 질문에 답해봐요. 개념과 코드가 어떻게 연결되는지 직접 확인해보는 거예요!</p>
+
+    <div class="quiz-list">
+      <div>① <b>구심력</b>은 10편의 무엇과 같은 힘인가요? <span class="hint">(힌트: 중심으로 당기는…)</span></div>
+      <div>② 매 프레임 <b>각도를 키우는</b> 줄은 어디예요?</div>
+      <div>③ <b>줄을 놓으면</b> 공은 어디로 날아가나요? <span class="hint">(힌트: 접선·관성)</span></div>
+      <div>④ <b>반지름</b>을 키우면 원은 어떻게 되나요?</div>
+    </div>
+
+    <div class="tip bonus">
+      <b>💬 답을 확인해봐요!</b><br>
+      ① 10편의 <b>복원력</b> — 똑같이 ‘중심으로 당기는 힘’이에요!<br>
+      ② <code>각도에 회전속도 만큼 더하기</code><br>
+      ③ 그 순간 가던 방향(<b>접선</b>)으로 <b>곧장</b> 날아가요 — 3편 관성!<br>
+      ④ 더 <b>큰 원</b>을 그려요.
+    </div>
+  </section>
+
+  <div class="finish">
+    <h2>🎉 시리즈 완주! 1~11편을 다 해냈어요!</h2>
+    <p>드디어 게임 물리의 핵심을 모두 배웠어요. 11편에서 배운 걸 확인해 볼까요?</p>
+    <div class="check">
+      <div>✅ <b>구심력</b> = 중심으로 계속 당기는 힘 (=10편 복원력)</div>
+      <div>✅ 빠르기는 그대로, <b>방향</b>이 계속 바뀌어요</div>
+      <div>✅ 줄을 놓으면 <b>접선</b>으로 곧장 날아가요(관성)</div>
+      <div>✅ <b>각도 + cos·sin</b>으로 깔끔한 원을 그려요 (4편!)</div>
+      <div>✅ 현실은 타원, 게임은 <b>반지름 고정</b>으로 단순화</div>
+      <div>✅ 엔트리로 빙글빙글 원운동 완성!</div>
+    </div>
+    <div class="next">🚀 <b>이제 진짜 여러분 차례예요!</b> 1~11편의 물리 블록 — 이동·속도·가속도·관성·마찰·중력·발사·탄성·힘·질량·운동량·충돌·에너지·경사면·<b>스프링·원운동</b> — 을 자유롭게 조합하면 <b>거의 모든 게임</b>을 만들 수 있어요. 여러분만의 작품을 만들어보세요!</div>
+  </div>
+
+  <div class="meta-box">
+    <b>📚 참고 자료</b><br>
+    • <a href="https://ko.wikipedia.org/wiki/%EA%B5%AC%EC%8B%AC%EB%A0%A5" target="_blank" rel="noopener">위키백과, “구심력”</a> — 중심으로 당기는 힘<br>
+    • <a href="https://ko.wikipedia.org/wiki/%EC%9B%90%EC%9A%B4%EB%8F%99" target="_blank" rel="noopener">위키백과, “원운동”</a> — 원을 그리는 운동<br>
+    • <a href="https://ko.wikipedia.org/wiki/%EB%8B%A8%EC%A7%84%EB%8F%99" target="_blank" rel="noopener">위키백과, “단진동”</a> — 원운동의 그림자(cos·sin)
+  </div>
+
+  <div class="cta">
+    <h3>🏠 시리즈를 모두 마쳤어요!</h3>
+    <p>1~11편의 물리 블록을 조합해서 나만의 게임을 만들어봐요!</p>
+    <a class="go" href="index.html">🏠 목차로 돌아가기</a>
+  </div>
+
+  <footer>
+    엔트리로 만드는 나만의 게임 · 11편 「원운동」<br>
+    <span style="font-size:10px;opacity:.7;">
+      © 2026 김경환 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;">CC BY-NC-SA 4.0</a><br>
+      도트 캐릭터 © <a href="https://zerie.itch.io/tiny-rpg-character-asset-pack" target="_blank" style="color:inherit;">Zerie</a>
+    </span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const wrap       = document.getElementById('demoStage11');
+  const canvas     = document.getElementById('demoCanvas11');
+  const ctx        = canvas.getContext('2d');
+  const runBtn     = document.getElementById('demoRun11');
+  const resetBtn   = document.getElementById('demoReset11');
+  const releaseBtn = document.getElementById('demoRelease11');
+  const radSlider  = document.getElementById('demoRad11');
+  const radVal     = document.getElementById('demoRadVal11');
+  const omSlider   = document.getElementById('demoOm11');
+  const omVal      = document.getElementById('demoOmVal11');
+  const angLabel   = document.getElementById('demoAngle11');
+  const statLabel  = document.getElementById('demoStatus11');
+
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+  let angle = 0, radius = 120, omega = 4, mode = 'orbit';
+  let bx = cx + radius, by = cy, vx = 0, vy = 0;
+  let trail = [];
+  let running = false, phase = 'ready';
+
+  function orbitPos(){
+    const r = angle * Math.PI / 180;
+    return { x: cx + radius * Math.cos(r), y: cy + radius * Math.sin(r) };
+  }
+  function drawSky(){
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#eaf1f6'); g.addColorStop(1, '#f4f8fb');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  function drawGuide(){
+    ctx.strokeStyle = 'rgba(192,116,74,.30)'; ctx.lineWidth = 2; ctx.setLineDash([6, 7]);
+    ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  function drawTether(){
+    ctx.strokeStyle = 'rgba(192,116,74,.55)'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(bx, by); ctx.stroke();
+  }
+  function drawTrail(){
+    for (let i = 0; i < trail.length; i++){
+      const t = trail[i];
+      ctx.fillStyle = 'rgba(192,116,74,' + (i / trail.length) * 0.40 + ')';
+      ctx.beginPath(); ctx.arc(t.x, t.y, 5, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  function drawCenter(){
+    ctx.fillStyle = '#8a949d';
+    ctx.beginPath(); ctx.arc(cx, cy, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(60,70,80,.85)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('중심', cx, cy + 24);
+  }
+  function drawBall(){
+    ctx.fillStyle = '#94562f';
+    ctx.beginPath(); ctx.arc(bx, by, 16, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#c0744a';
+    ctx.beginPath(); ctx.arc(bx - 1.5, by - 1.5, 16 * 0.82, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.5)';
+    ctx.beginPath(); ctx.arc(bx - 5, by - 5, 3.6, 0, Math.PI * 2); ctx.fill();
+  }
+  function render(){
+    drawSky(); drawGuide();
+    if (mode === 'orbit') drawTether();
+    drawTrail(); drawCenter(); drawBall();
+    angLabel.textContent = Math.round(((angle % 360) + 360) % 360);
+  }
+  function updateBtn(){
+    runBtn.textContent = running ? '⏸ 멈춤' : '▶ 출발';
+    wrap.classList.toggle('idle', phase === 'ready');
+  }
+  function loop(){
+    if (!running) return;
+    if (mode === 'orbit'){ angle += omega; const p = orbitPos(); bx = p.x; by = p.y; }
+    else { bx += vx; by += vy; }
+    trail.push({ x: bx, y: by }); if (trail.length > 42) trail.shift();
+    render();
+    if (mode === 'released' && (bx < -40 || bx > W + 40 || by < -40 || by > H + 40)){
+      running = false; phase = 'done'; updateBtn(); return;
+    }
+    requestAnimationFrame(loop);
+  }
+  function release(){
+    const r = angle * Math.PI / 180;
+    const speed = radius * (omega * Math.PI / 180);   // |v| = 반지름 × 각속도
+    vx = -speed * Math.sin(r); vy = speed * Math.cos(r);   // 접선 방향
+    mode = 'released'; statLabel.textContent = '날아감!';
+  }
+  function launch(){
+    if (phase === 'done'){ angle = 0; mode = 'orbit'; vx = vy = 0; trail = []; const p = orbitPos(); bx = p.x; by = p.y; statLabel.textContent = '도는 중'; }
+    phase = 'running'; running = true; updateBtn(); requestAnimationFrame(loop);
+  }
+  function reset(){
+    angle = 0; mode = 'orbit'; vx = vy = 0; trail = [];
+    const p = orbitPos(); bx = p.x; by = p.y;
+    phase = 'ready'; running = false; statLabel.textContent = '도는 중'; updateBtn(); render();
+  }
+  function toggle(){
+    if (running){ running = false; phase = 'running'; updateBtn(); }
+    else { launch(); }
+  }
+
+  runBtn.addEventListener('click', toggle);
+  resetBtn.addEventListener('click', reset);
+  releaseBtn.addEventListener('click', () => {
+    if (!running){ launch(); return; }
+    if (mode === 'orbit') release();
+  });
+  radSlider.addEventListener('input', e => {
+    radius = parseInt(e.target.value, 10); radVal.textContent = radius;
+    if (mode === 'orbit'){ const p = orbitPos(); bx = p.x; by = p.y; }
+    if (!running) render();
+  });
+  omSlider.addEventListener('input', e => {
+    omega = parseFloat(e.target.value); omVal.textContent = omega;
+  });
+  wrap.addEventListener('click', () => { wrap.focus(); if (!running) launch(); });
+
+  reset();
+})();
+</script>
+
+<nav class="toc-sidebar">
+  <div class="toc-title">이 페이지 목차</div>
+  <ol id="toc-list"></ol>
+</nav>
+
+<script>
+(function(){
+  var hs = document.querySelectorAll('section.card h2');
+  var list = document.getElementById('toc-list');
+  if(!hs.length || !list) return;
+  hs.forEach(function(h, i){
+    if(!h.id) h.id = 'toc-' + i;
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a); list.appendChild(li);
+  });
+  var links = list.querySelectorAll('a');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = list.querySelector('a[href="#' + e.target.id + '"]');
+        if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-8% 0px -80% 0px'});
+  hs.forEach(function(h){ io.observe(h); });
+})();
+</script>
+
+</body>
+</html>

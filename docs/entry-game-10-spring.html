@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>엔트리 게임 만들기 ⑩ 스프링·진동</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="assets/entry-blocks/renderer.js" defer></script>
+<style>
+  /* 10편 — 헤더 스테이지 (스프링에 매달린 추가 통통 진동) */
+  .anchor10{
+    position:absolute;left:50%;top:14px;width:64px;height:8px;
+    transform:translateX(-50%);background:#8aa399;border-radius:3px;}
+  .spring10{
+    position:absolute;left:50%;top:22px;width:20px;height:34px;
+    transform:translateX(-50%);transform-origin:top center;
+    background:repeating-linear-gradient(180deg,#9bb3a8 0 2px,transparent 2px 6px);
+    border-radius:3px;
+    animation:spring-stretch 2.6s ease-in-out infinite;}
+  .mass10{
+    position:absolute;left:50%;top:52px;width:30px;height:30px;border-radius:50%;
+    transform:translateX(-50%);
+    background:var(--c10);box-shadow:inset -5px -5px 0 #46695d;
+    animation:mass-bob 2.6s ease-in-out infinite;}
+  .mass10::after{content:"";position:absolute;top:6px;left:7px;width:7px;height:7px;background:rgba(255,255,255,.5);border-radius:50%;}
+  @keyframes spring-stretch{
+    0%,100%{transform:translateX(-50%) scaleY(1);}
+    30%{transform:translateX(-50%) scaleY(1.7);}
+    55%{transform:translateX(-50%) scaleY(0.6);}
+    78%{transform:translateX(-50%) scaleY(1.25);}
+  }
+  @keyframes mass-bob{
+    0%,100%{top:52px;}
+    30%{top:80px;}
+    55%{top:34px;}
+    78%{top:62px;}
+  }
+
+  /* 변수 안내 박스 */
+  .var-intro{
+    background:#fafaf6;
+    border:1px dashed var(--c10);
+    border-radius:10px;padding:14px 16px;margin:16px 0;
+    display:flex;gap:12px;align-items:center;}
+  .var-intro .vi-icon{font-size:26px;flex-shrink:0;}
+  .var-intro .vi-text{flex:1;font-size:14.5px;line-height:1.6;color:var(--ink);}
+  .var-intro .vi-text b{color:var(--c10);}
+
+  /* 5편 튕김 vs 10편 복원력 비교 */
+  .cmp{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0;}
+  .cmp-card{
+    flex:1;min-width:200px;border-radius:10px;
+    padding:14px 16px;background:#fafaf6;border:1px solid var(--border-s);}
+  .cmp-bounce{border-left:3px solid var(--c5);}
+  .cmp-spring{border-left:3px solid var(--c10);}
+  .cmp-head{font-family:'Jua',sans-serif;font-size:15px;margin-bottom:8px;color:var(--ink);}
+  .cmp-bounce .cmp-head{color:var(--c5);}
+  .cmp-spring .cmp-head{color:var(--c10);}
+  .cmp-line{font-size:13.5px;margin:5px 0;line-height:1.5;color:var(--soft);}
+  .cmp-line b{color:var(--ink);}
+
+  /* 코드 찾기 활동 */
+  .quiz-list{
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 18px;margin:16px 0;
+    font-size:14.5px;line-height:2.2;}
+  .quiz-list .hint{color:var(--c10);font-size:13px;}
+  .quiz-list code{background:#fff;padding:1px 7px;border-radius:5px;font-size:13px;border:1px solid var(--border);}
+
+  /* 참고자료 */
+  .meta-box{
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 18px;margin-top:14px;
+    font-size:13px;color:var(--soft);line-height:1.95;}
+  .meta-box b{font-size:13.5px;color:var(--ink);}
+  .meta-box a{color:var(--c10);text-decoration:underline;text-underline-offset:2px;}
+
+  /* CTA */
+  .cta{
+    background:linear-gradient(180deg,#e9f1ee,#fafaf6);
+    border:1px solid var(--border-s);
+    border-radius:12px;padding:22px 20px;
+    text-align:center;margin:22px 0;}
+  .cta h3{font-family:'Jua',sans-serif;font-size:20px;color:var(--ink);margin-bottom:6px;}
+  .cta p{font-size:15px;color:var(--soft);margin-bottom:12px;}
+  .cta a.go{
+    display:inline-block;background:var(--c10);color:#fff;
+    font-family:'Jua',sans-serif;font-size:16px;
+    padding:10px 22px;border-radius:30px;
+    box-shadow:0 3px 0 #46695d;
+    transition:transform .12s ease;text-decoration:none;}
+  .cta a.go:hover{transform:translateY(-1px);}
+
+  /* 직접 해보기 — 인터랙티브 데모 */
+  .try-demo{
+    background:#fff;border:1px solid var(--border);
+    border-radius:12px;padding:16px 16px 14px;margin:16px 0 6px;}
+  .try-demo .demo-title{
+    font-family:'Jua',sans-serif;font-size:16px;color:var(--ink);
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .try-demo .demo-title .pill{
+    background:var(--c10);color:#fff;font-family:'Jua',sans-serif;
+    font-size:11px;padding:2px 9px;border-radius:20px;letter-spacing:.5px;}
+  .try-canvas-wrap{
+    position:relative;background:linear-gradient(180deg,var(--sky1),var(--sky2));
+    border-radius:10px;overflow:hidden;outline:none;cursor:pointer;}
+  .try-canvas-wrap:focus{box-shadow:0 0 0 3px rgba(95,141,126,.40);}
+  .try-canvas-wrap canvas{display:block;width:100%;height:auto;}
+  .try-hud{
+    position:absolute;top:8px;left:10px;
+    font-family:'Jua',sans-serif;font-size:13px;
+    background:rgba(255,255,255,.85);color:var(--ink);
+    padding:3px 10px;border-radius:14px;}
+  .try-hud.vel{
+    top:8px;left:auto;right:10px;
+    background:rgba(95,141,126,.18);color:var(--ink);}
+  .try-focus-msg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    text-align:center;padding:0 18px;
+    font-family:'Jua',sans-serif;font-size:14.5px;color:var(--ink);
+    background:rgba(255,255,255,.55);pointer-events:none;
+    opacity:0;transition:opacity .15s ease;}
+  .try-canvas-wrap.idle .try-focus-msg{opacity:1;}
+  .try-controls{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;}
+  .try-controls button{
+    font-family:'Jua',sans-serif;font-size:14px;
+    background:var(--c10);color:#fff;border:none;
+    padding:7px 16px;border-radius:20px;
+    box-shadow:0 2px 0 #46695d;cursor:pointer;
+    transition:transform .1s ease;}
+  .try-controls button:active{transform:translateY(1px);box-shadow:0 1px 0 #46695d;}
+  .try-controls button.secondary{
+    background:#fff;color:var(--ink);
+    border:1px solid var(--border);box-shadow:0 2px 0 var(--border);}
+  .try-controls button.secondary:active{box-shadow:0 1px 0 var(--border);}
+  .try-controls .ctl-sliders{
+    display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin-left:auto;}
+  .try-controls .speed-row{
+    display:flex;align-items:center;gap:8px;
+    font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);}
+  .try-controls .speed-row input[type=range]{width:96px;}
+  .try-controls .speed-row b{color:var(--ink);min-width:30px;display:inline-block;text-align:center;}
+  .try-hint{
+    font-family:'Gowun Dodum',sans-serif;font-size:13.5px;
+    color:var(--soft);margin-top:8px;line-height:1.65;}
+  .try-hint kbd{
+    display:inline-block;background:#fafaf6;
+    border:1px solid var(--border);border-bottom-width:2px;
+    border-radius:5px;padding:1px 8px;
+    font-family:'Jua',sans-serif;font-size:12px;color:var(--ink);}
+  @media (max-width:560px){
+    .try-controls .ctl-sliders{margin-left:0;width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="home-link">🏠</a>
+
+<header>
+  <span class="badge">엔트리 게임 만들기 · 10편</span>
+  <h1>스프링·진동<br>— 통통! 제자리로 돌아오는 힘</h1>
+  <p class="sub">고무줄을 당겼다 놓으면 왜 통통 떨릴까? 늘어난 만큼 잡아당기는 힘의 비밀 🪀</p>
+</header>
+
+<div class="stage">
+  <div class="anchor10"></div>
+  <div class="spring10"></div>
+  <div class="mass10"></div>
+  <div class="ground"></div>
+</div>
+
+<div class="wrap">
+
+  <section class="card">
+    <p class="big">🏀 5편에서 공은 바닥에 <b>부딪히는 순간</b> 딱 한 번 튕겼죠? 그런데 <b>트램펄린</b>이나 <b>고무줄</b>은 좀 달라요 — 당겨져 있는 <b>내내</b> 계속 제자리로 잡아당겨요!</p>
+
+    <p>고무줄을 <b>쭉 당겼다 놓으면</b> 제자리로 돌아오고, 너무 빨리 와서 중심을 <b>지나쳤다가 다시</b> 돌아오며 <b>통통 떨려요(진동)</b>. 오늘은 <b>늘어난 만큼 잡아당기는 힘</b>(복원력)으로 통통 떨리는 스프링을 만들어봐요. 그리고 이 ‘중심으로 당기는 힘’은 <b>11편 원운동</b>에서 다시 만나요! 🪀</p>
+
+    <div class="legend">
+      <div class="entry-block" data-block='{"shape":"stack","category":"START",   "marker":false,"contents":[{"type":"text","value":"시작"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"FLOW",    "marker":false,"contents":[{"type":"text","value":"흐름(반복·만일)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"MOVING",  "marker":false,"contents":[{"type":"text","value":"움직임"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"JUDGE",   "marker":false,"contents":[{"type":"text","value":"판단"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"VARIABLE","marker":false,"contents":[{"type":"text","value":"자료(변수)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"CALC",    "marker":false,"contents":[{"type":"text","value":"계산"}]}'></div>
+    </div>
+  </section>
+
+  <div class="goals">
+    <div class="goal-col phys">
+      <div class="goal-head">🔬 오늘 배우는 물리 개념</div>
+      <ul>
+        <li><b>후크의 법칙</b> — 늘어난 만큼 더 세게 당겨요</li>
+        <li><b>복원력</b> — 항상 <b>제자리(중심)</b> 쪽으로</li>
+        <li><b>진동</b> — 당겼다 놓으면 통통 왕복해요</li>
+        <li><b>감쇠</b> — 마찰로 떨림이 점점 작아져요 (3편 연결)</li>
+      </ul>
+    </div>
+    <div class="goal-col code">
+      <div class="goal-head">🧩 엔트리로 만드는 것</div>
+      <ul>
+        <li><b>‘기준위치’·‘속도’·‘탄성계수’</b> 변수</li>
+        <li>당기는힘 = <b>(기준위치 − 지금위치) × 탄성계수</b></li>
+        <li>속도에 힘을 더해 <b>통통 진동</b>시키기</li>
+      </ul>
+    </div>
+  </div>
+
+  <section class="card c-spring">
+    <div class="step-no">1</div>
+    <h2>직접 당겨보자</h2>
+    <p>백 마디 설명보다 한 번 해보는 게 빨라요! 아래 추를 <b>당겼다 놓아</b> 통통 떨리게 해봐요. <b>탄성계수</b>를 키우면 더 빠르게 떨리고, <b>감쇠</b>를 바꾸면 오래 떨리거나 금방 멈춰요. 어떻게 될지 먼저 예측해 보면 더 재밌어요! 🪀</p>
+
+    <div class="try-demo">
+      <div class="demo-title"><span class="pill">직접 해보기</span> 추를 당겼다 놓아 통통 진동시켜봐요!</div>
+      <div class="try-canvas-wrap idle" id="demoStage10" tabindex="0" aria-label="스프링에 매단 추가 진동하는 데모">
+        <canvas id="demoCanvas10" width="720" height="320"></canvas>
+        <div class="try-hud">늘어난 거리: <b id="demoDist10">96</b></div>
+        <div class="try-hud vel">속도: <b id="demoVel10">0.0</b></div>
+        <div class="try-focus-msg">▶ 출발 버튼을 누르거나<br>이 화면을 클릭하면 당겨둔 추를 놓아요</div>
+      </div>
+      <div class="try-controls">
+        <button id="demoRun10">▶ 출발</button>
+        <button id="demoReset10" class="secondary">↺ 처음으로</button>
+        <span class="ctl-sliders">
+          <span class="speed-row">탄성계수 <b id="demoKVal10">0.20</b>
+            <input type="range" id="demoK10" min="0.05" max="0.4" step="0.01" value="0.2" aria-label="탄성계수">
+          </span>
+          <span class="speed-row">감쇠 <b id="demoDampVal10">0.98</b>
+            <input type="range" id="demoDamp10" min="0.9" max="1.0" step="0.01" value="0.98" aria-label="감쇠">
+          </span>
+        </span>
+      </div>
+      <div class="try-hint">🪀 <b>탄성계수</b>를 키우면 더 빠르게 떨려요. <b>감쇠</b>를 <b>1.0</b>에 두면 <b>영원히</b> 통통, <b>0.9</b>로 내리면 금방 잦아들어요. 5편 공은 바닥에서만 튕겼지만, 스프링은 <b>중심을 지나칠 때마다</b> 계속 당겨져요!</div>
+    </div>
+  </section>
+
+  <section class="card c-spring">
+    <div class="step-no">2</div>
+    <h2>🔬 후크의 법칙 — 늘어난 만큼 당겨요</h2>
+    <p>스프링이나 고무줄을 <b>조금</b> 당기면 <b>살짝</b> 당겨지고, <b>많이</b> 당기면 <b>세게</b> 당겨지죠? 늘어난 길이에 <b>비례해서</b> 당기는 힘이 커져요. 이걸 <b>후크의 법칙</b>이라고 해요.</p>
+
+    <div class="tip bonus">
+      <b>📖 후크의 법칙이란?</b><br>
+      “스프링이 되돌아가려는 힘은 <b>늘어나거나 줄어든 길이에 비례</b>해요.” 2배 당기면 2배 세게, 3배 당기면 3배 세게 당겨요!<br>
+      <small style="opacity:.7;">— <a href="https://ko.wikipedia.org/wiki/%ED%9B%85_%EB%B2%95%EC%B9%99" target="_blank" rel="noopener" style="color:var(--c10);">위키백과, “훅 법칙(후크의 법칙)”</a> (내용 재작성)</small>
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 당기는 힘이 <b>k × (늘어난 길이)</b>로 딱 정해져요(k는 스프링의 단단함).<br>
+      <b>🎮 게임에서는</b> 복잡한 단위 없이 “(<b>기준위치 − 지금위치</b>)에 <b>탄성계수</b>를 곱한 만큼 속도를 더한다”로 똑같이 흉내 내요.
+    </div>
+  </section>
+
+  <section class="card c-spring">
+    <div class="step-no">3</div>
+    <h2>🔬 복원력과 진동 — 왜 통통 떨릴까?</h2>
+    <p>스프링이 당기는 힘은 항상 <b>제자리(중심)로 돌아가려는</b> 방향이에요. 그래서 이 힘을 <b>복원력</b>(되돌리는 힘)이라고 불러요. 그런데 당겨졌다 놓인 추는 중심에 도착해도 <b>속도가 남아서 그대로 지나쳐요!</b> 그러면 이번엔 반대쪽으로 늘어나고, 복원력이 다시 반대로 당기고… 이렇게 <b>왔다 갔다</b> 하는 게 <b>진동</b>이에요.</p>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 공기 마찰 때문에 떨림이 <b>점점 작아지다</b> 결국 멈춰요(감쇠 진동).<br>
+      <b>🎮 게임에서는</b> 속도에 <b>감쇠(×0.98)</b>를 곱해 똑같이 점점 잦아들게 해요. <b>1.0</b>으로 두면 (현실엔 없지만) <b>영원히</b> 통통 떨려요!
+    </div>
+
+    <div class="tip bonus">
+      <b>🔗 잠깐, 이 ‘중심으로 당기는 힘’… 어디서 또 나올까요?</b><br>
+      바로 <b>11편 원운동</b>이에요! 고무줄에 매단 공을 <b>빙빙 돌리면</b>, 고무줄이 공을 <b>중심으로 계속 당겨서</b> 동그란 길을 그려요. 그 당기는 힘이 오늘 배운 <b>복원력</b>과 똑같답니다. 오늘 잘 익혀두면 11편이 술술 풀려요! 🪐
+    </div>
+  </section>
+
+  <section class="card c-spring">
+    <div class="step-no">4</div>
+    <h2>🔁 5편 튕김 vs 10편 복원력 — 똑 닮았지만 다른</h2>
+    <p>5편의 <b>튕김</b>과 10편의 <b>복원력</b>은 둘 다 <b>탄성</b>이라 닮았어요. 하지만 <b>언제·어떻게</b> 작용하는지가 완전히 달라요. 나란히 비교해볼까요?</p>
+
+    <div class="cmp">
+      <div class="cmp-card cmp-bounce">
+        <div class="cmp-head">🏀 튕김 (5편)</div>
+        <div class="cmp-line">💥 <b>부딪히는 순간</b>에만 딱 한 번</div>
+        <div class="cmp-line">🔄 속도 방향을 <b>뒤집음</b> (× -0.7)</div>
+        <div class="cmp-line">📏 힘 크기는 <b>거리와 무관</b></div>
+        <div class="cmp-line">🪀 통통 튀다 멈춤</div>
+      </div>
+      <div class="cmp-card cmp-spring">
+        <div class="cmp-head">🪀 복원력 (10편)</div>
+        <div class="cmp-line">⏱️ 늘어난 <b>내내</b> 계속</div>
+        <div class="cmp-line">🎯 항상 <b>중심으로</b> 당김</div>
+        <div class="cmp-line">📏 <b>늘어난 만큼</b> 세게 (거리에 비례!)</div>
+        <div class="cmp-line">〰️ 중심을 지나치며 진동</div>
+      </div>
+    </div>
+
+    <div class="tip"><b>💡 한 줄로!</b> 5편 튕김은 “<b>부딪힐 때 확</b>”, 10편 복원력은 “<b>늘어난 동안 쭉</b>”. 둘 다 탄성이지만 <b>작용하는 시점</b>이 달라요!</div>
+  </section>
+
+  <section class="card c-spring">
+    <div class="step-no">5</div>
+    <h2>🧩 엔트리로 스프링 만들기</h2>
+    <p>이제 엔트리로 만들어봐요! 돌아갈 <b>‘기준위치’</b>를 정하고, 매 프레임 <b>(기준위치 − 지금위치)</b>에 비례한 만큼 <b>‘속도’</b>에 더하면, 추가 통통 떨려요. 마지막에 <b>‘감쇠’</b>를 곱하면 점점 잦아들어요.</p>
+
+    <div class="var-intro">
+      <div class="vi-icon">🪀</div>
+      <div class="vi-text">
+        변수 네 개! <b>‘기준위치’</b>는 돌아갈 <b>중심</b>(시작할 때의 y), <b>‘속도’</b>는 지금 위아래로 움직이는 빠르기, <b>‘탄성계수’</b>는 당기는 힘의 세기(<b>0.05~0.4</b>), <b>‘감쇠’</b>는 떨림을 잦아들게 하는 값(<b>0.9~1.0</b>)이에요.
+      </div>
+    </div>
+
+    <p style="font-weight:700;color:var(--soft);">▶ <b>추</b> 오브젝트의 시작 블록 안에 이렇게 쌓아주세요.</p>
+
+    <div class="entry-code" data-blocks='[
+      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+      {"shape":"stack","category":"VARIABLE","note":"지금 위치를 돌아갈 ‘중심’으로 기억!","contents":[
+        {"type":"dropdown","value":"기준위치"},{"type":"text","value":"를"},
+        {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"자신의 y 좌푯값"}]}},
+        {"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"stack","category":"VARIABLE","contents":[
+        {"type":"dropdown","value":"속도"},{"type":"text","value":"를"},
+        {"type":"input","value":"0"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"stack","category":"VARIABLE","note":"클수록 빠르게 떨려요 (0.05~0.4)","contents":[
+        {"type":"dropdown","value":"탄성계수"},{"type":"text","value":"를"},
+        {"type":"input","value":"0.2"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"stack","category":"VARIABLE","note":"1.0이면 안 멈춤 / 0.9면 금방 멈춤","contents":[
+        {"type":"dropdown","value":"감쇠"},{"type":"text","value":"를"},
+        {"type":"input","value":"0.98"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"stack","category":"MOVING","note":"아래로 60만큼 당겨놓고 시작 (늘어난 상태!)","contents":[
+        {"type":"text","value":"y 좌표를"},
+        {"type":"input","value":"-60"},{"type":"text","value":"만큼 바꾸기"}
+      ]},
+      {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+        {"shape":"stack","category":"VARIABLE","contents":[
+          {"type":"dropdown","value":"속도"},{"type":"text","value":"에"},
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+            {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+              {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"기준위치"}]}},
+              {"type":"text","value":"−"},
+              {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"자신의 y 좌푯값"}]}}
+            ]}},
+            {"type":"text","value":"×"},
+            {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"탄성계수"}]}}
+          ]}},
+          {"type":"text","value":"만큼 더하기"}
+        ]},
+        {"shape":"stack","category":"VARIABLE","contents":[
+          {"type":"dropdown","value":"속도"},{"type":"text","value":"를"},
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+            {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"속도"}]}},
+            {"type":"text","value":"×"},
+            {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"감쇠"}]}}
+          ]}},
+          {"type":"text","value":"로 정하기"}
+        ]},
+        {"shape":"stack","category":"MOVING","contents":[
+          {"type":"text","value":"y 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"속도"}]}},
+          {"type":"text","value":"만큼 바꾸기"}
+        ]}
+      ]}
+    ]'></div>
+
+    <div class="tip">
+      <b>🔬 반복 안 세 줄이 진동의 핵심이에요!</b><br>
+      ① <b>속도에 (기준위치 − 지금위치) × 탄성계수 더하기</b> — <b>늘어난 만큼</b> 중심으로 당기는 <b>복원력</b>이에요. 멀어질수록 세게 당겨요!<br>
+      ② <b>속도 × 감쇠</b> — 마찰처럼 매 프레임 살짝 줄여, 떨림이 <b>점점 작아지게</b> 해요(3편!).<br>
+      ③ <b>y 좌표를 속도만큼 바꾸기</b> — 당겨진 속도로 실제로 움직여요. 중심을 <b>지나쳐</b> 반대로 늘어나면, 이번엔 반대로 당겨서 <b>통통</b> 왕복!
+    </div>
+
+    <div class="tip bonus">
+      <b>🧪 숫자를 바꿔 봐요!</b><br>
+      ① <b>탄성계수</b> 0.2 → 0.4 : 더 <b>빠르게</b> 통통 떨려요.<br>
+      ② <b>감쇠</b> 0.98 → <b>1.0</b> : <b>영원히</b> 안 멈춰요!<br>
+      ③ <b>감쇠</b> 0.9 : 두세 번 떨고 <b>금방</b> 멈춰요.<br>
+      ④ 시작할 때 당기는 거리 <b>-60 → -120</b> : 더 <b>크게</b> 출렁여요(진폭 ↑).
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🔧 안 될 때 확인!</h2>
+    <p>따라 하다 막히면 대부분 물리가 아니라 <b>블록 실수</b>예요. 아래를 확인해 봐요.</p>
+    <div class="fix">
+      <div class="fix-title">🔧 이렇게 안 되나요?</div>
+      <ul>
+        <li><b>안 떨리고 가만히 있어요</b> → 시작할 때 <code>y 좌표를 -60 만큼 바꾸기</code>로 <b>당겨놨는지</b>(늘어난 거리가 0이면 힘도 0!), <b>‘기준위치’</b>를 시작에 한 번 정했는지 확인</li>
+        <li><b>점점 더 크게 출렁여요(터져요)</b> → <b>탄성계수가 너무 큼</b>(0.05~0.4 권장), <b>감쇠</b>(×0.98) 줄이 빠지지 않았는지 확인</li>
+        <li><b>영원히 안 멈춰요</b> → <b>감쇠</b>가 <b>1.0</b>이면 안 멈춰요. 0.98처럼 1보다 작게 하면 잦아들어요!</li>
+        <li><b>한 번 꿈틀하고 멈춰요</b> → 복원력 줄이 <b>계속 반복하기 안</b>에 있는지, <code>(기준위치 − 지금위치)</code>가 매 프레임 <b>다시 계산</b>되는지 확인</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card c-spring">
+    <div class="step-no">⭐</div>
+    <h2>⭐ 도전: 스프링으로 더 재밌게</h2>
+    <p>기본 진동이 완성됐다면, 게임에 써먹어 볼까요?</p>
+
+    <div class="tip">
+      <b>🤾 ① 트램펄린 점프대</b><br>
+      캐릭터가 발판에 <b>올라서면</b> 기준위치를 살짝 내렸다가 복원력으로 <b>통! 튕겨 올려요</b>. 5편 튕김과 달리, 눌리는 <b>동안 계속</b> 밀어 올려서 더 폭신폭신해요!
+    </div>
+
+    <div class="tip">
+      <b>↔️ ② 가로로 흔들기</b><br>
+      y 대신 <b>x</b>로 똑같이 만들면 <b>좌우로</b> 흔들리는 깃발·꼬리·젤리가 돼요. ‘기준위치’를 x좌표 기준으로 바꾸면 끝!
+    </div>
+
+    <div class="tip bonus">
+      <b>🪐 ③ 11편 미리보기 — 놓지 않고 계속 돌리면?</b><br>
+      이 ‘중심으로 당기는 힘’을 <b>x·y 양쪽</b>에 걸고 옆으로 슬쩍 밀면… 추가 중심 주위를 <b>빙글빙글</b> 돌아요! 그게 바로 <b>11편 원운동</b>이에요. 복원력이 곧 <b>구심력</b>이 되는 거죠! 🔗
+    </div>
+  </section>
+
+  <section class="card c-spring">
+    <div class="step-no">★</div>
+    <h2>🔍 배운 내용을 코드에서 찾아봐요!</h2>
+    <p>아까 만든 코드 블록을 떠올리면서 아래 질문에 답해봐요. 개념과 코드가 어떻게 연결되는지 직접 확인해보는 거예요!</p>
+
+    <div class="quiz-list">
+      <div>① 스프링의 <b>복원력</b>에 해당하는 줄은 어디예요? <span class="hint">(힌트: 기준위치 − 지금위치)</span></div>
+      <div>② <b>탄성계수</b>를 키우면 진동은 어떻게 되나요? <span class="hint">(힌트: 당기는 힘이 세지면?)</span></div>
+      <div>③ <b>감쇠</b>가 없으면(1.0) 추는 어떻게 될까요?</div>
+      <div>④ 5편 <b>튕김</b>과 가장 큰 차이는 무엇인가요? <span class="hint">(힌트: 작용하는 시점)</span></div>
+    </div>
+
+    <div class="tip bonus">
+      <b>💬 답을 확인해봐요!</b><br>
+      ① <code>속도에 (기준위치 − 지금위치) × 탄성계수 만큼 더하기</code> — 늘어난 만큼 중심으로 당겨요!<br>
+      ② <b>더 빠르게</b> 떨려요 — 당기는 힘이 세지거든요.<br>
+      ③ 힘을 하나도 안 잃어서 <b>영원히</b> 통통 떨려요.<br>
+      ④ 튕김은 <b>부딪히는 순간</b>만, 복원력은 <b>늘어난 내내</b> 작용해요!
+    </div>
+  </section>
+
+  <div class="finish">
+    <h2>🎉 10편 완성! 통통 떨리는 스프링을 만들었어요!</h2>
+    <p>10편에서 배운 걸 확인해 볼까요?</p>
+    <div class="check">
+      <div>✅ <b>후크의 법칙</b> — 늘어난 만큼 더 세게 당겨요</div>
+      <div>✅ <b>복원력</b>은 항상 <b>중심(제자리)</b>으로 향해요</div>
+      <div>✅ <b>진동</b> = 중심을 지나치며 통통 왕복</div>
+      <div>✅ <b>감쇠</b>로 떨림이 점점 잦아들어요 (1.0이면 영원히)</div>
+      <div>✅ 5편 <b>튕김</b>(순간)과 달리 복원력은 <b>지속</b>돼요</div>
+      <div>✅ 엔트리로 통통 스프링 완성!</div>
+    </div>
+    <div class="next">🪐 <b>다음은 원운동이에요!</b> 오늘 배운 ‘중심으로 당기는 힘(복원력)’이 11편에서는 <b>구심력</b>이 돼요. 고무줄에 매단 공을 빙빙 돌려, 동그란 길을 그리는 비밀을 풀어봐요!</div>
+  </div>
+
+  <div class="meta-box">
+    <b>📚 참고 자료</b><br>
+    • <a href="https://ko.wikipedia.org/wiki/%ED%9B%85_%EB%B2%95%EC%B9%99" target="_blank" rel="noopener">위키백과, “훅 법칙(후크의 법칙)”</a> — 늘어난 만큼 커지는 힘<br>
+    • <a href="https://ko.wikipedia.org/wiki/%EB%8B%A8%EC%A7%84%EB%8F%99" target="_blank" rel="noopener">위키백과, “단진동”</a> — 통통 왕복하는 진동
+  </div>
+
+  <div class="cta">
+    <h3>📘 다음 편으로 가볼까요?</h3>
+    <p>이 ‘중심으로 당기는 힘’을 놓지 않고 계속 돌리면? 빙글빙글 원운동이 돼요!</p>
+    <a class="go" href="entry-game-11-circular.html">11편 원운동 →</a>
+  </div>
+
+  <footer>
+    엔트리로 만드는 나만의 게임 · 10편 「스프링·진동」<br>
+    <span style="font-size:10px;opacity:.7;">
+      © 2026 김경환 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;">CC BY-NC-SA 4.0</a><br>
+      도트 캐릭터 © <a href="https://zerie.itch.io/tiny-rpg-character-asset-pack" target="_blank" style="color:inherit;">Zerie</a>
+    </span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const wrap       = document.getElementById('demoStage10');
+  const canvas     = document.getElementById('demoCanvas10');
+  const ctx        = canvas.getContext('2d');
+  const runBtn     = document.getElementById('demoRun10');
+  const resetBtn   = document.getElementById('demoReset10');
+  const kSlider    = document.getElementById('demoK10');
+  const kVal       = document.getElementById('demoKVal10');
+  const dampSlider = document.getElementById('demoDamp10');
+  const dampVal    = document.getElementById('demoDampVal10');
+  const distLabel  = document.getElementById('demoDist10');
+  const velLabel   = document.getElementById('demoVel10');
+
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2;
+  const anchorY = 28;
+  const restY = Math.round(H * 0.50);
+  const massR = 28;
+  const amp = 96;
+  let y = restY + amp, vel = 0, k = 0.2, damp = 0.98;
+  let running = false, phase = 'ready';
+
+  function drawSky(){
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#eef4f1'); g.addColorStop(1, '#f7faf8');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  function drawRestLine(){
+    ctx.strokeStyle = 'rgba(95,141,126,.5)'; ctx.lineWidth = 2; ctx.setLineDash([7, 6]);
+    ctx.beginPath(); ctx.moveTo(36, restY); ctx.lineTo(W - 36, restY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(70,105,93,.9)'; ctx.font = '13px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText('기준위치(중심)', W - 40, restY - 7);
+  }
+  function drawAnchor(){
+    ctx.fillStyle = '#8aa399'; ctx.fillRect(cx - 46, anchorY - 9, 92, 9);
+    ctx.fillStyle = '#7a9588'; ctx.fillRect(cx - 46, anchorY, 92, 3);
+  }
+  function drawSpring(topY, by){
+    const botY = by - massR;
+    const coils = 9, wdt = 14;
+    ctx.strokeStyle = '#9bb3a8'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx, topY);
+    const seg = (botY - topY) / coils;
+    for (let i = 0; i < coils; i++){
+      ctx.lineTo(cx + (i % 2 === 0 ? wdt : -wdt), topY + seg * (i + 0.5));
+    }
+    ctx.lineTo(cx, botY); ctx.stroke();
+  }
+  function drawMass(by){
+    ctx.fillStyle = 'rgba(0,0,0,.10)';
+    ctx.beginPath(); ctx.ellipse(cx, by + massR - 2, massR * 0.9, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#46695d';
+    ctx.beginPath(); ctx.arc(cx, by, massR, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#5f8d7e';
+    ctx.beginPath(); ctx.arc(cx - 2, by - 2, massR * 0.82, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.5)';
+    ctx.beginPath(); ctx.arc(cx - massR * 0.32, by - massR * 0.34, massR * 0.22, 0, Math.PI * 2); ctx.fill();
+  }
+  function drawStatus(){
+    if (phase !== 'done') return;
+    ctx.fillStyle = 'rgba(70,105,93,.95)'; ctx.font = 'bold 17px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('스르르… 멈췄어요!', cx, 30);
+  }
+  function render(){
+    drawSky(); drawRestLine(); drawAnchor(); drawSpring(anchorY, y); drawMass(y); drawStatus();
+    distLabel.textContent = Math.round(y - restY);
+    velLabel.textContent = (-vel).toFixed(1);
+  }
+  function updateBtn(){
+    runBtn.textContent = running ? '⏸ 멈춤' : '▶ 출발';
+    wrap.classList.toggle('idle', phase === 'ready');
+  }
+  function loop(){
+    if (!running) return;
+    const force = (restY - y) * k;
+    vel += force; vel *= damp; y += vel;
+    if (Math.abs(vel) < 0.04 && Math.abs(y - restY) < 0.4){
+      y = restY; vel = 0; running = false; phase = 'done'; render(); updateBtn(); return;
+    }
+    render();
+    requestAnimationFrame(loop);
+  }
+  function launch(){
+    if (phase === 'done'){ y = restY + amp; vel = 0; }
+    phase = 'running'; running = true; updateBtn(); requestAnimationFrame(loop);
+  }
+  function reset(){
+    y = restY + amp; vel = 0; phase = 'ready'; running = false; updateBtn(); render();
+  }
+  function toggle(){
+    if (running){ running = false; phase = 'running'; updateBtn(); }
+    else { launch(); }
+  }
+
+  runBtn.addEventListener('click', toggle);
+  resetBtn.addEventListener('click', reset);
+  kSlider.addEventListener('input', e => { k = parseFloat(e.target.value); kVal.textContent = k.toFixed(2); });
+  dampSlider.addEventListener('input', e => { damp = parseFloat(e.target.value); dampVal.textContent = damp.toFixed(2); });
+  wrap.addEventListener('click', () => { wrap.focus(); if (!running) launch(); });
+
+  reset();
+})();
+</script>
+
+<nav class="toc-sidebar">
+  <div class="toc-title">이 페이지 목차</div>
+  <ol id="toc-list"></ol>
+</nav>
+
+<script>
+(function(){
+  var hs = document.querySelectorAll('section.card h2');
+  var list = document.getElementById('toc-list');
+  if(!hs.length || !list) return;
+  hs.forEach(function(h, i){
+    if(!h.id) h.id = 'toc-' + i;
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a); list.appendChild(li);
+  });
+  var links = list.querySelectorAll('a');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = list.querySelector('a[href="#' + e.target.id + '"]');
+        if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-8% 0px -80% 0px'});
+  hs.forEach(function(h){ io.observe(h); });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>10·11편 추가 — 스프링·진동 · 원운동 — entry-guide</title>
+
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css"
+        media="(prefers-color-scheme: light)">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"
+        media="(prefers-color-scheme: dark)">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+  <script src="assets/doc.js" defer></script>
+</head>
+
+<body class="layout">
+<main>
+
+  <header class="doc-header">
+    <h1>10·11편 추가 — 스프링·진동 · 원운동</h1>
+    <div class="meta">
+      <span>작성일 2026-06-02</span>
+      <span>대상: <code>docs/entry-game-10-spring.html</code> · <code>docs/entry-game-11-circular.html</code> 신규 + 9편 강등 + 공통 배선</span>
+    </div>
+    <p class="lede">후속 물리 주제 후보 6·7순위 — <b>스프링·진동</b>(후크의 법칙·복원력)과 <b>원운동</b>(구심력) — 을 두 편으로 추가했다. 사용자 설계 의도에 따라 <b>탄성을 먼저</b> 쓰고 <b>원운동이 그것을 인용</b>하도록 구성했고, 그 인용의 물리적 근거는 <b>“스프링의 복원력 = 원운동의 구심력”</b>(둘 다 중심으로 당기는 힘)이다. 11편이 새 마지막 편이 되어 9편을 중간 편으로 강등했다.</p>
+  </header>
+
+  <div class="callout tldr">
+    <div class="callout-title">TL;DR</div>
+    <ul>
+      <li><b>물리 다리</b>: 10편의 <b>복원력</b>(늘어난 만큼 중심으로 당김, F=k·x)을 11편에서 <b>구심력</b>으로 그대로 인용 — “고무줄로 공을 돌리면 그 당기는 힘이 곧 구심력”.</li>
+      <li><b>10편 스프링·진동</b>(세이지 <code>--c10 #5f8d7e</code>·<code>.c-spring</code>): 후크의 법칙·복원력·진동·감쇠. 5편 튕김(닿는 <b>순간</b> ×-0.7)과 대비(늘어난 <b>내내</b>·거리 비례). 데모 = <b>당겼다 놓는 수직 스프링</b>.</li>
+      <li><b>11편 원운동</b>(테라코타 <code>--c11 #c0744a</code>·<code>.c-circular</code>, <b>새 마지막 편</b>): 4편 cos·sin 재사용해 <code>각도+=회전속도</code> → <code>x=반지름×cos</code>·<code>y=반지름×sin</code>. 데모 = 공전 + <b>🪢 줄 놓기 → 접선 직진</b>(3편 관성).</li>
+      <li><b>정확성 가드</b>: 선형 스프링 중심력은 일반적으로 <b>타원</b>이라, 11편 기본 구현은 운동학(각도 증가)으로 항상 깔끔한 원 — “현실 타원/나선 vs 게임 원”을 <code>.tip.real</code>로 명시. 힘 기반 궤도는 ⭐도전(10편 코드 x·y 양축).</li>
+      <li>로컬 프리뷰 검증 완료 — 블록 SVG 10편 26·11편 39·콘솔/JSON 에러 0·데모 RAF 동작·중첩 cos/sin 블록 폭 490px&lt;736 컨테이너·네비 9→10→11→index.</li>
+    </ul>
+  </div>
+
+  <h2>개요</h2>
+  <p>1~9편은 대부분 <b>직선 운동</b>(이동·가속·낙하·발사·충돌·비탈)을 다뤘다. 10·11편은 시리즈를 <b>주기적·회전 운동</b>으로 확장한다. 두 주제는 <code>dev-docs/next-steps.md</code>에 “스프링·진동(6) → 원운동(7)” 후보로 이미 적혀 있었고, 5편 「튕김·탄성」이 충돌 반사만 다뤘기에 스프링(지속 복원력)과 개념이 겹치지 않는다.</p>
+  <p>사용자의 핵심 통찰은 “두 운동은 연관이 있고, <b>탄성을 먼저</b> 쓰고 <b>원운동이 그것을 인용</b>하면 좋겠다”였다. 이는 <b>구심력 = 복원력</b>이라는 다리에 정확히 대응한다(인용 방향이 10편→11편이라 운동학적 ‘그림자=SHM’ 연결이 아닌 ‘중심력’ 연결이 자연스럽다).</p>
+
+  <h2>설계 다리 — 복원력 = 구심력</h2>
+  <div class="callout info">
+    <div class="callout-title">하나의 힘, 두 가지 이름</div>
+    <p>스프링이 늘어나면 <b>중심(기준점)으로</b> 당긴다(복원력). 물체가 옆으로 흐르는 동안 그 당김이 계속 작용하면, 직진하려던 경로가 안쪽으로 휘어 <b>원</b>이 된다 — 그 중심 방향의 힘이 <b>구심력</b>이다. 머리 위로 고무줄에 매단 공을 돌리는 장면이 두 편을 잇는다.</p>
+  </div>
+
+  <pre class="mermaid">
+flowchart LR
+  E5["5편 튕김<br/>닿는 순간 ×-0.7"] -. 대비 .-> S
+  E2["2편 속도=방향"] --> C
+  E3["3편 관성"] -- 줄 놓기 --> C
+  E4["4편 cos·sin"] -- 재사용 --> C
+  E6["6편 힘→속도"] --> S
+  S["10편 스프링<br/>복원력 F=k·x<br/>(중심으로 당김)"] == 구심력으로 재사용 ==> C["11편 원운동<br/>구심력<br/>(중심으로 당김)"]
+  </pre>
+
+  <h2>두 편의 개념 ↔ 구현</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>10편 스프링·진동</th><th>11편 원운동</th></tr></thead>
+    <tbody>
+      <tr><th>🔬 핵심 개념</th><td>후크의 법칙(늘어난 만큼 당김) · 복원력 · 진동 · 감쇠</td><td>구심력(=10편 복원력) · 방향이 계속 바뀜(2편) · 줄 놓으면 접선(3편 관성)</td></tr>
+      <tr><th>🧩 변수</th><td><code>기준위치</code> · <code>속도</code> · <code>탄성계수</code> · <code>감쇠</code></td><td><code>각도</code> · <code>반지름</code> · <code>회전속도</code></td></tr>
+      <tr><th>🧩 핵심 블록</th><td><code>속도에 (기준위치 − 자신의 y좌푯값) × 탄성계수 더하기</code></td><td><code>각도 += 회전속도</code> → <code>x = 반지름 × cos(각도)</code> · <code>y = 반지름 × sin(각도)</code></td></tr>
+      <tr><th>위치 갱신</th><td><code>y 좌표를 속도만큼 <b>바꾸기</b></code> (속도 적분)</td><td><code>x·y 좌표를 … <b>(으)로 정하기</b></code> (각도로부터 매번 재계산)</td></tr>
+      <tr><th>🖼️ 데모</th><td>당겼다 놓는 수직 스프링 — 탄성계수·감쇠 슬라이더, 기준위치 점선</td><td>중심 공전 — 반지름·회전속도 슬라이더 + 🪢 줄 놓기(접선 직진)</td></tr>
+      <tr><th>게임 맥락</th><td>트램펄린·스프링 발판·번지(발사 아닌 진동)</td><td>위성·실드·회전 톱날</td></tr>
+      <tr><th>색</th><td>세이지 <code>--c10 #5f8d7e</code> (그림자 #46695d)</td><td>테라코타 <code>--c11 #c0744a</code> (그림자 #94562f)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>5편 튕김 vs 10편 복원력</h3>
+  <p>10편 §4의 <code>.cmp</code> 비교 박스로 명시한 차별점(5편과 개념이 겹치지 않음을 학습자에게 직접 보여줌):</p>
+  <div class="compare">
+    <div class="before">
+      <h4>🏀 튕김 (5편)</h4>
+      <ul>
+        <li>부딪히는 <b>순간</b>에만 한 번</li>
+        <li>속도 방향을 <b>뒤집음</b> (×-0.7)</li>
+        <li>힘 크기는 <b>거리와 무관</b></li>
+      </ul>
+    </div>
+    <div class="after">
+      <h4>🪀 복원력 (10편)</h4>
+      <ul>
+        <li>늘어난 <b>내내</b> 계속</li>
+        <li>항상 <b>중심으로</b> 당김</li>
+        <li><b>늘어난 만큼</b> 세게 (거리 비례)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>설계 결정</h2>
+  <ol class="steps">
+    <li><strong>순서: 탄성 먼저 → 원운동이 인용</strong> 사용자 지정. 인용 방향이 10→11이므로 “복원력 = 구심력”(중심력) 연결이 자연스럽다. 역방향(원운동의 그림자 = 단진동)은 11편에서 짧은 ⭐보너스(cos·sin 사촌)로만 언급.</li>
+    <li><strong>11편 기본 구현 = 운동학(각도+cos·sin), 힘 기반은 ⭐도전</strong> 선형 중심력은 일반적으로 타원을 그린다(완벽한 원은 속도·반지름이 딱 맞을 때뿐). 그래서 “항상 깔끔한 원”이 필요한 기본 구현은 반지름 고정 + 각도 증가로 하고, 진짜 힘으로 도는 궤도(10편 코드 x·y 양축)는 ⭐도전으로 분리 — <code>물리 개념 ↔ 엔트리 구현</code> 분리 원칙(D-4)과 일치.</li>
+    <li><strong>색: 세이지(c10) + 테라코타(c11)</strong> 기존 9색·초록(<code>--green</code>)·골드와 충돌 없는 두 색을 사용자 확정. 보라 계열(c3/c8/c9)이 붐벼 원운동을 그쪽으로 두지 않고 따뜻한 테라코타로.</li>
+    <li><strong>제목: 「스프링·진동」</strong> 5편 「튕김·탄성」과 ‘탄성’ 중복을 피하고, 프로젝트 로드맵(index <code>.coming</code>·next-steps)이 이미 쓰던 이름과 일치.</li>
+  </ol>
+
+  <h2>정확성 가드</h2>
+  <div class="callout warn">
+    <div class="callout-title">현실 vs 게임 — <code>.tip.real</code>로 명시</div>
+    <ul>
+      <li><b>11편 구심력</b>: 현실의 고무줄/스프링 힘으로 도는 물체는 보통 <b>타원·나선</b>(딱 맞는 빠르기라야 원). 게임은 반지름 고정 + 각도 증가로 항상 원.</li>
+      <li><b>11편 ⭐도전(힘 기반)</b>: x·y 양축에 <code>(중심−현재)×k</code>를 더하는 방식은 처음 빠르기에 따라 타원이 됨 → 그래서 기본은 운동학임을 다시 짚음.</li>
+      <li><b>10편 후크의 법칙</b>: 현실 <code>F=k·x</code>(정확한 비례) ↔ 게임 “(기준위치−지금위치)에 탄성계수를 곱한 만큼 속도에 더한다”로 근사.</li>
+    </ul>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-title">렌더러 제약 (기존 이슈 재확인)</div>
+    <p><code>renderer.js</code>의 <code>note</code>는 <code>.entry-code</code> 최상위 블록에만 표시되고, <code>계속 반복하기</code> 같은 C블록 <b>자식</b> 블록의 <code>note</code>는 누락된다. 두 편 모두 반복문 내부 줄별 설명은 블록 뒤 <b>산문 <code>.tip</code></b>(“🔬 반복 안 세 줄이 …”)으로 처리했다. 중첩 cos/sin·복원력 reporter는 데스크톱에서 폭 490~501px로 736px 컨테이너에 들어가나, 좁은 모바일에선 가로 초과(기존 편들과 동일, 알려진 한계).</p>
+  </div>
+
+  <h2>공통 배선 (영향 범위)</h2>
+  <div class="callout impact">
+    <div class="callout-title">영향 범위</div>
+    <ul>
+      <li><code>docs/assets/styles.css</code> — <code>:root</code>에 <code>--c10</code>/<code>--c11</code>, <code>.c-spring</code>/<code>.c-circular</code> <code>.step-no</code> 규칙.</li>
+      <li><code>docs/entry-game-9-slope.html</code> — <b>완주 → 다리</b> 3곳: <code>.cta</code>(→10편), <code>.finish</code> 제목(“9편 완성”), <code>.next</code> 띠(스프링 예고).</li>
+      <li>10편 <code>.cta</code>→11편 / 11편 <code>.cta</code>→<code>index.html</code>(새 완주편).</li>
+      <li><code>docs/index.html</code> — <code>.toc-grid</code> 카드 2개, <code>.path</code> s10·s11 + dot 색, <code>.ep-10</code>/<code>.ep-11</code> 색, <code>.coming</code> “10편 후보”→“12편 후보”.</li>
+      <li><code>CLAUDE.md</code> — “9-part”→“11-part”·시리즈 체인·파일 트리. <code>fix-history.md</code>·<code>next-steps.md</code> 갱신.</li>
+    </ul>
+  </div>
+
+  <h2>검증</h2>
+  <div class="callout success">
+    <div class="callout-title">로컬 프리뷰 검증 통과</div>
+    <p>정적 서버(<code>python3 -m http.server</code>) + preview 도구로 확인.</p>
+  </div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>항목</th><th>10편</th><th>11편</th></tr></thead>
+    <tbody>
+      <tr><td>콘솔 / JSON 블록 에러</td><td>0 / 0</td><td>0 / 0</td></tr>
+      <tr><td>렌더된 블록 SVG</td><td>26</td><td>39 (중첩 cos·sin·force 포함)</td></tr>
+      <tr><td>데모 동작 (RAF)</td><td>진동 — <code>늘어난거리</code> 96 → -39 (중심 지나침), <code>속도</code> ≈41</td><td>공전 — 각도 0 → 48° / 줄 놓기 → 상태 “날아감!”(접선)</td></tr>
+      <tr><td>블록 폭 vs 컨테이너</td><td>—</td><td>490px / 501px &lt; 736px (오버플로 없음)</td></tr>
+      <tr><td>헤더 애니메이션</td><td>스프링 추 진동</td><td>위성 공전 + 줄</td></tr>
+      <tr><td>CTA 링크</td><td>→ 11편</td><td>→ index (완주)</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>그 외: 내비 체인 <b>9→10→11→index</b>, index 11카드·path s1~s11·“12편 후보”, 모바일 폭에서 페이지 가로 오버플로 0, <code>--c10</code>/<code>--c11</code> computed style 적용 확인.</p>
+
+  <h2>후속 TODO</h2>
+  <ul>
+    <li>11편 ⭐ 힘 기반 궤도를 데모/본문으로 승격 검토(현재 ⭐ 코드 한 블록). — <code>next-steps.md</code></li>
+    <li>10편 가로 스프링(x축 진동) 변형 예시 보강 여지.</li>
+    <li>(공통) 깊이 중첩 reporter의 모바일 가로 초과 — 렌더러 TODO와 동일 원인.</li>
+  </ul>
+
+  <footer class="doc-footer">
+    <h2>관련 문서</h2>
+    <ul>
+      <li><a href="entry-game-8-9-energy-slope.html">entry-game-8-9-energy-slope.html</a> — 직전 두 편(8·9편) 추가, 동일 패턴(새 마지막 편 강등·공통 배선)</li>
+      <li><a href="concept-implementation-separation.html">concept-implementation-separation.html</a> — 「물리 개념 ↔ 엔트리 구현」 분리 원칙(D-4)</li>
+      <li><a href="fix-history.md">fix-history.md</a> — 수정 히스토리 인덱스</li>
+      <li><a href="next-steps.md">next-steps.md</a> — 후속 TODO 통합 인덱스</li>
+      <li><a href="new-page-guide.html">new-page-guide.html</a> · <a href="design-guide.html">design-guide.html</a> · <a href="authoring-editing-guide.html">authoring-editing-guide.html</a> — 새 페이지 작성 3종 가이드</li>
+    </ul>
+  </footer>
+
+</main>
+<aside id="toc"></aside>
+</body>
+</html>
