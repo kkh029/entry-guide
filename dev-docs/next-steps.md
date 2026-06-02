@@ -80,9 +80,9 @@
 
 ## 완료
 
-- [x] **10편 「스프링·진동」 추가** — [entry-game-10-spring.html](entry-game-10-spring.html) · 설계 [entry-game-10-11-spring-circular.html](entry-game-10-11-spring-circular.html) (PR 생성 시 기입)
+- [x] **10편 「스프링·진동」 추가** — [entry-game-10-spring.html](entry-game-10-spring.html) · 설계 [entry-game-10-11-spring-circular.html](entry-game-10-11-spring-circular.html) (PR #29)
   후속 물리 6순위(후크의 법칙·복원력·진동·감쇠) + 당겼다 놓는 스프링 데모(탄성계수·감쇠 슬라이더, 기준위치 점선). `--c10` 세이지·`.c-spring`. 5편 튕김(닿는 순간)과 비교(`.cmp`: 늘어난 내내·거리비례). 엔트리 핵심 = `속도에 (기준위치 − 자신의 y좌푯값) × 탄성계수 더하기`. 중간 편(CTA→11편). 복원력 = 11편 구심력 전방 다리.
-- [x] **11편 「원운동」 추가** — [entry-game-11-circular.html](entry-game-11-circular.html) · 설계 [entry-game-10-11-spring-circular.html](entry-game-10-11-spring-circular.html) (PR 생성 시 기입)
+- [x] **11편 「원운동」 추가** — [entry-game-11-circular.html](entry-game-11-circular.html) · 설계 [entry-game-10-11-spring-circular.html](entry-game-10-11-spring-circular.html) (PR #29)
   후속 물리 7순위(구심력 = 10편 복원력 인용, 4편 cos·sin 재사용해 `x=반지름×cos(각도)`/`y=반지름×sin(각도)`) + 공전 + 🪢 줄 놓기(접선=3편 관성) 데모. `--c11` 테라코타·`.c-circular`. **새 마지막 편** → 9편 마무리 3곳을 10편 브리지로(완주 문구 제거), index `ep-10`/`ep-11` 카드·11스텝 path·"10편 후보"→"12편 후보", CLAUDE.md 11-part·트리. 현실 타원 vs 게임 깔끔한 원 `.tip.real`. 힘 기반 궤도 ⭐도전(10편 코드 x·y 양축).
 - [x] **8편 「에너지」 추가** — [entry-game-8-energy.html](entry-game-8-energy.html) · 설계 [entry-game-8-9-energy-slope.html](entry-game-8-9-energy-slope.html) (PR #28)
   후속 물리 3순위(위치↔운동에너지 전환·마찰 손실) + 롤러코스터 데모(출발 높이 슬라이더, `v=√(2gh)` 비선형 체감, 도달 임계 높이 200). `--c8` 인디고·`.c-indigo`. 중간 편(CTA→9편). 높이-거리 비선형은 `.tip.warn`(4편 발사힘 보정과 동형).
