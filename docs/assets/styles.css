@@ -354,24 +354,38 @@ footer{text-align:center;color:var(--muted);font-size:13px;margin-top:36px;}
   }
 }
 
-/* ───── 인터랙티브 데모 — 넓은 화면에서 본문보다 넓게 ─────
-   .try-demo는 각 편의 페이지 <style>에 정의(페이지 로컬)된다. 여기서는
-   `.wrap .try-demo` (specificity 0,2,0)로 페이지 규칙(0,1,0) 위에 덮어써
-   모든 데모 페이지(1·2·4·5·6·7편)에 일관 적용한다. 캔버스가 width:100%라
-   컨테이너 폭만 키우면 가로·세로가 비례해 함께 커진다.
-   - 중간 폭(사이드바 없음): 본문 중앙 기준 좌우 대칭 확장
-   - 큰 폭(≥1240, 우측 사이드바 있음): 사이드바를 피해 왼쪽으로만 확장
-     (왼쪽 끝 뷰포트 ~70px 고정, 오른쪽 끝은 본문 우단 유지) */
-@media (min-width:880px) and (max-width:1239.98px){
-  .wrap .try-demo{
-    width:min(94vw, 900px);
-    margin-left:50%;
-    transform:translateX(-50%);
-  }
+/* ───── 인터랙티브 데모 — 본문 폭에 맞춤 ─────
+   .try-demo는 각 편 페이지의 <style>에 정의(페이지 로컬)되며 .wrap 안에서
+   본문과 같은 폭을 차지한다. 예전에는 넓은 화면에서 본문보다 넓게 확장했지만,
+   본문 정렬을 해치고 캔버스만 과하게 옆으로 길어 보여 폭을 본문에 맞추도록
+   되돌렸다. 대신 각 캔버스의 height 속성을 키워(가로는 width:100%로 본문
+   폭에 고정) 세로로 더 크고 잘 보이게 한다. — 별도 규칙 불필요. */
+
+/* ───── 데모 터치 조작 패드 (모바일 — 키보드 대체 / 데스크톱 보조) ─────
+   1·2편(◀▶ 이동)·4편(각도·힘 조절)처럼 키보드로 조작하는 데모에서
+   키보드가 없는 모바일도 쓸 수 있도록 캔버스 하단에 누르는 버튼을 둔다.
+   세 페이지가 공유하므로 page-local이 아니라 여기에 정의한다. */
+.try-pad{
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
+  gap:14px;margin-top:12px;
 }
-@media (min-width:1240px){
-  .wrap .try-demo{
-    width:calc(100% + min(50vw - 543px, 300px));
-    margin-left:calc(-1 * min(50vw - 543px, 300px));
-  }
+.try-pad .pad-group{display:inline-flex;align-items:center;gap:8px;}
+.try-pad .pad-cap{font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);}
+.try-pad button{
+  font-family:'Jua',sans-serif;font-size:20px;line-height:1;
+  min-width:64px;height:50px;padding:0 14px;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:#fff;color:var(--ink);
+  border:1px solid var(--border);border-bottom-width:3px;border-radius:14px;
+  cursor:pointer;user-select:none;-webkit-user-select:none;
+  touch-action:none;-webkit-tap-highlight-color:transparent;
+  transition:transform .08s ease, background .12s ease;
+}
+.try-pad button:active,
+.try-pad button.pressing{
+  transform:translateY(2px);border-bottom-width:1px;background:#f3efe6;
+}
+@media (max-width:520px){
+  .try-pad{gap:10px;}
+  .try-pad button{min-width:72px;height:56px;font-size:22px;}
 }

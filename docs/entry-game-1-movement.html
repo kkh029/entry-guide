@@ -262,9 +262,9 @@
     <div class="try-demo">
       <div class="demo-title"><span class="pill">직접 해보기</span> 위 블록이 어떻게 동작하는지 눌러서 확인해 보세요!</div>
       <div class="try-canvas-wrap idle" id="demoStage1" tabindex="0" aria-label="화살표 키로 캐릭터 움직이기 데모">
-        <canvas id="demoCanvas1" width="720" height="220"></canvas>
+        <canvas id="demoCanvas1" width="720" height="300"></canvas>
         <div class="try-hud">x 좌표: <b id="demoX1">0</b></div>
-        <div class="try-focus-msg">▶ 실행 버튼을 누르거나 이 화면을 클릭한 뒤<br>← → 화살표 키를 눌러보세요</div>
+        <div class="try-focus-msg">▶ 실행을 누른 뒤<br>← → 키나 아래 ◀ ▶ 버튼으로 움직여요</div>
       </div>
       <div class="try-controls">
         <button id="demoRun1">▶ 실행</button>
@@ -273,7 +273,11 @@
           <input type="range" id="demoSpeed1" min="1" max="15" value="5" aria-label="이동 속도">
         </span>
       </div>
-      <div class="try-hint">⌨️ <kbd>←</kbd> <kbd>→</kbd> 키로 움직여요. 슬라이더로 위 블록의 <b>5</b> 숫자를 바꿔 보면 캐릭터 속도가 어떻게 달라지는지 느낄 수 있어요!</div>
+      <div class="try-pad" aria-label="캐릭터 이동 버튼">
+        <button id="demoPadL1" class="pad-dir" type="button" aria-label="왼쪽으로 이동">◀</button>
+        <button id="demoPadR1" class="pad-dir" type="button" aria-label="오른쪽으로 이동">▶</button>
+      </div>
+      <div class="try-hint">⌨️ <kbd>←</kbd> <kbd>→</kbd> 키나 위 <b>◀ ▶ 버튼</b>으로 움직여요. 슬라이더로 위 블록의 <b>5</b> 숫자를 바꿔 보면 캐릭터 속도가 어떻게 달라지는지 느낄 수 있어요!</div>
     </div>
   </section>
 
@@ -547,6 +551,23 @@
     wrap.focus();
     if (!running) setRunning(true);
   });
+
+  // 모바일 터치 조작 — 키보드 없이 ◀ ▶ 버튼을 꾹 눌러 이동
+  function holdPad(btn, dir){
+    const press = e => {
+      e.preventDefault();                 // 포커스 이동 방지(캔버스 blur 차단) + 스크롤 방지
+      if (!running) setRunning(true);
+      keys[dir] = true;
+      btn.classList.add('pressing');
+    };
+    const release = () => { keys[dir] = false; btn.classList.remove('pressing'); };
+    btn.addEventListener('pointerdown', press);
+    btn.addEventListener('pointerup', release);
+    btn.addEventListener('pointerleave', release);
+    btn.addEventListener('pointercancel', release);
+  }
+  holdPad(document.getElementById('demoPadL1'), 'left');
+  holdPad(document.getElementById('demoPadR1'), 'right');
 
   render();
 })();
