@@ -22,6 +22,8 @@
   --c7:        #9a3b52;   /* 7편 — 와인·버건디 */
   --c8:        #5a6fce;   /* 8편 — 인디고 */
   --c9:        #b061c4;   /* 9편 — 오키드(자주빛 보라) */
+  --c10:       #5f8d7e;   /* 10편 — 세이지(스프링·진동) */
+  --c11:       #c0744a;   /* 11편 — 테라코타(원운동) */
 
   /* 상태 — 절제 */
   --accent:    #b78a3a;   /* 골드(절제) — 강조 한 점 */
@@ -133,6 +135,8 @@ section.card + section.card{
 .c-wine .step-no{background:var(--c7);}
 .c-indigo .step-no{background:var(--c8);}
 .c-orchid .step-no{background:var(--c9);}
+.c-spring .step-no{background:var(--c10);}
+.c-circular .step-no{background:var(--c11);}
 
 h2{
   font-family:'Jua',sans-serif;

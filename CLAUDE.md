@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A static-HTML Korean coding-education site (초등·중학생 대상) that teaches block coding with **Entry** (entry.org.kr — a Korean Scratch-like platform). Content is a 9-part series that builds physics-based game movement step by step (이동·충돌 → 속도·가속도 → 관성·마찰 → 포물선·발사 → 튕김·탄성 → 힘·질량 → 운동량·충돌 → 에너지 → 경사면·마찰), plus a TOC and an "엔트리란?" intro page.
+A static-HTML Korean coding-education site (초등·중학생 대상) that teaches block coding with **Entry** (entry.org.kr — a Korean Scratch-like platform). Content is an 11-part series that builds physics-based game movement step by step (이동·충돌 → 속도·가속도 → 관성·마찰 → 포물선·발사 → 튕김·탄성 → 힘·질량 → 운동량·충돌 → 에너지 → 경사면·마찰 → 스프링·진동 → 원운동), plus a TOC and an "엔트리란?" intro page.
 
 Live URL: https://kkh029.github.io/entry-guide/docs/
 
@@ -63,6 +63,8 @@ docs/                           # ← served by GitHub Pages
 ├── entry-game-7-collision.html # 7편 (wine accent, --c7) — billiard-collision demo
 ├── entry-game-8-energy.html    # 8편 (indigo accent, --c8) — roller-coaster (height→speed) demo
 ├── entry-game-9-slope.html     # 9편 (orchid accent, --c9) — sled/slope (angle+surface) demo
+├── entry-game-10-spring.html   # 10편 (sage accent, --c10) — spring oscillation (pull-release) demo
+├── entry-game-11-circular.html # 11편 (terracotta accent, --c11) — circular-motion (orbit + cut-string) demo
 └── assets/styles.css           # ONLY shared file — common tokens, layout, Entry-block visuals
 
 dev-docs/                       # ← internal, not deployed (session-doc output lives here)
