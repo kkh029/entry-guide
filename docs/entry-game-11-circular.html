@@ -605,14 +605,14 @@
     } else {
       speed = Math.hypot(vx, vy) || 1; vxn = vx / speed; vyn = vy / speed;
     }
-    const velLen = Math.max(22, Math.min(speed * 5.5, 88));
+    const velLen = Math.max(14, Math.min(speed * 6.5, 90));   // 길이 ∝ 빠르기(반지름·회전속도) — 낮은 바닥값으로 반지름 차이가 그대로 보이게
     const vtx = bx + vxn * (16 + velLen), vty = by + vyn * (16 + velLen);
     arrow(bx + vxn * 16, by + vyn * 16, vtx, vty, '#2f6fb0');
     tag(vtx + vxn * 16, vty + vyn * 12, '속도', '#2f6fb0');
     // 🔴 구심력 — 길이 ∝ 안으로 당기는 힘 = 반지름 × 회전속도² (도는 중에만)
     if (mode === 'orbit'){
       const d = Math.hypot(cx - bx, cy - by) || 1, ux = (cx - bx) / d, uy = (cy - by) / d;
-      const forLen = Math.max(18, Math.min(radius * wr * wr * 72, radius * 0.82));
+      const forLen = Math.max(12, Math.min(radius * wr * wr * 72, radius * 0.82));   // 길이 ∝ 당기는 힘 — 바닥값 낮춰 반지름 차이 반영
       const ftx = bx + ux * (16 + forLen), fty = by + uy * (16 + forLen);
       arrow(bx + ux * 16, by + uy * 16, ftx, fty, '#d65a4a');
       tag(ftx + ux * 18, fty + uy * 12, '당기는 힘', '#d65a4a');
