@@ -130,19 +130,6 @@
     border:1px solid var(--border);border-bottom-width:2px;
     border-radius:5px;padding:1px 8px;
     font-family:'Jua',sans-serif;font-size:12px;color:var(--ink);}
-  .try-controls .mode-pick{
-    display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-left:auto;
-    font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);
-  }
-  .try-controls .mode-pick .mode{
-    background:#fff;color:var(--ink);
-    border:1px solid var(--border);box-shadow:0 2px 0 var(--border);
-    padding:6px 12px;font-size:13px;
-  }
-  .try-controls .mode-pick .mode:active{box-shadow:0 1px 0 var(--border);}
-  .try-controls .mode-pick .mode.on{
-    background:var(--c11);color:#fff;border-color:var(--c11);box-shadow:0 2px 0 #94562f;
-  }
   @media (max-width:560px){
     .try-controls .ctl-sliders{margin-left:0;width:100%;}
   }
@@ -249,27 +236,28 @@
     </div>
 
     <div class="try-demo">
-      <div class="demo-title"><span class="pill">직접 해보기</span> 똑같은 ‘당기는 힘’ — 옆으로 미는 속도만 바꿔봐요!</div>
-      <div class="try-canvas-wrap idle" id="demoStageLink11" tabindex="0" aria-label="스프링 복원력이 원운동의 구심력과 같음을 보여주는 데모">
+      <div class="demo-title"><span class="pill">직접 해보기</span> 도는 공의 ‘위아래 그림자’가 바로 스프링이에요!</div>
+      <div class="try-canvas-wrap idle" id="demoStageLink11" tabindex="0" aria-label="빙빙 도는 공을 위아래 방향으로만 보면 스프링 진동과 똑같음을 보여주는 데모">
         <canvas id="demoCanvasLink11" width="720" height="400"></canvas>
-        <div class="try-hud">중심까지 거리: <b id="demoDistL11">110</b></div>
-        <div class="try-hud vel">모드: <b id="demoModeL11">직선 진동</b></div>
-        <div class="try-focus-msg">▶ 실행을 누르거나<br>아래에서 모드를 골라보세요</div>
+        <div class="try-hud">각도: <b id="demoAngleL11">0</b>°</div>
+        <div class="try-hud vel">공 높이 = 스프링 높이 ✓</div>
+        <div class="try-focus-msg">▶ 실행을 누르거나<br>이 화면을 클릭해 봐요</div>
       </div>
       <div class="try-controls">
         <button id="demoRunL11">▶ 실행</button>
         <button id="demoResetL11" class="secondary">↺ 처음으로</button>
-        <span class="mode-pick" role="group" aria-label="모드 고르기">
-          <button class="mode on" type="button" data-mode="line"  id="modeLineL11">↕ 직선 진동</button>
-          <button class="mode"    type="button" data-mode="orbit" id="modeOrbitL11">🌀 원운동</button>
+        <span class="ctl-sliders">
+          <span class="speed-row">회전속도 <b id="demoOmValL11">3</b>
+            <input type="range" id="demoOmL11" min="1" max="6" step="0.5" value="3" aria-label="회전속도">
+          </span>
         </span>
       </div>
-      <div class="try-hint">🔗 <b>주황색 용수철</b>이 바로 <b>중심으로 당기는 힘</b>(=10편 복원력=구심력)이에요. 힘은 <b>똑같은데</b>, <b>옆으로 미는 처음 속도</b>가 없으면 <b>↕ 직선으로 왔다 갔다</b>(10편 스프링!), 적당히 있으면 <b>🌀 동그란 원</b>을 그려요. 🔴 빨간 화살표는 항상 <b>중심을 향하죠</b>?</div>
+      <div class="try-hint">🌀 왼쪽 공은 <b>일정한 빠르기로 빙빙</b> 돌아요. 그 공을 <b>위아래 방향에서만</b> 보면(가로 점선을 따라가 봐요!) — 오른쪽 <b>주황색 스프링</b>처럼 <b>통통 왔다 갔다</b> 해요. 두 점의 <b>높이가 항상 똑같죠</b>? 원운동의 <b>그림자</b>가 곧 10편 스프링 진동이에요! 😉</div>
     </div>
 
     <div class="tip real">
-      <b>🌍 현실에서는</b> 고무줄(스프링) 힘으로 도는 물체는 보통 <b>완벽한 원이 아니라 타원</b>을 그려요. 딱 맞는 빠르기일 때만 동그란 원이 되고, 빠르기가 안 맞으면 원이 <b>늘었다 줄었다</b> 해요.<br>
-      <b>🎮 게임에서는</b> 그 복잡한 계산 대신, <b>반지름을 고정</b>하고 <b>각도만 조금씩 키워서</b> 항상 <b>깔끔한 원</b>을 그려요(아래 🧩). 진짜 힘으로 도는 건 ⭐ 도전에서 맛봐요!
+      <b>🌍 현실에서는</b> 빙빙 도는 공을 옆에서 보면 <b>위아래로 통통</b>, 위에서 보면 <b>좌우로 통통</b> 흔들려요. 원운동 하나 안에 <b>스프링 진동 두 개</b>(좌우·위아래)가 숨어 있는 거예요 — 그래서 <b>cos·sin은 사촌</b>이랍니다.<br>
+      <b>🎮 게임에서는</b> 이걸 거꾸로 써먹어요. <b>각도만 빙빙 키우면서</b> x엔 cos, y엔 sin을 넣으면(아래 🧩) — 깔끔한 <b>원운동</b>도, 위아래로 통통 튀는 <b>스프링 진동</b>도 <b>같은 코드 하나</b>로 만들 수 있어요!
     </div>
   </section>
 
@@ -367,7 +355,7 @@
 
     <div class="tip bonus">
       <b>🌗 보너스: 도는 공의 그림자는 ‘스프링’이에요!</b><br>
-      빙글빙글 도는 공을 <b>한 방향(예: 위아래)에서만</b> 보면, 10편 스프링처럼 <b>통통 왕복</b>해요! 원운동의 <b>그림자</b>가 곧 진동이거든요. 그래서 <b>cos·sin</b>은 사촌 사이랍니다. 신기하죠? 😉
+      빙글빙글 도는 공을 <b>한 방향(예: 위아래)에서만</b> 보면, 10편 스프링처럼 <b>통통 왕복</b>해요! 원운동의 <b>그림자</b>가 곧 진동이거든요. 그래서 <b>cos·sin</b>은 사촌 사이랍니다. <b>위 2단계 데모</b>에서 가로 점선을 따라가며 직접 봤죠? 😉
     </div>
   </section>
 
@@ -634,28 +622,34 @@
 </script>
 
 <script>
-/* 🔗 스프링→원운동 연결 데모 — 10편 복원력과 똑같은 '중심으로 당기는 힘'(구심력)을
-   x·y 양쪽에 걸면, 옆 속도가 0이면 직선 진동(=10편), 적당하면 원운동이 된다. */
+/* 🌗 원운동의 '위아래 그림자' = 단진동(스프링) 데모.
+   왼쪽: 일정 각속도로 도는 공 (각도 += 회전속도, by = CY + R*sin).
+   오른쪽: 천장에 매단 스프링 + 추, 추의 높이 = 공의 높이(정확히 같은 y).
+   가운데 가로 점선 = 두 높이가 항상 같음을 보여주는 '그림자' 증거. */
 (function(){
-  const canvas    = document.getElementById('demoCanvasLink11');
+  const canvas   = document.getElementById('demoCanvasLink11');
   if (!canvas) return;
-  const ctx       = canvas.getContext('2d');
-  const wrap      = document.getElementById('demoStageLink11');
-  const runBtn    = document.getElementById('demoRunL11');
-  const resetBtn  = document.getElementById('demoResetL11');
-  const distLabel = document.getElementById('demoDistL11');
-  const modeLabel = document.getElementById('demoModeL11');
-  const modeBtns  = wrap.parentElement.querySelectorAll('.mode');
+  const ctx      = canvas.getContext('2d');
+  const wrap     = document.getElementById('demoStageLink11');
+  const runBtn   = document.getElementById('demoRunL11');
+  const resetBtn = document.getElementById('demoResetL11');
+  const omSlider = document.getElementById('demoOmL11');
+  const omVal    = document.getElementById('demoOmValL11');
+  const angLabel = document.getElementById('demoAngleL11');
 
-  const W = canvas.width, H = canvas.height;
-  const cx = W / 2, cy = H / 2;
-  const R = 110;                  // 처음 중심에서 떨어진 거리
-  const K = 0.008;                // 용수철 세기(복원력 계수) — 10편 k와 같은 역할
-  const VORB = R * Math.sqrt(K);  // 딱 동그란 원이 되는 옆 속도 (≈9.8)
-  let bx = cx + R, by = cy, vx = 0, vy = 0;
-  let mode = 'line';              // 'line'(직선 진동) | 'orbit'(원운동)
-  let trail = [];
+  const W = canvas.width, H = canvas.height;     // 720 × 400
+  const CX = 220, CY = 200, R = 110;             // 왼쪽 원: 중심·반지름
+  const BEAM_Y = 40;                             // 오른쪽 천장 보 높이
+  const SPX = 545, BOBR = 15;                    // 스프링 x, 추 반지름
+  const AXIS_X = 380;                            // 가운데 세로 기준선
+
+  let angle = 0, omega = 3;
   let running = false;
+
+  function ballPos(){
+    const r = angle * Math.PI / 180;
+    return { x: CX + R * Math.cos(r), y: CY + R * Math.sin(r) };
+  }
 
   function drawSky(){
     const g = ctx.createLinearGradient(0, 0, 0, H);
@@ -663,69 +657,78 @@
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   }
   function drawGuide(){
+    // 왼쪽 원 점선 가이드
     ctx.strokeStyle = 'rgba(192,116,74,.28)'; ctx.lineWidth = 2; ctx.setLineDash([6, 7]);
-    ctx.beginPath();
-    if (mode === 'orbit') ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    else { ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy); }
-    ctx.stroke(); ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(CX, CY, R, 0, Math.PI * 2); ctx.stroke();
+    // 가운데 세로 기준선 (운동 범위 CY-R ~ CY+R)
+    ctx.strokeStyle = 'rgba(120,130,140,.30)';
+    ctx.beginPath(); ctx.moveTo(AXIS_X, CY - R); ctx.lineTo(AXIS_X, CY + R); ctx.stroke();
+    ctx.setLineDash([]);
   }
-  function drawTrail(){
-    for (let i = 0; i < trail.length; i++){
-      const t = trail[i];
-      ctx.fillStyle = 'rgba(192,116,74,' + (i / trail.length) * 0.38 + ')';
-      ctx.beginPath(); ctx.arc(t.x, t.y, 4.5, 0, Math.PI * 2); ctx.fill();
-    }
-  }
-  function drawCoil(){
-    const dx = bx - cx, dy = by - cy, len = Math.hypot(dx, dy);
-    if (len < 6) return;
-    ctx.save();
-    ctx.translate(cx, cy); ctx.rotate(Math.atan2(dy, dx));
-    ctx.strokeStyle = '#b06a3e'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(8, 0);
-    const coils = 11, wdt = 8, span = Math.max(len - 18, 4), seg = span / coils;
-    for (let i = 0; i < coils; i++) ctx.lineTo(8 + seg * (i + 0.5), (i % 2 === 0 ? wdt : -wdt));
-    ctx.lineTo(8 + span, 0); ctx.stroke();
-    ctx.restore();
-  }
-  function drawForceArrow(){
-    const dx = cx - bx, dy = cy - by, d = Math.hypot(dx, dy);
-    if (d < 34) return;
-    const ux = dx / d, uy = dy / d;
-    const sx = bx + ux * 22, sy = by + uy * 22, ex = bx + ux * 52, ey = by + uy * 52;
-    ctx.strokeStyle = '#d65a4a'; ctx.fillStyle = '#d65a4a'; ctx.lineWidth = 3.5;
-    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke();
-    const a = Math.atan2(ey - sy, ex - sx);
-    ctx.beginPath(); ctx.moveTo(ex, ey);
-    ctx.lineTo(ex - 9 * Math.cos(a - 0.42), ey - 9 * Math.sin(a - 0.42));
-    ctx.lineTo(ex - 9 * Math.cos(a + 0.42), ey - 9 * Math.sin(a + 0.42));
-    ctx.closePath(); ctx.fill();
+  function drawTether(){
+    const p = ballPos();
+    ctx.strokeStyle = 'rgba(192,116,74,.45)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(CX, CY); ctx.lineTo(p.x, p.y); ctx.stroke();
   }
   function drawCenter(){
     ctx.fillStyle = '#8a949d';
-    ctx.beginPath(); ctx.arc(cx, cy, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(CX, CY, 7, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = 'rgba(60,70,80,.85)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('중심(손)', cx, cy + 24);
+    ctx.fillText('중심', CX, CY + R + 22);
   }
-  function drawBall(){
-    ctx.fillStyle = '#94562f';
-    ctx.beginPath(); ctx.arc(bx, by, 15, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#c0744a';
-    ctx.beginPath(); ctx.arc(bx - 1.5, by - 1.5, 15 * 0.82, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,.5)';
-    ctx.beginPath(); ctx.arc(bx - 4.5, by - 4.5, 3.4, 0, Math.PI * 2); ctx.fill();
+  function drawBeam(){
+    // 천장 보 + 빗금
+    ctx.fillStyle = '#9aa4ad';
+    ctx.fillRect(SPX - 60, BEAM_Y - 10, 120, 10);
+    ctx.strokeStyle = 'rgba(60,70,80,.35)'; ctx.lineWidth = 1.5;
+    for (let x = SPX - 56; x < SPX + 60; x += 12){
+      ctx.beginPath(); ctx.moveTo(x, BEAM_Y - 10); ctx.lineTo(x - 8, BEAM_Y - 2); ctx.stroke();
+    }
   }
+  function drawSpringV(bobY){
+    // 천장(BEAM_Y)에서 추(bobY-BOBR)까지 세로 지그재그 코일
+    const top = BEAM_Y, bottom = bobY - BOBR, span = bottom - top;
+    ctx.save();
+    ctx.strokeStyle = '#b06a3e'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(SPX, top);
+    const coils = 12, wdt = 10, seg = span / coils;
+    for (let i = 0; i < coils; i++) ctx.lineTo(SPX + (i % 2 === 0 ? wdt : -wdt), top + seg * (i + 0.5));
+    ctx.lineTo(SPX, bottom); ctx.stroke();
+    ctx.restore();
+  }
+  function drawConnector(y){
+    // 공 → 추 가로 점선 (높이가 항상 같음의 증거)
+    ctx.strokeStyle = 'rgba(214,90,74,.65)'; ctx.lineWidth = 2; ctx.setLineDash([5, 6]);
+    ctx.beginPath(); ctx.moveTo(CX + R + 6, y); ctx.lineTo(SPX, y); ctx.stroke();
+    ctx.setLineDash([]);
+    // 세로 기준선 위의 '그림자' 점
+    ctx.fillStyle = 'rgba(214,90,74,.55)';
+    ctx.beginPath(); ctx.arc(AXIS_X, y, 4.5, 0, Math.PI * 2); ctx.fill();
+  }
+  function drawCircle3(x, y, r){
+    ctx.fillStyle = '#94562f'; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#c0744a'; ctx.beginPath(); ctx.arc(x - 1.5, y - 1.5, r * 0.82, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.beginPath(); ctx.arc(x - r * 0.3, y - r * 0.3, r * 0.22, 0, Math.PI * 2); ctx.fill();
+  }
+  function drawBall(){ const p = ballPos(); drawCircle3(p.x, p.y, 16); }
+  function drawBob(bobY){ drawCircle3(SPX, bobY, BOBR); }
+
   function render(){
-    drawSky(); drawGuide(); drawTrail(); drawCoil(); drawForceArrow(); drawCenter(); drawBall();
-    distLabel.textContent = Math.round(Math.hypot(bx - cx, by - cy));
+    const p = ballPos();
+    drawSky();
+    drawGuide();
+    drawTether();
+    drawConnector(p.y);            // 공과 같은 높이 (정확히 동일 y)
+    drawBeam();
+    drawSpringV(p.y);
+    drawCenter();
+    drawBall();
+    drawBob(p.y);
+    angLabel.textContent = Math.round(((angle % 360) + 360) % 360);
   }
   function loop(){
     if (!running) return;
-    // 매 프레임 중심으로 당기는 힘 = 복원력 = 구심력 (10편과 똑같은 식을 x·y 양쪽에)
-    vx += K * (cx - bx);
-    vy += K * (cy - by);
-    bx += vx; by += vy;
-    trail.push({ x: bx, y: by }); if (trail.length > 46) trail.shift();
+    angle += omega;
     render();
     requestAnimationFrame(loop);
   }
@@ -735,29 +738,21 @@
     wrap.classList.toggle('idle', !on);
     if (on){ wrap.focus(); requestAnimationFrame(loop); }
   }
-  function applyMode(m){
-    mode = m;
-    bx = cx + R; by = cy; vx = 0; vy = (m === 'orbit') ? -VORB : 0;
-    trail = [];
-    modeBtns.forEach(b => b.classList.toggle('on', b.dataset.mode === m));
-    modeLabel.textContent = (m === 'orbit') ? '원운동' : '직선 진동';
-  }
   function reset(){
     setRunning(false);
-    applyMode(mode);
+    angle = 0;
     render();
   }
 
   runBtn.addEventListener('click', () => setRunning(!running));
   resetBtn.addEventListener('click', reset);
-  modeBtns.forEach(b => b.addEventListener('click', () => {
-    applyMode(b.dataset.mode);
-    if (!running) setRunning(true);
-  }));
+  omSlider.addEventListener('input', e => {
+    omega = parseFloat(e.target.value); omVal.textContent = omega;
+    if (!running) render();
+  });
   wrap.addEventListener('click', () => { wrap.focus(); if (!running) setRunning(true); });
 
-  applyMode('line');
-  render();
+  reset();
 })();
 </script>
 

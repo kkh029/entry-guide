@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>11편 2단계 데모 교체 — 원운동→위아래 그림자=스프링 동시 투영 — entry-guide</title>
+
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css"
+        media="(prefers-color-scheme: light)">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"
+        media="(prefers-color-scheme: dark)">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+  <script src="assets/doc.js" defer></script>
+</head>
+
+<body class="layout">
+<main>
+
+  <header class="doc-header">
+    <h1>11편 2단계 데모 교체 · 원운동 → 위아래 그림자 = 스프링 동시 투영</h1>
+    <div class="meta">
+      <span>작성일 2026-06-03</span>
+      <span>관련 PR <a href="https://github.com/kkh029/entry-guide/pulls">(생성 예정)</a></span>
+      <span>대상: <code>docs/entry-game-11-circular.html</code></span>
+    </div>
+    <p class="lede">11편 2단계(구심력) 섹션의 <b>모드 토글 데모</b>(직선 진동↔원운동을 번갈아 보여주던 <code>demoCanvasLink11</code>)를, <b>원과 스프링을 한 화면에 동시에</b> 띄우고 도는 공을 <b>위아래 축으로 투영(그림자)</b>하면 그게 곧 스프링 진동임을 가로 점선으로 증명하는 데모로 교체했다.</p>
+  </header>
+
+  <div class="callout tldr">
+    <div class="callout-title">TL;DR</div>
+    <ul>
+      <li><b>토글 → 동시 투영</b>: 한 번에 한쪽만 보이던 <code>.mode-pick</code> 토글(force 적분 <code>vx+=K·(cx−bx)</code>)을 제거하고, 왼쪽에 도는 공·오른쪽에 매단 스프링을 <b>항상 같이</b> 그린다.</li>
+      <li><b>등속 각운동(각도 기반)</b>으로 전환: <code>angle += omega</code>, <code>by = CY + R·sin(angle)</code>. 원이 항상 깔끔하고, 추의 <code>y</code>를 공의 <code>by</code>와 <b>정확히 동일</b>하게 두어 가로 점선이 수학적으로 수평이 된다.</li>
+      <li><b>그림자 증거</b>: 공→추 가로 점선 + 가운데 세로 기준선 위 그림자 점으로 "두 높이가 항상 같다"를 시각화. 4단계 보너스 팁("도는 공의 그림자는 스프링")을 글이 아닌 실제 데모로 뒷받침.</li>
+      <li><b>주변 카피 정합</b>: <code>.tip.real</code>(기존 '힘기반 타원' 설명)을 "원운동 하나에 좌우·위아래 스프링 둘이 숨어 cos·sin은 사촌 / 게임은 각도만 키워 한 코드로 원도 스프링도"로 재작성. 4단계 보너스 팁에 "위 2단계 데모에서 봤죠?" 포인터 추가.</li>
+      <li>회전속도 슬라이더(<code>demoOmL11</code>, Demo 1 패턴 재사용) 추가로 "각도 += 회전속도" 핵심 개념을 손으로 체험. 토글 전용 dead CSS(<code>.mode-pick</code> 3블록) 제거.</li>
+    </ul>
+  </div>
+
+  <h2>배경 / 이슈</h2>
+  <p>직전 PR <a href="https://github.com/kkh029/entry-guide/pull/31">#31</a>(<a href="demo-height-unify-and-new-demos.html">demo-height-unify-and-new-demos.html</a>)에서 11편에 '구심력 = 10편 복원력' 연결 데모를 신규 추가했다. 그 데모는 <b>같은 중심 당기는 힘</b>을 두고 옆 속도만 바꿔 <b>직선 진동(=10편)</b> 또는 <b>원운동</b> 중 하나를 토글로 보여주는 <b>힘 관점</b> 데모였다.</p>
+  <div class="callout issue">
+    <div class="callout-title">사용자 요청</div>
+    <ul>
+      <li>토글로 둘 중 하나만 보지 말고, <b>원과 스프링을 동시에</b> 보여달라.</li>
+      <li>도는 공의 운동을 <b>한 축으로 투영(프로젝션)</b>하면 그게 스프링과 <b>같은 운동</b>임을 보여달라.</li>
+    </ul>
+  </div>
+  <p>설계 확인(AskUserQuestion)으로 ① <b>기존 토글 데모를 교체</b>, ② <b>세로축(위아래) + 천장에 매단 스프링</b>(sin 투영)으로 합의했다.</p>
+
+  <h2>구현</h2>
+  <p>단일 파일 <code>docs/entry-game-11-circular.html</code>만 변경(빌드 없음, 자기완결 HTML). CSS는 이미 있던 <code>.ctl-sliders</code>/<code>.speed-row</code>를 재사용하므로 신규 CSS 없음.</p>
+
+  <h3>1) 데모 HTML (<code>.try-demo</code>)</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>요소</th><th>이전(토글)</th><th>이후(투영)</th></tr></thead>
+    <tbody>
+      <tr><td>demo-title</td><td>"옆으로 미는 속도만 바꿔봐요"</td><td>"도는 공의 '위아래 그림자'가 바로 스프링이에요!"</td></tr>
+      <tr><td>좌 HUD</td><td>중심까지 거리(<code>demoDistL11</code>)</td><td>각도(<code>demoAngleL11</code>)</td></tr>
+      <tr><td>우 HUD</td><td>모드(<code>demoModeL11</code>)</td><td>정적 "공 높이 = 스프링 높이 ✓"</td></tr>
+      <tr><td>컨트롤</td><td>실행·처음으로 + <code>.mode-pick</code>(직선/원)</td><td>실행·처음으로 + 회전속도 슬라이더(<code>demoOmL11</code>)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>2) JS IIFE 전면 재작성</h3>
+  <p>좌표: 왼쪽 원 중심 <code>(220,200)</code>·<code>R=110</code>, 천장 보 <code>y=40</code>, 스프링 <code>x=545</code>·추 반지름 15, 가운데 세로 기준선 <code>x=380</code>. 핵심은 <b>한 프레임 한 값</b>: <code>ballPos().y</code>를 connector·spring·bob에 모두 공유해 정합을 보장한다.</p>
+  <pre><code class="language-js">function ballPos(){
+  const r = angle * Math.PI / 180;
+  return { x: CX + R*Math.cos(r), y: CY + R*Math.sin(r) };
+}
+function loop(){
+  if (!running) return;
+  angle += omega;          // 등속 각운동 → 원은 항상 깔끔
+  render();                // render 내부에서 p.y 를 추·점선·스프링에 공유
+  requestAnimationFrame(loop);
+}</code></pre>
+  <p>드로잉 헬퍼는 기존 파일 스타일을 재사용: <code>drawSky</code> 그라데이션, <code>setLineDash</code> 점선, 3겹 공(<code>#94562f</code>/<code>#c0744a</code>/흰 하이라이트)을 <code>drawCircle3</code>로 묶어 공·추가 공유. 새로 추가: <code>drawBeam</code>(천장 보+빗금), <code>drawSpringV(bobY)</code>(천장→추 세로 지그재그, span 항상 양수라 가드 불필요), <code>drawConnector(y)</code>(공→추 가로 점선 + 기준선 위 그림자 점). 제거: <code>applyMode</code>/<code>modeBtns</code>/<code>VORB</code>/<code>K</code>/<code>drawForceArrow</code>/<code>drawCoil</code>/<code>drawTrail</code>(남으면 ReferenceError).</p>
+
+  <h3>3) 주변 카피 정합</h3>
+  <ul>
+    <li><b><code>.tip.real</code></b>(라인 ~270): 힘기반 타원 설명 → 투영 관점("원운동 하나에 좌우·위아래 스프링 둘이 숨어 cos·sin은 사촌 / 게임은 각도만 키워 한 코드로")으로 교체. 🌍/🎮 2단 포맷·해요체 유지.</li>
+    <li><b>4단계 보너스 팁</b>(라인 ~368): 기존 문장 끝에 "위 2단계 데모에서 가로 점선을 따라가며 직접 봤죠?" 한 절 추가.</li>
+    <li><b>dead CSS 제거</b>: 토글 전용 <code>.try-controls .mode-pick</code> 3개 규칙은 이 페이지에서만 쓰였으므로 페이지 <code>&lt;style&gt;</code>에서 삭제.</li>
+  </ul>
+
+  <h2>검증</h2>
+  <ul>
+    <li>제거된 ID/함수(<code>demoDistL11</code>·<code>demoModeL11</code>·<code>mode-pick</code>·<code>VORB</code>·<code>drawForceArrow</code>·<code>drawCoil</code>·<code>applyMode</code>) 잔존 참조 grep → 0.</li>
+    <li>슬라이더 ID가 Demo 1(<code>demoOmVal11</code>)과 구분(<code>demoOmValL11</code>) — 충돌 없음.</li>
+    <li>새 IIFE <code>node --check</code> 통과.</li>
+    <li><b>후속(실기기)</b>: visible 탭에서 한 바퀴 도는 동안 가로 점선이 항상 수평·추 높이=공 높이 일치, 회전속도 슬라이더 실시간 반영, 처음으로 → angle=0 복귀를 한 번 확인(hidden 탭 rAF 정지 한계).</li>
+  </ul>
+
+  <h2>후속 TODO</h2>
+  <ul>
+    <li>실기기/visible 탭에서 투영 데모 애니메이션 최종 시각 확인(점선 수평·추 추적).</li>
+    <li>(선택) 위에서 본 좌우 그림자(cos)도 함께 보여주는 2축 버전 — 정보량 vs 단순함 트레이드오프로 보류.</li>
+  </ul>
+
+</main>
+</body>
+</html>
