@@ -23,9 +23,15 @@
 출처: [demo-height-unify-and-new-demos.html](demo-height-unify-and-new-demos.html) · [demo-canvas-width-height-touch.html](demo-canvas-width-height-touch.html)
 
 - [ ] **실기기/visible 탭에서 애니메이션 최종 확인** (PR #30·#31 공통 hidden-탭 한계)
-  hidden 탭 `rAF` 정지로 실제 움직임은 시각검증 불가(배선·HUD·초기 프레임·픽셀은 검증됨). 실기기에서 1·2편 이동·4편 발사(#30), **3편 표면별 미끄러짐 거리·11편 직선↔원운동 자취**(#31)를 한 번 확인.
-- [ ] **(선택) 11편 연결 데모에 ‘옆 속도’ 슬라이더**
-  현재 직선/원 2모드. 옆으로 미는 처음 속도를 슬라이더로 주면 타원↔원 연속 변화를 보여줄 수 있음(선형 복원력 궤도가 일반적으로 타원이라는 `.tip.real`과 연결).
+  hidden 탭 `rAF` 정지로 실제 움직임은 시각검증 불가(배선·HUD·초기 프레임·픽셀은 검증됨). 실기기에서 1·2편 이동·4편 발사(#30), **3편 표면별 미끄러짐 거리**(#31)를 한 번 확인.
+
+### 11편 원운동·스프링 동시 투영 데모
+출처: [circular-motion-spring-projection-demo.html](circular-motion-spring-projection-demo.html)
+
+- [ ] **실기기/visible 탭에서 투영 데모 애니메이션 최종 확인**
+  한 바퀴 도는 동안 공→추 가로 점선이 항상 수평·추 높이=공 높이 일치·회전속도 슬라이더 실시간 반영·처음으로→angle=0 복귀(hidden 탭 rAF 정지 한계).
+- [ ] **(선택) 위에서 본 좌우 그림자(cos)도 함께 보여주는 2축 버전**
+  현재 세로축(sin) 투영만. 가로축 그림자까지 더하면 cos·sin ‘사촌’을 한눈에 보여주나, 정보량↑로 단순함과 트레이드오프 — 보류.
 
 ### 도트 캐릭터 스프라이트 (Zerie)
 출처: [character-sprites.html](character-sprites.html)
