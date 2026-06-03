@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>엔트리 게임 만들기 ⑫ 인공위성</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&family=Nanum+Gothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<script src="assets/entry-blocks/renderer.js" defer></script>
+<style>
+  /* 12편 — 헤더 스테이지 (지구 둘레를 위성이 돈다) */
+  .earth12{
+    position:absolute;left:50%;top:52px;width:30px;height:30px;border-radius:50%;
+    transform:translate(-50%,-50%);
+    background:radial-gradient(circle at 34% 30%, #5aa0e0, #2f5f9e 70%);
+    box-shadow:inset -3px -3px 0 rgba(0,0,0,.18);}
+  .earth12::after{content:"";position:absolute;top:6px;left:4px;width:9px;height:6px;
+    background:rgba(120,190,130,.75);border-radius:40%;}
+  .orbitring12{
+    position:absolute;left:50%;top:52px;width:100px;height:100px;border-radius:50%;
+    transform:translate(-50%,-50%);border:1px dashed rgba(59,90,140,.35);}
+  .orbit12{
+    position:absolute;left:50%;top:52px;width:0;height:0;
+    animation:orbit-spin12 3.6s linear infinite;}
+  .orbit12 .panel{
+    position:absolute;left:38px;top:-1.5px;width:24px;height:3px;
+    background:rgba(90,120,170,.55);border-radius:1px;}
+  .orbit12 .sat{
+    position:absolute;left:44px;top:-7px;width:14px;height:14px;border-radius:50%;
+    background:var(--c12);box-shadow:inset -2px -2px 0 #2a4268;}
+  .orbit12 .sat::after{content:"";position:absolute;top:2px;left:3px;width:4px;height:4px;background:rgba(255,255,255,.55);border-radius:50%;}
+  @keyframes orbit-spin12{to{transform:rotate(360deg);}}
+
+  /* 변수 안내 박스 */
+  .var-intro{
+    background:#fafaf6;
+    border:1px dashed var(--c12);
+    border-radius:10px;padding:14px 16px;margin:16px 0;
+    display:flex;gap:12px;align-items:center;}
+  .var-intro .vi-icon{font-size:26px;flex-shrink:0;}
+  .var-intro .vi-text{flex:1;font-size:14.5px;line-height:1.6;color:var(--ink);}
+  .var-intro .vi-text b{color:var(--c12);}
+
+  /* 코드 찾기 활동 */
+  .quiz-list{
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 18px;margin:16px 0;
+    font-size:14.5px;line-height:2.2;}
+  .quiz-list .hint{color:var(--c12);font-size:13px;}
+  .quiz-list code{background:#fff;padding:1px 7px;border-radius:5px;font-size:13px;border:1px solid var(--border);}
+
+  /* 참고자료 */
+  .meta-box{
+    background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:14px 18px;margin-top:14px;
+    font-size:13px;color:var(--soft);line-height:1.95;}
+  .meta-box b{font-size:13.5px;color:var(--ink);}
+  .meta-box a{color:var(--c12);text-decoration:underline;text-underline-offset:2px;}
+
+  /* CTA */
+  .cta{
+    background:linear-gradient(180deg,#e7edf5,#fafaf6);
+    border:1px solid var(--border-s);
+    border-radius:12px;padding:22px 20px;
+    text-align:center;margin:22px 0;}
+  .cta h3{font-family:'Jua',sans-serif;font-size:20px;color:var(--ink);margin-bottom:6px;}
+  .cta p{font-size:15px;color:var(--soft);margin-bottom:12px;}
+  .cta a.go{
+    display:inline-block;background:var(--c12);color:#fff;
+    font-family:'Jua',sans-serif;font-size:16px;
+    padding:10px 22px;border-radius:30px;
+    box-shadow:0 3px 0 #2a4268;
+    transition:transform .12s ease;text-decoration:none;}
+  .cta a.go:hover{transform:translateY(-1px);}
+
+  /* 직접 해보기 — 인터랙티브 데모 */
+  .try-demo{
+    background:#fff;border:1px solid var(--border);
+    border-radius:12px;padding:16px 16px 14px;margin:16px 0 6px;}
+  .try-demo .demo-title{
+    font-family:'Jua',sans-serif;font-size:16px;color:var(--ink);
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .try-demo .demo-title .pill{
+    background:var(--c12);color:#fff;font-family:'Jua',sans-serif;
+    font-size:11px;padding:2px 9px;border-radius:20px;letter-spacing:.5px;}
+  .try-canvas-wrap{
+    position:relative;background:#0b1020;
+    border-radius:10px;overflow:hidden;outline:none;cursor:pointer;}
+  .try-canvas-wrap:focus{box-shadow:0 0 0 3px rgba(59,90,140,.45);}
+  .try-canvas-wrap canvas{display:block;width:100%;height:auto;}
+  .try-hud{
+    position:absolute;top:8px;left:10px;
+    font-family:'Jua',sans-serif;font-size:13px;
+    background:rgba(255,255,255,.85);color:var(--ink);
+    padding:3px 10px;border-radius:14px;}
+  .try-hud.vel{
+    top:8px;left:auto;right:10px;
+    background:rgba(59,90,140,.22);color:#dce6f4;}
+  .try-focus-msg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    text-align:center;padding:0 18px;
+    font-family:'Jua',sans-serif;font-size:14.5px;color:#eaf0fb;
+    background:rgba(11,16,32,.55);pointer-events:none;
+    opacity:0;transition:opacity .15s ease;}
+  .try-canvas-wrap.idle .try-focus-msg{opacity:1;}
+  .try-controls{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;}
+  .try-controls button{
+    font-family:'Jua',sans-serif;font-size:14px;
+    background:var(--c12);color:#fff;border:none;
+    padding:7px 16px;border-radius:20px;
+    box-shadow:0 2px 0 #2a4268;cursor:pointer;
+    transition:transform .1s ease;}
+  .try-controls button:active{transform:translateY(1px);box-shadow:0 1px 0 #2a4268;}
+  .try-controls button.secondary{
+    background:#fff;color:var(--ink);
+    border:1px solid var(--border);box-shadow:0 2px 0 var(--border);}
+  .try-controls button.secondary:active{box-shadow:0 1px 0 var(--border);}
+  .try-controls .ctl-sliders{
+    display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin-left:auto;}
+  .try-controls .speed-row{
+    display:flex;align-items:center;gap:8px;
+    font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);}
+  .try-controls .speed-row input[type=range]{width:120px;}
+  .try-controls .speed-row b{color:var(--ink);min-width:30px;display:inline-block;text-align:center;}
+  .try-hint{
+    font-family:'Gowun Dodum',sans-serif;font-size:13.5px;
+    color:var(--soft);margin-top:8px;line-height:1.65;}
+  .try-hint kbd{
+    display:inline-block;background:#fafaf6;
+    border:1px solid var(--border);border-bottom-width:2px;
+    border-radius:5px;padding:1px 8px;
+    font-family:'Jua',sans-serif;font-size:12px;color:var(--ink);}
+
+  /* 속도별 궤도 안내 칩 */
+  .orbit-legend{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 2px;}
+  .orbit-legend .ob{
+    flex:1 1 150px;background:#fafaf6;border:1px solid var(--border-s);
+    border-radius:10px;padding:10px 12px;font-size:13.5px;line-height:1.55;}
+  .orbit-legend .ob b{display:block;font-family:'Jua',sans-serif;font-size:14px;margin-bottom:2px;}
+  .orbit-legend .ob.slow b{color:var(--c1);}
+  .orbit-legend .ob.just b{color:var(--green);}
+  .orbit-legend .ob.fast b{color:var(--c4);}
+  .orbit-legend .ob.esc  b{color:var(--c12);}
+
+  @media (max-width:560px){
+    .try-controls .ctl-sliders{margin-left:0;width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="home-link">🏠</a>
+
+<header>
+  <span class="badge">엔트리 게임 만들기 · 12편</span>
+  <h1>인공위성<br>— 떨어지는데 안 떨어지는 비밀</h1>
+  <p class="sub">하늘 위 인공위성은 사실 <b>매 순간 ‘떨어지고’</b> 있어요. 그런데 왜 우주에서 안 떨어질까요? 🛰️</p>
+</header>
+
+<div class="stage">
+  <div class="orbitring12"></div>
+  <div class="earth12"></div>
+  <div class="orbit12"><div class="panel"></div><div class="sat"></div></div>
+  <div class="ground"></div>
+</div>
+
+<div class="wrap">
+
+  <section class="card">
+    <p class="big">🛰️ 밤하늘에 반짝이며 지나가는 <b>인공위성</b>을 본 적 있나요? GPS 길 안내도, 일기예보도, 위성 TV도 전부 지구 둘레를 빙빙 도는 위성 덕분이에요. 그런데 이 위성들… <b>왜 떨어지지 않을까요?</b></p>
+
+    <p>놀랍게도 위성은 <b>떨어지지 않는 게 아니라, 계속 떨어지고 있어요!</b> 다만 <b>옆으로 너무 빨리</b> 가서, 떨어지는 만큼 <b>지구가 휘어 도망가</b> 영원히 못 닿는 거예요. 오늘은 <b>11편 원운동</b>과 <b>8편 중력</b>을 합쳐, “구심력의 진짜 정체”를 밝히고 지구를 도는 <b>나만의 인공위성</b>을 만들어봐요! 🌍</p>
+
+    <div class="legend">
+      <div class="entry-block" data-block='{"shape":"stack","category":"START",   "marker":false,"contents":[{"type":"text","value":"시작"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"FLOW",    "marker":false,"contents":[{"type":"text","value":"흐름(반복·만일)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"MOVING",  "marker":false,"contents":[{"type":"text","value":"움직임"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"JUDGE",   "marker":false,"contents":[{"type":"text","value":"판단"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"VARIABLE","marker":false,"contents":[{"type":"text","value":"자료(변수)"}]}'></div>
+      <div class="entry-block" data-block='{"shape":"stack","category":"CALC",    "marker":false,"contents":[{"type":"text","value":"계산"}]}'></div>
+    </div>
+  </section>
+
+  <div class="goals">
+    <div class="goal-col phys">
+      <div class="goal-head">🔬 오늘 배우는 물리 개념</div>
+      <ul>
+        <li>인공위성은 사실 <b>계속 떨어지는 중</b>(자유낙하)</li>
+        <li>옆으로 빨라서 <b>지구가 휘어 도망</b> → 영원히 떨어짐 = <b>궤도</b></li>
+        <li><b>11편 구심력의 정체 = 중력</b>! (8편 중력)</li>
+        <li><b>뉴턴의 대포</b> — 속도에 따라 추락·원·타원·탈출</li>
+        <li>높은 궤도일수록 <b>천천히</b> 돈다</li>
+      </ul>
+    </div>
+    <div class="goal-col code">
+      <div class="goal-head">🧩 엔트리로 만드는 것</div>
+      <ul>
+        <li><b>‘궤도반지름’·‘궤도속도’·‘각도’</b> 변수</li>
+        <li>11편 코드 그대로! 중심만 <b>지구</b>로</li>
+        <li>x = 궤도반지름 × <b>cos(각도)</b>, y = 궤도반지름 × <b>sin(각도)</b></li>
+        <li>⭐도전: <b>진짜 중력</b>(거리 제곱 반비례)으로 타원·추락·탈출</li>
+      </ul>
+    </div>
+  </div>
+
+  <section class="card c-satellite">
+    <div class="step-no">1</div>
+    <h2>직접 쏴 보자 — 뉴턴의 대포</h2>
+    <p>백 마디 설명보다 한 번 해보는 게 빨라요! 🚀 위성을 <b>옆으로 던지는 빠르기</b>를 정하고 발사해 봐요. 너무 느리면 지구로 <b>추락</b>, 딱 맞으면 동그란 <b>원궤도</b>(진짜 인공위성!), 더 빠르면 길쭉한 <b>타원</b>, 아주 빠르면 지구를 <b>탈출</b>해 우주로 날아가요. 어떤 속도가 ‘딱 맞는 속도’일지 먼저 예측해 봐요! 🌍</p>
+
+    <div class="try-demo">
+      <div class="demo-title"><span class="pill">직접 해보기</span> 빠르기를 정하고 위성을 발사해 봐요!</div>
+      <div class="try-canvas-wrap idle" id="demoStage12" tabindex="0" aria-label="지구 둘레를 도는 인공위성(뉴턴의 대포) 데모">
+        <canvas id="demoCanvas12" width="720" height="400"></canvas>
+        <div class="try-hud">속도: <b id="demoVHud12">2.2</b></div>
+        <div class="try-hud vel">상태: <b id="demoStatus12">준비</b></div>
+        <div class="try-focus-msg">🚀 발사 버튼을 누르거나<br>이 화면을 클릭하면 위성을 쏴요</div>
+      </div>
+      <div class="try-controls">
+        <button id="demoRun12">🚀 발사</button>
+        <button id="demoReset12" class="secondary">↺ 처음으로</button>
+        <span class="ctl-sliders">
+          <span class="speed-row">옆으로 던지는 속도 <b id="demoVVal12">2.2</b>
+            <input type="range" id="demoV12" min="1.4" max="3.4" step="0.1" value="2.2" aria-label="발사 속도">
+          </span>
+        </span>
+      </div>
+      <div class="try-hint">🔴 <b>빨간 화살표</b> = 지구가 <b>중심으로 당기는 힘(중력)</b>이에요 — 11편의 <b>구심력</b>이 바로 이 중력! 위성에 <b>가까울수록(낮은 궤도) 더 길어지죠</b>(거리 제곱 반비례). 🔵 <b>파란 화살표</b> = 위성이 <b>앞으로 가려는 속도</b>(3편 관성). 던지는 속도가 <b>딱 맞으면</b> 떨어지는 만큼 지구가 휘어 도망가서 — <b>영원히 떨어지는 원궤도</b>가 돼요! 🛰️</div>
+    </div>
+
+    <div class="orbit-legend">
+      <div class="ob slow"><b>🐢 너무 느리면</b>추락! 💥<br>휘어 내려와 지구에 부딪혀요.</div>
+      <div class="ob just"><b>🟢 딱 맞으면</b>원궤도! 🛰️<br>동그랗게 빙빙 — 진짜 인공위성!</div>
+      <div class="ob fast"><b>🥚 더 빠르면</b>타원 궤도<br>길쭉하게 가까워졌다 멀어졌다.</div>
+      <div class="ob esc"><b>🚀 아주 빠르면</b>탈출!<br>지구를 벗어나 우주로 가버려요.</div>
+    </div>
+  </section>
+
+  <section class="card c-satellite">
+    <div class="step-no">2</div>
+    <h2>🔬 인공위성은 왜 안 떨어질까?</h2>
+
+    <p>높은 산꼭대기에서 돌을 <b>그냥 떨어뜨리면</b> 발밑에 툭 떨어져요. 그런데 <b>옆으로 휙 던지면</b>? 4편에서 배운 <b>포물선</b>을 그리며 좀 더 멀리 가서 떨어지죠. 더 세게 던질수록 <b>더 멀리</b> 가서 떨어져요. 🪨</p>
+
+    <p>그럼 <b>엄청나게 세게</b> 던지면 어떻게 될까요? 돌이 떨어지는 동안 <b>지구가 둥글어서 발밑이 아래로 휘어 도망가</b> 버려요. 던지는 속도가 <b>딱 맞으면</b> — 돌이 떨어지는 만큼 지구도 딱 그만큼 휘어서, 돌은 <b>영원히 땅에 닿지 못하고</b> 지구를 빙빙 돌아요. 이게 바로 <b>궤도</b>예요! 🌍</p>
+
+    <div class="tip">
+      <b>🎯 핵심! 위성은 ‘안 떨어지는’ 게 아니라 ‘계속 떨어지는’ 거예요</b><br>
+      인공위성은 매 순간 지구로 <b>떨어지고 있어요</b>(8편 중력·자유낙하 그대로!). 단지 <b>옆으로 너무 빨라서</b>, 떨어지는 만큼 둥근 지구가 <b>휘어 비켜</b> 줄 뿐이에요. 그래서 위성 안에선 둥둥 <b>무중력</b>처럼 느껴져요 — 사실은 중력이 없는 게 아니라, 위성도 사람도 <b>똑같이 떨어지는 중</b>이라 그래요! 🛰️
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 국제우주정거장(ISS)이 약 <b>초속 7.9km</b>(시속 약 2.8만 km!)로 날아가며 90분에 한 바퀴씩 지구를 돌아요. 그 안의 우주인이 둥둥 뜨는 건 중력이 없어서가 아니라 <b>정거장과 함께 끝없이 떨어지고</b> 있어서예요.<br>
+      <b>🎮 게임에서는</b> 이 복잡한 ‘떨어지며 휘어가기’를 <b>11편 cos·sin</b>으로 깔끔하게 흉내 내요 — 각도만 빙빙 키우면 위성이 지구를 또박또박 돌거든요!
+    </div>
+  </section>
+
+  <section class="card c-satellite">
+    <div class="step-no">3</div>
+    <h2>🔬 구심력의 정체 = ‘중력’이었어요!</h2>
+
+    <div class="tip bonus">
+      <b>🔗 11편의 수수께끼를 풀 시간!</b><br>
+      11편에서 공을 빙빙 돌리려면 <b>중심으로 계속 당기는 힘(구심력)</b>이 필요했죠. 고무줄로 돌릴 땐 그 힘이 <b>고무줄의 장력</b>이었어요. 그런데 우주엔 고무줄이 없어요! 그럼 인공위성을 잡아당기는 구심력은 <b>누가</b> 줄까요? 바로 <b>지구의 중력</b>이에요. 8편에서 캐릭터를 아래로 끌어내리던 그 중력이, 위성에겐 <b>중심으로 당기는 구심력</b>이 되는 거죠! 🌍
+    </div>
+
+    <p>그러니까 11편의 <b>‘고무줄’</b>을 <b>‘중력’</b>으로 바꾸면 그대로 인공위성이에요. 손이 잡아당기는 대신 <b>지구가 잡아당기고</b>, 공 대신 <b>위성</b>이 돌 뿐이죠. 도는 원리는 11편과 <b>완전히 똑같아요</b> — 앞으로 가려는 관성(3편)과 중심으로 당기는 중력(8편)이 <b>직각</b>으로 만나서 빙글빙글! 🌀</p>
+
+    <div class="tip">
+      <b>📖 인공위성이란?</b><br>
+      “지구 둘레를 일정한 <b>궤도</b>를 따라 도는 인공 물체예요. 지구의 <b>중력</b>이 위성을 끌어당기는 <b>구심력</b> 역할을 해서, 위성은 떨어지지 않고 계속 돌 수 있어요.”<br>
+      <small style="opacity:.7;">— <a href="https://ko.wikipedia.org/wiki/%EC%9D%B8%EA%B3%B5%EC%9C%84%EC%84%B1" target="_blank" rel="noopener" style="color:var(--c12);">위키백과, “인공위성”</a> (내용 재작성)</small>
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 중력은 <b>가까울수록 세져요</b>(거리 제곱에 반비례). 그래서 낮게 도는 위성은 더 센 중력에 맞춰 <b>빨리</b> 돌아야 하고, 멀리 있는 달은 약한 중력에 맞춰 <b>천천히</b>(27일에 한 바퀴!) 돌아요.<br>
+      <b>🎮 게임에서는</b> 위 1단계 데모가 이 <b>진짜 중력</b>(빨간 화살표가 가까울수록 길어지죠?)을 그대로 계산하고, 아래 🧩 기본 코드는 <b>11편 cos·sin</b>으로 간단히 흉내 내요.
+    </div>
+  </section>
+
+  <section class="card c-satellite">
+    <div class="step-no">4</div>
+    <h2>🔬 뉴턴의 대포 — 속도가 궤도를 정한다</h2>
+    <p>약 340년 전, <b>뉴턴</b>은 재미있는 상상을 했어요. “아주 높은 산에 <b>대포</b>를 놓고 점점 세게 쏘면 어떻게 될까?” 🏔️💥 바로 위 1단계 데모가 그 상상이에요! 던지는 <b>속도</b> 하나만 바꿔도 궤도가 완전히 달라져요.</p>
+
+    <p>왜 그럴까요? 위성은 <b>앞으로 가려는 속도</b>(관성)와 <b>중심으로 떨어지는 중력</b>의 <b>줄다리기</b>를 해요. 이 둘의 <b>균형</b>에 따라 —</p>
+
+    <div class="tip">
+      <b>🎚️ 던지는 속도에 따라 궤도가 이렇게 변해요</b><br>
+      🐢 <b>너무 느리면</b> — 중력이 이겨서 휘어 내려와 <b>지구에 추락</b>해요(짧은 포물선과 똑같아요, 4편!).<br>
+      🟢 <b>딱 맞으면</b> — 관성과 중력이 <b>완벽한 균형</b>! 떨어지는 만큼 지구가 휘어 <b>동그란 원궤도</b>를 돌아요(=진짜 인공위성).<br>
+      🥚 <b>조금 더 빠르면</b> — 관성이 살짝 이겨서 멀어졌다 가까워지는 <b>길쭉한 타원</b>을 그려요.<br>
+      🚀 <b>아주 빠르면</b> — 관성이 완전히 이겨서 중력을 뿌리치고 <b>지구를 탈출</b>해 우주로 날아가요(탈출속도!).
+    </div>
+
+    <p><b>줄을 놓으면 접선으로 날아간다</b>던 11편 기억나죠? 탈출도 비슷해요 — 너무 빠르면 중력이 위성을 <b>붙잡지 못해서</b> 곧장 멀어지는 거예요. 위 데모에서 속도를 조금씩 키우며 <b>‘딱 맞는 속도’</b>를 직접 찾아봐요! 🎯</p>
+
+    <div class="tip real">
+      <b>🌍 현실에서는</b> 로켓이 위성을 <b>초속 약 7.9km</b>까지 가속해 ‘딱 맞는 속도’로 궤도에 올려요. 더 빠른 <b>초속 11.2km</b>(탈출속도)를 내면 달·화성 탐사선처럼 지구를 <b>탈출</b>하죠.<br>
+      <b>🎮 게임에서는</b> 데모처럼 속도 하나로 추락·궤도·탈출을 모두 만들 수 있어요. 슈팅 게임의 <b>유도 미사일</b>, <b>블랙홀 빨아들이기</b> 같은 효과도 다 이 원리예요!
+    </div>
+  </section>
+
+  <section class="card c-satellite">
+    <div class="step-no">5</div>
+    <h2>🧩 엔트리로 위성 돌리기</h2>
+    <p>이제 엔트리로 만들어봐요! 좋은 소식 — <b>11편 원운동 코드를 거의 그대로</b> 쓰면 돼요. 중심만 <b>지구</b>로 생각하고, 변수 이름을 위성에 맞게 바꾸면 끝! 🛰️</p>
+
+    <div class="var-intro">
+      <div class="vi-icon">🛰️</div>
+      <div class="vi-text">
+        변수 세 개! <b>‘궤도반지름’</b>은 지구에서 위성까지의 거리(=고도), <b>‘궤도속도’</b>는 한 프레임에 더할 각도, <b>‘각도’</b>는 지금까지 돈 각도예요. 지구는 화면 한가운데(0,0)에 두고, 그 둘레를 위성이 돌게 할 거예요!
+      </div>
+    </div>
+
+    <p style="font-weight:700;color:var(--soft);">▶ <b>위성</b> 오브젝트의 시작 블록 안에 이렇게 쌓아주세요.</p>
+
+    <div class="entry-code" data-blocks='[
+      {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+      {"shape":"stack","category":"VARIABLE","note":"지구에서 떨어진 거리 = 고도","contents":[
+        {"type":"dropdown","value":"궤도반지름"},{"type":"text","value":"을"},
+        {"type":"input","value":"150"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"stack","category":"VARIABLE","note":"높은 궤도일수록 작게! (천천히 돈다)","contents":[
+        {"type":"dropdown","value":"궤도속도"},{"type":"text","value":"를"},
+        {"type":"input","value":"3"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"stack","category":"VARIABLE","contents":[
+        {"type":"dropdown","value":"각도"},{"type":"text","value":"를"},
+        {"type":"input","value":"0"},{"type":"text","value":"로 정하기"}
+      ]},
+      {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+        {"shape":"stack","category":"VARIABLE","contents":[
+          {"type":"dropdown","value":"각도"},{"type":"text","value":"에"},
+          {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"궤도속도"}]}},
+          {"type":"text","value":"만큼 더하기"}
+        ]},
+        {"shape":"stack","category":"MOVING","contents":[
+          {"type":"text","value":"x 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+            {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"궤도반지름"}]}},
+            {"type":"text","value":"×"},
+            {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+              {"type":"dropdown","value":"cos"},
+              {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"각도"}]}},
+              {"type":"text","value":"의 값"}
+            ]}}
+          ]}},
+          {"type":"text","value":"(으)로 정하기"}
+        ]},
+        {"shape":"stack","category":"MOVING","contents":[
+          {"type":"text","value":"y 좌표를"},
+          {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+            {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"궤도반지름"}]}},
+            {"type":"text","value":"×"},
+            {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+              {"type":"dropdown","value":"sin"},
+              {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"각도"}]}},
+              {"type":"text","value":"의 값"}
+            ]}}
+          ]}},
+          {"type":"text","value":"(으)로 정하기"}
+        ]}
+      ]}
+    ]'></div>
+
+    <div class="tip">
+      <b>🔬 11편과 똑같은 세 줄이 위성을 돌려요!</b><br>
+      ① <b>각도에 궤도속도 더하기</b> — 매 프레임 각도를 조금씩 키워 <b>빙글</b> 돌려요.<br>
+      ② <b>x 좌표 = 궤도반지름 × cos(각도)</b> — 좌우 위치.<br>
+      ③ <b>y 좌표 = 궤도반지름 × sin(각도)</b> — 위아래 위치.<br>
+      지구 그림을 화면 가운데(0,0)에 놓으면, 위성이 그 둘레를 또박또박 돌아요. 위치를 <b>‘만큼 바꾸기’가 아니라 ‘(으)로 정하기’</b>로 매번 새로 정하는 게 포인트예요!
+    </div>
+
+    <div class="tip bonus">
+      <b>🧪 숫자를 바꿔 봐요!</b><br>
+      ① <b>궤도반지름</b> ↑ : 더 <b>높은 궤도</b>(큰 원)를 돌아요.<br>
+      ② <b>궤도속도</b> ↓ : 더 <b>천천히</b> 돌아요 — 높은 궤도는 작은 값으로! (현실의 달처럼)<br>
+      ③ <b>위성 여러 개</b> : 각도에 <b>+90·+180·+270</b>을 더한 위성을 함께 그리면, 지구 둘레에 위성 4개가 동시에 빙글빙글!<br>
+      ④ x·y에 <b>지구의 x·y 좌표</b>를 더하면, 지구가 움직여도 위성이 <b>따라다니며</b> 돌아요(달이 지구를 따라가듯).
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>🔧 안 될 때 확인!</h2>
+    <p>따라 하다 막히면 대부분 물리가 아니라 <b>블록 실수</b>예요. 아래를 확인해 봐요.</p>
+    <div class="fix">
+      <div class="fix-title">🔧 이렇게 안 되나요?</div>
+      <ul>
+        <li><b>위성이 화면 구석에 가 있어요</b> → 지구(중심)를 <b>화면 한가운데(0,0)</b>에 놓았는지, x·y를 <b>cos·sin으로 매번 다시</b> 정하는지 확인</li>
+        <li><b>안 돌고 가만히 있어요</b> → <b>계속 반복하기</b> 안에 <code>각도에 궤도속도 더하기</code>가 있는지 확인</li>
+        <li><b>궤도가 찌그러져요</b> → x에는 <b>cos</b>, y에는 <b>sin</b>을 썼는지(짝 바뀌면 찌그러져요), <b>궤도반지름</b>이 매 프레임 변하지 않는지 확인</li>
+        <li><b>너무 빨라서 끊겨 보여요</b> → <b>궤도속도</b>가 너무 큼(2~5° 권장)</li>
+        <li><b>cos·sin 값이 이상해요</b> → 각도 단위가 <b>도(°)</b>인지(4·11편과 동일) 확인</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card c-satellite">
+    <div class="step-no">⭐</div>
+    <h2>⭐ 도전: 진짜 중력으로 도는 궤도</h2>
+    <p>각도 방식은 <b>항상 깔끔한 원</b>을 그려요. 그런데 위 1단계 데모처럼 <b>진짜 중력</b>으로 돌리면, 속도에 따라 추락·타원·탈출까지 <b>저절로</b> 생겨요! 11편 ⭐도전(복원력)에서 ‘당기는 힘’을 <b>거리 제곱에 반비례</b>로 바꾸기만 하면 돼요. 🌍</p>
+
+    <div class="tip bonus">
+      <b>🔗 거리가 가까울수록 더 세게! (1 ÷ 거리²)</b><br>
+      <b>‘x속도’·‘y속도’·‘거리’·‘중력’</b> 변수를 만들고, 위성을 옆으로 슬쩍 던진 뒤(y속도 = 4), 매 프레임 <b>지구까지의 거리</b>를 재서 <b>가까울수록 더 센 힘</b>으로 중심을 향해 당겨요. 그러면 위성이 <b>저절로</b> 궤도를 돌아요!
+      <div class="entry-code" style="margin:10px 0 0;" data-blocks='[
+        {"shape":"hat","category":"START","icon":"play","contents":[{"type":"text","value":"시작하기 버튼을 클릭했을 때"}]},
+        {"shape":"stack","category":"VARIABLE","contents":[
+          {"type":"dropdown","value":"x속도"},{"type":"text","value":"를"},
+          {"type":"input","value":"0"},{"type":"text","value":"로 정하기"}
+        ]},
+        {"shape":"stack","category":"VARIABLE","note":"옆으로 슬쩍 던지기 (접선 속도)","contents":[
+          {"type":"dropdown","value":"y속도"},{"type":"text","value":"를"},
+          {"type":"input","value":"4"},{"type":"text","value":"로 정하기"}
+        ]},
+        {"shape":"cblock","category":"FLOW","contents":[{"type":"text","value":"계속 반복하기"}],"statements":[
+          {"shape":"stack","category":"VARIABLE","note":"지구까지의 거리 재기","contents":[
+            {"type":"dropdown","value":"거리"},{"type":"text","value":"를"},
+            {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"dropdown","value":"지구"},{"type":"text","value":"까지의 거리"}]}},
+            {"type":"text","value":"로 정하기"}
+          ]},
+          {"shape":"stack","category":"VARIABLE","note":"가까울수록 세게! 거리 제곱에 반비례","contents":[
+            {"type":"dropdown","value":"중력"},{"type":"text","value":"을"},
+            {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+              {"type":"input","value":"700"},{"type":"text","value":"÷"},
+              {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+                {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"거리"}]}},
+                {"type":"text","value":"×"},
+                {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"거리"}]}}
+              ]}}
+            ]}},
+            {"type":"text","value":"로 정하기"}
+          ]},
+          {"shape":"stack","category":"VARIABLE","note":"지구(중심) 쪽으로 당기기","contents":[
+            {"type":"dropdown","value":"x속도"},{"type":"text","value":"에"},
+            {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+              {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+                {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+                  {"type":"input","value":"0"},{"type":"text","value":"−"},
+                  {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"자신의 x 좌푯값"}]}}
+                ]}},
+                {"type":"text","value":"÷"},
+                {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"거리"}]}}
+              ]}},
+              {"type":"text","value":"×"},
+              {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"중력"}]}}
+            ]}},
+            {"type":"text","value":"만큼 더하기"}
+          ]},
+          {"shape":"stack","category":"VARIABLE","contents":[
+            {"type":"dropdown","value":"y속도"},{"type":"text","value":"에"},
+            {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+              {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+                {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[
+                  {"type":"input","value":"0"},{"type":"text","value":"−"},
+                  {"type":"block","block":{"shape":"reporter","category":"CALC","contents":[{"type":"text","value":"자신의 y 좌푯값"}]}}
+                ]}},
+                {"type":"text","value":"÷"},
+                {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"거리"}]}}
+              ]}},
+              {"type":"text","value":"×"},
+              {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"중력"}]}}
+            ]}},
+            {"type":"text","value":"만큼 더하기"}
+          ]},
+          {"shape":"stack","category":"MOVING","contents":[
+            {"type":"text","value":"x 좌표를"},
+            {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"x속도"}]}},
+            {"type":"text","value":"만큼 바꾸기"}
+          ]},
+          {"shape":"stack","category":"MOVING","contents":[
+            {"type":"text","value":"y 좌표를"},
+            {"type":"block","block":{"shape":"reporter","category":"VARIABLE","contents":[{"type":"text","value":"y속도"}]}},
+            {"type":"text","value":"만큼 바꾸기"}
+          ]}
+        ]}
+      ]'></div>
+    </div>
+
+    <div class="tip real">
+      <b>🌍 현실처럼</b> 이 방식은 처음 던지는 속도(y속도)에 따라 <b>원·타원·추락·탈출</b>이 모두 나와요 — 위 1단계 데모가 바로 이 코드예요! y속도를 <b>4보다 작게</b> 하면 추락, <b>크게</b> 하면 타원, <b>아주 크게</b> 하면 탈출! 케플러가 발견한 진짜 행성 궤도랍니다. 🪐
+    </div>
+
+    <div class="tip">
+      <b>🛰️ 다른 도전</b><br>
+      ① <b>달과 지구</b> — 지구 둘레를 도는 달을, 다시 그 달 둘레를 도는 작은 위성으로! (중심을 달 위치로)<br>
+      ② <b>발사 게임</b> — 마우스로 위성을 던져 ‘딱 맞는 속도’로 궤도에 올리면 성공!
+    </div>
+  </section>
+
+  <section class="card c-satellite">
+    <div class="step-no">★</div>
+    <h2>🔍 배운 내용을 코드에서 찾아봐요!</h2>
+    <p>아까 만든 코드 블록을 떠올리면서 아래 질문에 답해봐요. 개념과 코드가 어떻게 연결되는지 직접 확인해보는 거예요!</p>
+
+    <div class="quiz-list">
+      <div>① 인공위성을 잡아당기는 <b>구심력</b>의 정체는 무엇인가요? <span class="hint">(힌트: 8편…)</span></div>
+      <div>② 위성은 사실 <b>떨어지고 있을까요</b>, 떨어지지 않는 걸까요?</div>
+      <div>③ 던지는 속도가 <b>너무 빠르면</b> 위성은 어떻게 되나요?</div>
+      <div>④ <b>궤도반지름</b>을 키우면 궤도는 어떻게 되나요?</div>
+    </div>
+
+    <div class="tip bonus">
+      <b>💬 답을 확인해봐요!</b><br>
+      ① <b>지구의 중력</b> — 8편 중력이 곧 11편 구심력이었어요!<br>
+      ② <b>계속 떨어지고</b> 있어요 — 다만 옆으로 빨라서 지구가 휘어 도망갈 뿐!<br>
+      ③ 중력을 뿌리치고 지구를 <b>탈출</b>해 우주로 날아가요(탈출속도).<br>
+      ④ 더 <b>높은 궤도</b>(큰 원)를 돌아요 — 그리고 더 천천히!
+    </div>
+  </section>
+
+  <div class="finish">
+    <h2>🎉 시리즈 완주! 1~12편을 다 해냈어요!</h2>
+    <p>땅 위 캐릭터부터 우주를 도는 인공위성까지 — 게임 물리의 모든 것을 배웠어요. 12편에서 배운 걸 확인해 볼까요?</p>
+    <div class="check">
+      <div>✅ 인공위성은 ‘안 떨어지는’ 게 아니라 <b>계속 떨어지는</b> 중</div>
+      <div>✅ 옆으로 빨라서 <b>지구가 휘어 도망</b> → 궤도!</div>
+      <div>✅ <b>구심력의 정체 = 지구 중력</b> (11편+8편)</div>
+      <div>✅ <b>뉴턴의 대포</b> — 속도가 추락·원·타원·탈출을 정해요</div>
+      <div>✅ 11편 <b>cos·sin 코드 그대로</b>로 위성을 돌려요</div>
+      <div>✅ ⭐ 진짜 중력(거리 제곱 반비례)으로 케플러 궤도까지!</div>
+    </div>
+    <div class="next">🚀 <b>이제 진짜 여러분 차례예요!</b> 1~12편의 물리 블록 — 이동·속도·가속도·관성·마찰·중력·발사·탄성·힘·질량·운동량·충돌·에너지·경사면·스프링·원운동·<b>인공위성</b> — 을 자유롭게 조합하면 <b>땅부터 우주까지 거의 모든 게임</b>을 만들 수 있어요. 여러분만의 작품을 만들어보세요!</div>
+  </div>
+
+  <div class="meta-box">
+    <b>📚 참고 자료</b><br>
+    • <a href="https://ko.wikipedia.org/wiki/%EC%9D%B8%EA%B3%B5%EC%9C%84%EC%84%B1" target="_blank" rel="noopener">위키백과, “인공위성”</a> — 지구 둘레를 도는 인공 물체<br>
+    • <a href="https://ko.wikipedia.org/wiki/%EA%B6%A4%EB%8F%84" target="_blank" rel="noopener">위키백과, “궤도”</a> — 중력으로 도는 길<br>
+    • <a href="https://ko.wikipedia.org/wiki/%ED%83%88%EC%B6%9C_%EC%86%8D%EB%8F%84" target="_blank" rel="noopener">위키백과, “탈출 속도”</a> — 중력을 뿌리치는 속도
+  </div>
+
+  <div class="cta">
+    <h3>🏠 시리즈를 모두 마쳤어요!</h3>
+    <p>1~12편의 물리 블록을 조합해서 나만의 게임을 만들어봐요!</p>
+    <a class="go" href="index.html">🏠 목차로 돌아가기</a>
+  </div>
+
+  <footer>
+    엔트리로 만드는 나만의 게임 · 12편 「인공위성」<br>
+    <span style="font-size:10px;opacity:.7;">
+      © 2026 김경환 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;">CC BY-NC-SA 4.0</a><br>
+      도트 캐릭터 © <a href="https://zerie.itch.io/tiny-rpg-character-asset-pack" target="_blank" style="color:inherit;">Zerie</a>
+    </span>
+  </footer>
+</div>
+
+<script>
+/* 🛰️ 뉴턴의 대포 — 진짜 중력(거리 제곱 반비례)으로 도는 인공위성 데모.
+   위성을 r0=150 위치에서 위쪽으로 속도 v로 발사. 중력가속도 = GM / r² (지구 중심 방향).
+   v가 작으면 추락, v_circ(=√(GM/r0))이면 원궤도, 더 크면 타원, √2·v_circ 이상이면 탈출. */
+(function(){
+  const wrap     = document.getElementById('demoStage12');
+  const canvas   = document.getElementById('demoCanvas12');
+  if (!canvas) return;
+  const ctx      = canvas.getContext('2d');
+  const runBtn   = document.getElementById('demoRun12');
+  const resetBtn = document.getElementById('demoReset12');
+  const vSlider  = document.getElementById('demoV12');
+  const vVal     = document.getElementById('demoVVal12');
+  const vHud     = document.getElementById('demoVHud12');
+  const statLabel= document.getElementById('demoStatus12');
+
+  const W = canvas.width, H = canvas.height;     // 720 × 400
+  const cx = W / 2, cy = H / 2;
+  const RE = 38;                                 // 지구 반지름(픽셀)
+  const R0 = 150;                                // 발사 지점 거리
+  const V_CIRC = 2.2;                            // 이 거리에서 원궤도가 되는 속도
+  const GM = V_CIRC * V_CIRC * R0;               // 중력 상수 (≈ 726)
+  const SUB = 4;                                 // 한 프레임당 적분 횟수(안정성)
+
+  let v0 = 2.2;
+  let x = cx + R0, y = cy, vx = 0, vy = -v0;
+  let trail = [];
+  let running = false, phase = 'ready';
+  let stars = [];
+
+  function makeStars(){
+    stars = [];
+    for (let i = 0; i < 70; i++){
+      stars.push({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.3 + 0.3, a: Math.random() * 0.5 + 0.3 });
+    }
+  }
+  function drawSpace(){
+    ctx.fillStyle = '#0b1020'; ctx.fillRect(0, 0, W, H);
+    for (const s of stars){
+      ctx.fillStyle = 'rgba(255,255,255,' + s.a + ')';
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  function drawOrbitGuide(){
+    ctx.strokeStyle = 'rgba(120,160,220,.30)'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 7]);
+    ctx.beginPath(); ctx.arc(cx, cy, R0, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  function drawEarth(){
+    const g = ctx.createRadialGradient(cx - 12, cy - 12, 6, cx, cy, RE);
+    g.addColorStop(0, '#6fb0ea'); g.addColorStop(1, '#235a9a');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, RE, 0, Math.PI * 2); ctx.fill();
+    // 대륙 느낌의 초록 얼룩
+    ctx.fillStyle = 'rgba(96,170,110,.85)';
+    ctx.beginPath(); ctx.arc(cx - 10, cy - 6, 9, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 12, cy + 8, 7, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 4, cy - 14, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(60,80,100,.4)'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('지구', cx, cy + RE + 18);
+  }
+  function drawTrail(){
+    for (let i = 0; i < trail.length; i++){
+      const t = trail[i];
+      ctx.fillStyle = 'rgba(140,180,235,' + (i / trail.length) * 0.6 + ')';
+      ctx.beginPath(); ctx.arc(t.x, t.y, 2.4, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  function drawSat(){
+    // 태양전지판
+    ctx.strokeStyle = '#6f86b8'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(x - 13, y); ctx.lineTo(x + 13, y); ctx.stroke();
+    ctx.fillStyle = '#5a78b0';
+    ctx.fillRect(x - 13, y - 4, 7, 8); ctx.fillRect(x + 6, y - 4, 7, 8);
+    // 본체
+    ctx.fillStyle = '#e8eef8';
+    ctx.beginPath(); ctx.arc(x, y, 5.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(120,150,200,.9)';
+    ctx.beginPath(); ctx.arc(x, y, 2.4, 0, Math.PI * 2); ctx.fill();
+  }
+  function arrow(sx, sy, ex, ey, color){
+    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 3.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke();
+    const a = Math.atan2(ey - sy, ex - sx);
+    ctx.beginPath(); ctx.moveTo(ex, ey);
+    ctx.lineTo(ex - 10 * Math.cos(a - 0.42), ey - 10 * Math.sin(a - 0.42));
+    ctx.lineTo(ex - 10 * Math.cos(a + 0.42), ey - 10 * Math.sin(a + 0.42));
+    ctx.closePath(); ctx.fill();
+  }
+  function drawForces(){
+    const dx = cx - x, dy = cy - y;
+    const r = Math.hypot(dx, dy) || 1;
+    // 🔴 중력 — 길이 ∝ GM/r² (가까울수록 길어짐)
+    const a = GM / (r * r);
+    const fLen = Math.max(16, Math.min(a * 950, 110));
+    arrow(x + (dx / r) * 8, y + (dy / r) * 8, x + (dx / r) * (8 + fLen), y + (dy / r) * (8 + fLen), '#e85a4a');
+    // 🔵 속도 — 길이 ∝ |v|
+    const sp = Math.hypot(vx, vy) || 1;
+    const vLen = Math.max(14, Math.min(sp * 18, 80));
+    arrow(x + (vx / sp) * 8, y + (vy / sp) * 8, x + (vx / sp) * (8 + vLen), y + (vy / sp) * (8 + vLen), '#5aa0ea');
+  }
+  function render(){
+    drawSpace(); drawOrbitGuide(); drawTrail(); drawEarth(); drawSat();
+    if (phase !== 'done') drawForces();
+    wrap.classList.toggle('idle', phase === 'ready');
+  }
+  function physics(){
+    for (let i = 0; i < SUB; i++){
+      const dt = 1 / SUB;
+      const dx = cx - x, dy = cy - y;
+      const r = Math.hypot(dx, dy) || 1;
+      const a = GM / (r * r);
+      vx += a * (dx / r) * dt;
+      vy += a * (dy / r) * dt;
+      x += vx * dt; y += vy * dt;
+    }
+  }
+  function loop(){
+    if (!running) return;
+    physics();
+    trail.push({ x: x, y: y }); if (trail.length > 240) trail.shift();
+    const r = Math.hypot(cx - x, cy - y);
+    if (r < RE + 4){ running = false; phase = 'done'; statLabel.textContent = '추락! 💥'; render(); updateBtn(); return; }
+    if (x < -80 || x > W + 80 || y < -80 || y > H + 80){ running = false; phase = 'done'; statLabel.textContent = '우주로 탈출! 🚀'; render(); updateBtn(); return; }
+    statLabel.textContent = '도는 중 🛰️';
+    render();
+    requestAnimationFrame(loop);
+  }
+  function updateBtn(){
+    runBtn.textContent = running ? '⏸ 멈춤' : '🚀 발사';
+  }
+  function launch(){
+    x = cx + R0; y = cy; vx = 0; vy = -v0; trail = [];
+    phase = 'running'; running = true; statLabel.textContent = '도는 중 🛰️';
+    updateBtn(); requestAnimationFrame(loop);
+  }
+  function reset(){
+    running = false; phase = 'ready';
+    x = cx + R0; y = cy; vx = 0; vy = -v0; trail = [];
+    statLabel.textContent = '준비'; updateBtn(); render();
+  }
+  function toggle(){
+    if (running){ running = false; phase = 'running'; updateBtn(); }
+    else { launch(); }
+  }
+
+  runBtn.addEventListener('click', toggle);
+  resetBtn.addEventListener('click', reset);
+  vSlider.addEventListener('input', e => {
+    v0 = parseFloat(e.target.value);
+    vVal.textContent = v0.toFixed(1); vHud.textContent = v0.toFixed(1);
+    if (!running){ vy = -v0; render(); }
+  });
+  wrap.addEventListener('click', () => { wrap.focus(); if (!running) launch(); });
+
+  makeStars();
+  reset();
+})();
+</script>
+
+<nav class="toc-sidebar">
+  <div class="toc-title">이 페이지 목차</div>
+  <ol id="toc-list"></ol>
+</nav>
+
+<script>
+(function(){
+  var hs = document.querySelectorAll('section.card h2');
+  var list = document.getElementById('toc-list');
+  if(!hs.length || !list) return;
+  hs.forEach(function(h, i){
+    if(!h.id) h.id = 'toc-' + i;
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a); list.appendChild(li);
+  });
+  var links = list.querySelectorAll('a');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = list.querySelector('a[href="#' + e.target.id + '"]');
+        if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-8% 0px -80% 0px'});
+  hs.forEach(function(h){ io.observe(h); });
+})();
+</script>
+
+</body>
+</html>

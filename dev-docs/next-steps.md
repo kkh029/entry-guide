@@ -19,6 +19,14 @@
 
 ## 대기
 
+### 12편 인공위성
+출처: [entry-game-12-satellite.html](entry-game-12-satellite.html)
+
+- [ ] **(선택) 뉴턴의 대포 데모에 ‘딱 맞는 속도’ 마커 추가**
+  원궤도가 되는 속도(v_circ≈2.2) 위치에 슬라이더 눈금/표식을 주면 ‘딱 맞는 속도 찾기’가 쉬워짐. 정보량↑ 트레이드오프.
+- [ ] **실기기/visible 탭에서 데모 애니메이션 최종 확인**
+  추락/원/타원/탈출 전환·🔴중력 화살표가 가까울수록 길어지는지(hidden 탭 rAF 정지 한계).
+
 ### 데모 높이·구름·3·11편 신규 데모
 출처: [demo-height-unify-and-new-demos.html](demo-height-unify-and-new-demos.html) · [demo-canvas-width-height-touch.html](demo-canvas-width-height-touch.html)
 
@@ -53,10 +61,10 @@
 출처: [concept-implementation-separation.html](concept-implementation-separation.html)
 
 - [ ] **후속 물리 주제 편 추가 (남은 주제)**
-  ✅ 1순위 힘·질량 = 6편, ✅ 2순위 운동량·충돌 = 7편, ✅ 3순위 에너지 = 8편, ✅ 4순위 경사면·마찰 = 9편, ✅ 6순위 스프링·진동 = 10편, ✅ 7순위 원운동 = 11편으로 완료. 남은 우선순위: 공기저항·낙하산(5) → 빛 반사(8).
+  ✅ 1순위 힘·질량 = 6편, ✅ 2순위 운동량·충돌 = 7편, ✅ 3순위 에너지 = 8편, ✅ 4순위 경사면·마찰 = 9편, ✅ 6순위 스프링·진동 = 10편, ✅ 7순위 원운동 = 11편 + 그 응용으로 인공위성 = 12편 완료. 남은 우선순위: 공기저항·낙하산(5) → 빛 반사(8).
   각 주제의 게임 아이디어·배울 개념·코딩 요소 상세는 [review_20260529.md](review_20260529.md) "추가로 다루면 좋은 주제 제안"(5~8순위) 참조.
-- [ ] **12편 후보 — 점수·게임 규칙 또는 공기저항/빛 반사** — 출처: [entry-game-11-circular.html](entry-game-11-circular.html)
-  물리 10·11편(스프링·원운동)까지 완료. 「점수·게임 규칙」(코인·적·체력·레벨)은 계속 이월 중. index "12편 후보"에 점수·게임 규칙 / 공기저항·낙하산 / 빛 반사 노출. 물리를 더 할지 게임 완성도로 갈지 선택.
+- [ ] **13편 후보 — 점수·게임 규칙 또는 공기저항/빛 반사** — 출처: [entry-game-12-satellite.html](entry-game-12-satellite.html)
+  물리 10·11·12편(스프링·원운동·인공위성)까지 완료. 「점수·게임 규칙」(코인·적·체력·레벨)은 계속 이월 중. index "13편 후보"에 점수·게임 규칙 / 공기저항·낙하산 / 빛 반사 노출. 물리를 더 할지 게임 완성도로 갈지 선택.
 - [ ] **9편 진짜 sin 블록/데모 보강** — 출처: [entry-game-9-slope.html](entry-game-9-slope.html)
   ⭐ 도전의 `경사기울기 = 중력 × sin(경사각)`을 본문 기본 코드/데모로 승격 검토(현재는 ⭐ 한 블록만).
 - [ ] **8편 점프대 포물선 2nd 코드 보강** — 출처: [entry-game-8-energy.html](entry-game-8-energy.html)
@@ -94,6 +102,8 @@
 
 ## 완료
 
+- [x] **12편 「인공위성」 추가** — [entry-game-12-satellite.html](entry-game-12-satellite.html) · 설계 [entry-game-12-satellite.html](entry-game-12-satellite.html) (PR 생성 예정)
+  11편 구심력의 정체 = 8편 중력임을 밝히는 종합 편. 중심 통찰 "위성은 안 떨어지는 게 아니라 계속 떨어지는 중"(자유낙하+접선속도→지구가 휘어 도망=궤도), 무중력 오개념 교정. 시그니처 데모 = 뉴턴의 대포(진짜 1/r² 중력 적분, 발사 속도 하나로 추락·원·타원·탈출). 기본 구현은 11편 cos·sin 그대로(중심만 지구), ⭐도전 = `중력 = 700 ÷ (거리×거리)`로 진짜 궤도. `--c12` 미드나잇 블루·`.c-satellite`. **새 마지막 편** → 11편 마무리(완주→11편 클리어·CTA→12편), index `ep-12` 카드·s12 path·"12편 후보"→"13편 후보".
 - [x] **데모 높이 400 통일 + 가로 액션 빈 하늘 구름 배경** — [demo-height-unify-and-new-demos.html](demo-height-unify-and-new-demos.html) (PR #31)
   PR #30의 미해결 TODO(6·7편 빈 하늘) 해소 — 가로 액션 차등 높이(1·2편 300·6·7편 360)를 거두고 **전 편 400 통일**, 늘어난 상단을 `drawClouds()`(저채도 구름 3개, 1·2·3·6·7편 공통)로 채움.
 - [x] **6편 ‘시작 대기’ 오버레이 잔류 버그 수정** — [demo-height-unify-and-new-demos.html](demo-height-unify-and-new-demos.html) (PR #31)

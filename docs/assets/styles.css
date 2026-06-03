@@ -24,6 +24,7 @@
   --c9:        #b061c4;   /* 9편 — 오키드(자주빛 보라) */
   --c10:       #5f8d7e;   /* 10편 — 세이지(스프링·진동) */
   --c11:       #c0744a;   /* 11편 — 테라코타(원운동) */
+  --c12:       #3b5a8c;   /* 12편 — 미드나잇 블루(인공위성) */
 
   /* 상태 — 절제 */
   --accent:    #b78a3a;   /* 골드(절제) — 강조 한 점 */
@@ -137,6 +138,7 @@ section.card + section.card{
 .c-orchid .step-no{background:var(--c9);}
 .c-spring .step-no{background:var(--c10);}
 .c-circular .step-no{background:var(--c11);}
+.c-satellite .step-no{background:var(--c12);}
 
 h2{
   font-family:'Jua',sans-serif;
