@@ -215,7 +215,14 @@
           </span>
         </span>
       </div>
-      <div class="try-hint">🔵 <b>파란 화살표</b> = 공이 <b>앞으로 계속 가려는 관성</b>(속도 방향), 🔴 <b>빨간 화살표</b> = <b>안으로 당기는 힘</b>(구심력)이에요. 둘이 항상 <b>직각(90°)</b>이죠? 그래서 빠르기는 그대로, 방향만 빙글 틀어요. <kbd>🪢 줄 놓기</kbd>를 누르면 — <b>빨간 화살표(당기는 힘)가 사라지고</b>, 공은 <b>파란 화살표 방향(접선)으로 곧장 날아가요</b>(3편 관성!). <b>회전속도</b>·<b>반지름</b> 슬라이더도 바꿔 봐요. 🪐</div>
+      <div class="try-hint">🔵 <b>파란 화살표</b> = 공이 <b>앞으로 계속 가려는 속도</b>(관성), 🔴 <b>빨간 화살표</b> = <b>안으로 당기는 힘</b>(구심력)이에요. 둘이 항상 <b>직각(90°)</b>이죠? 그래서 빠르기는 그대로, 방향만 빙글 틀어요. 🎚️ <b>회전속도</b>를 키워 봐요 — 🔵 속도는 <b>비례해서</b>, 🔴 당기는 힘은 <b>더 빠르게(제곱으로)</b> 길어져요! <kbd>🪢 줄 놓기</kbd>를 누르면 — <b>빨간 화살표가 사라지고</b> 공은 <b>파란 화살표 방향(접선)으로 곧장 날아가요</b>(3편 관성!). 🪐</div>
+    </div>
+
+    <div class="tip bonus">
+      <b>🎚️ 회전속도를 키우면 두 화살표가 어떻게 변할까요?</b><br>
+      • 🔵 <b>앞으로 가는 속도 = 반지름 × 회전속도</b> — 회전속도를 <b>2배</b>로 하면 속도도 <b>2배</b>로 길어져요.<br>
+      • 🔴 <b>안으로 당기는 힘 = 반지름 × 회전속도 × 회전속도</b> — 회전속도를 <b>2배</b>로 하면 힘은 <b>4배(제곱)</b>로 더 세져요!<br>
+      그래서 <b>빨리 돌릴수록 줄을 훨씬 더 세게</b> 잡아야 해요. <b>반지름</b>을 키워도 둘 다 세지고요. 🎢 놀이공원 회전 놀이기구가 빠를수록 몸이 더 세게 바깥으로 쏠리는 것도 같은 이유랍니다!
     </div>
   </section>
 
@@ -581,25 +588,34 @@
   function tag(x, y, text, color){
     ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const w = ctx.measureText(text).width + 10;
+    x = Math.max(w / 2 + 2, Math.min(x, W - w / 2 - 2));   // 라벨이 캔버스 밖으로 안 나가게
+    y = Math.max(11, Math.min(y, H - 11));
     ctx.fillStyle = 'rgba(255,255,255,.82)';
     ctx.fillRect(x - w / 2, y - 9, w, 18);
     ctx.fillStyle = color; ctx.fillText(text, x, y + 1);
     ctx.textBaseline = 'alphabetic';
   }
   function drawForces(){
-    // 🔵 관성(속도) — 공이 앞으로 계속 가려는 방향(접선). 도는 중·날아갈 때 모두 표시
-    let vxn, vyn;
-    if (mode === 'orbit'){ const r = angle * Math.PI / 180; vxn = -Math.sin(r); vyn = Math.cos(r); }
-    else { const s = Math.hypot(vx, vy) || 1; vxn = vx / s; vyn = vy / s; }
-    const VL = 54, vtx = bx + vxn * (16 + VL), vty = by + vyn * (16 + VL);
+    const wr = omega * Math.PI / 180;
+    // 🔵 속도(관성) — 길이 ∝ 앞으로 가는 빠르기 = 반지름 × 회전속도
+    let vxn, vyn, speed;
+    if (mode === 'orbit'){
+      const r = angle * Math.PI / 180; vxn = -Math.sin(r); vyn = Math.cos(r);
+      speed = radius * wr;
+    } else {
+      speed = Math.hypot(vx, vy) || 1; vxn = vx / speed; vyn = vy / speed;
+    }
+    const velLen = Math.max(22, Math.min(speed * 5.5, 88));
+    const vtx = bx + vxn * (16 + velLen), vty = by + vyn * (16 + velLen);
     arrow(bx + vxn * 16, by + vyn * 16, vtx, vty, '#2f6fb0');
-    tag(vtx + vxn * 17, vty + vyn * 13, '관성', '#2f6fb0');
-    // 🔴 구심력 — 안으로 당기는 힘(중심 방향). 줄이 붙어 있을 때(도는 중)만 존재
+    tag(vtx + vxn * 16, vty + vyn * 12, '속도', '#2f6fb0');
+    // 🔴 구심력 — 길이 ∝ 안으로 당기는 힘 = 반지름 × 회전속도² (도는 중에만)
     if (mode === 'orbit'){
       const d = Math.hypot(cx - bx, cy - by) || 1, ux = (cx - bx) / d, uy = (cy - by) / d;
-      const CL = 46, ctx2 = bx + ux * (16 + CL), cty = by + uy * (16 + CL);
-      arrow(bx + ux * 16, by + uy * 16, ctx2, cty, '#d65a4a');
-      tag(ctx2 + ux * 22, cty + uy * 14, '당기는 힘', '#d65a4a');
+      const forLen = Math.max(18, Math.min(radius * wr * wr * 72, radius * 0.82));
+      const ftx = bx + ux * (16 + forLen), fty = by + uy * (16 + forLen);
+      arrow(bx + ux * 16, by + uy * 16, ftx, fty, '#d65a4a');
+      tag(ftx + ux * 18, fty + uy * 12, '당기는 힘', '#d65a4a');
     }
   }
   function render(){
