@@ -215,7 +215,7 @@
           </span>
         </span>
       </div>
-      <div class="try-hint">🪐 <b>회전속도</b>를 키우면 빨리 돌고, <b>반지름</b>을 키우면 큰 원! <kbd>🪢 줄 놓기</kbd>를 누르면 — 공이 원을 안 따라가고 <b>그 순간 방향(접선)으로 곧장 날아가요</b>(3편 관성!). 진짜 고무줄을 놓으면 정확히 이렇게 돼요.</div>
+      <div class="try-hint">🔵 <b>파란 화살표</b> = 공이 <b>앞으로 계속 가려는 관성</b>(속도 방향), 🔴 <b>빨간 화살표</b> = <b>안으로 당기는 힘</b>(구심력)이에요. 둘이 항상 <b>직각(90°)</b>이죠? 그래서 빠르기는 그대로, 방향만 빙글 틀어요. <kbd>🪢 줄 놓기</kbd>를 누르면 — <b>빨간 화살표(당기는 힘)가 사라지고</b>, 공은 <b>파란 화살표 방향(접선)으로 곧장 날아가요</b>(3편 관성!). <b>회전속도</b>·<b>반지름</b> 슬라이더도 바꿔 봐요. 🪐</div>
     </div>
   </section>
 
@@ -569,10 +569,43 @@
     ctx.fillStyle = 'rgba(255,255,255,.5)';
     ctx.beginPath(); ctx.arc(bx - 5, by - 5, 3.6, 0, Math.PI * 2); ctx.fill();
   }
+  function arrow(sx, sy, ex, ey, color){
+    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 4; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey); ctx.stroke();
+    const a = Math.atan2(ey - sy, ex - sx);
+    ctx.beginPath(); ctx.moveTo(ex, ey);
+    ctx.lineTo(ex - 11 * Math.cos(a - 0.42), ey - 11 * Math.sin(a - 0.42));
+    ctx.lineTo(ex - 11 * Math.cos(a + 0.42), ey - 11 * Math.sin(a + 0.42));
+    ctx.closePath(); ctx.fill();
+  }
+  function tag(x, y, text, color){
+    ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const w = ctx.measureText(text).width + 10;
+    ctx.fillStyle = 'rgba(255,255,255,.82)';
+    ctx.fillRect(x - w / 2, y - 9, w, 18);
+    ctx.fillStyle = color; ctx.fillText(text, x, y + 1);
+    ctx.textBaseline = 'alphabetic';
+  }
+  function drawForces(){
+    // 🔵 관성(속도) — 공이 앞으로 계속 가려는 방향(접선). 도는 중·날아갈 때 모두 표시
+    let vxn, vyn;
+    if (mode === 'orbit'){ const r = angle * Math.PI / 180; vxn = -Math.sin(r); vyn = Math.cos(r); }
+    else { const s = Math.hypot(vx, vy) || 1; vxn = vx / s; vyn = vy / s; }
+    const VL = 54, vtx = bx + vxn * (16 + VL), vty = by + vyn * (16 + VL);
+    arrow(bx + vxn * 16, by + vyn * 16, vtx, vty, '#2f6fb0');
+    tag(vtx + vxn * 17, vty + vyn * 13, '관성', '#2f6fb0');
+    // 🔴 구심력 — 안으로 당기는 힘(중심 방향). 줄이 붙어 있을 때(도는 중)만 존재
+    if (mode === 'orbit'){
+      const d = Math.hypot(cx - bx, cy - by) || 1, ux = (cx - bx) / d, uy = (cy - by) / d;
+      const CL = 46, ctx2 = bx + ux * (16 + CL), cty = by + uy * (16 + CL);
+      arrow(bx + ux * 16, by + uy * 16, ctx2, cty, '#d65a4a');
+      tag(ctx2 + ux * 22, cty + uy * 14, '당기는 힘', '#d65a4a');
+    }
+  }
   function render(){
     drawSky(); drawGuide();
     if (mode === 'orbit') drawTether();
-    drawTrail(); drawCenter(); drawBall();
+    drawTrail(); drawCenter(); drawBall(); drawForces();
     angLabel.textContent = Math.round(((angle % 360) + 360) % 360);
   }
   function updateBtn(){
