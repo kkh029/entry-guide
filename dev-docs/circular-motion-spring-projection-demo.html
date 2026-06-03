@@ -113,6 +113,19 @@ function loop(){
   </ul>
   <p><b>release 연동</b>: 줄 놓기를 누르면 <code>mode='released'</code>가 되어 🔴 구심력 화살표가 자동으로 사라지고 🔵 관성만 남아, 공이 그 방향(접선)으로 곧장 날아가는 3편 관성을 시각적으로 확인시킨다(별도 분기 없이 기존 mode 플래그 재사용). 두 화살표는 모든 각도에서 직각(<code>dot=0</code> 수학 검증), 라벨은 캔버스 밖으로 나가지 않음(off-canvas 0px 검증). 1단계 <code>.try-hint</code>도 두 화살표·줄 놓기 설명으로 재작성.</p>
 
+  <h3>화살표 길이를 물리량에 비례 — 회전속도·속도·힘의 관계 시각화</h3>
+  <p>화살표를 그린 뒤 사용자가 "<b>회전속도와 당기는 힘·앞으로 가는 속도 사이의 연관관계</b>가 보여야 한다"고 추가 요청. 고정 길이였던 두 화살표를 <b>실제 물리량에 비례</b>하도록 바꿨다.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>화살표</th><th>물리량</th><th>회전속도 2배 → ?</th></tr></thead>
+    <tbody>
+      <tr><td>🔵 속도(관성)</td><td><code>v = 반지름 × 회전속도</code> (<code>radius·wr</code>)</td><td><b>2배</b> (비례)</td></tr>
+      <tr><td>🔴 구심력(당기는 힘)</td><td><code>a = 반지름 × 회전속도²</code> (<code>radius·wr²</code>)</td><td><b>4배</b> (제곱)</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>표시용으로 <code>velLen = clamp(v·5.5, 22, 88)</code>, <code>forLen = clamp(a·72, 18, 반지름·0.82)</code>(힘 화살표가 중심을 넘지 않도록 상한). 회전속도를 키우면 🔵는 비례, 🔴는 제곱으로 길어져 <b>고속에선 힘 화살표가 속도 화살표를 추월</b>한다 — "빨리 돌릴수록 줄을 훨씬 더 세게 잡아야 한다"가 눈에 보인다. 가변 길이로 라벨이 화면을 벗어날 수 있어 <code>tag()</code>에 캔버스 내 위치 클램프를 추가했다. 1단계에 <code>v=R×회전속도 / 힘=R×회전속도²</code>(2배→4배, 회전 놀이기구 비유) <code>.tip.bonus</code>를 추가하고, 화살표 라벨을 '관성'→'속도'로 바꿔 크기 의미를 분명히 했다.</p>
+
   <h2>검증</h2>
   <ul>
     <li>제거된 ID/함수(<code>demoDistL11</code>·<code>demoModeL11</code>·<code>mode-pick</code>·<code>VORB</code>·<code>drawForceArrow</code>·<code>drawCoil</code>·<code>applyMode</code>) 잔존 참조 grep → 0.</li>
