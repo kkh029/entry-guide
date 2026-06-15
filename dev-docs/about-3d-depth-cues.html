@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>보너스 문서 「3D는 어떻게 보일까?」 — 소실점·입체 단서 + 단서 토글 데모 — entry-guide</title>
+
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css"
+        media="(prefers-color-scheme: light)">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"
+        media="(prefers-color-scheme: dark)">
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+  <script src="assets/doc.js" defer></script>
+</head>
+
+<body class="layout">
+<main>
+
+  <header class="doc-header">
+    <h1>보너스 문서 「3D는 어떻게 보일까?」</h1>
+    <div class="meta">
+      <span>작성일 2026-06-15</span>
+      <span>대상: 신규 보너스 페이지 <code>docs/about-3d.html</code> + index 링크</span>
+    </div>
+    <p class="lede">
+      “3D 개념을 설명하는 새 문서”를 만들고 어떤 주제가 가능한지 검토한 결과를 정리한다.
+      Entry는 순수 2D 도구이므로, 진짜 3D 엔진이 아니라 <strong>평평한 화면이 입체로 보이는 단서(소실점·원근·깊이 단서)</strong>를
+      먼저 미술/지각 관점에서 설명하고 → <strong>인터랙티브 데모로 체감</strong> → <strong>마지막에 Entry 블록으로 흉내내기</strong>로 잇는
+      3단 구성의 단독 개념 페이지로 만들었다.
+    </p>
+  </header>
+
+  <div class="callout tldr">
+    <div class="callout-title">TL;DR</div>
+    <ul>
+      <li><strong>형식</strong>: 시리즈 12편과 별개인 <strong>단독 보너스 개념 페이지</strong> <code>docs/about-3d.html</code>(about-entry 계열, 데모 1개 포함).</li>
+      <li><strong>흐름</strong>: ① 소실점·원근 → ② 입체 단서 5종(겹침·크기·높이·그림자·공기원근) → ③ 단서 토글 데모 → ④ Entry 블록 매핑 + ‘깊이’ 변수 한 줄 → ★ 아이소메트릭·회전 도형 미리보기.</li>
+      <li><strong>핵심 원칙</strong>: “입체감 = 평면 위 단서들의 합”, 그리고 “전부 평면 위의 눈속임(착시)”을 <code>.tip.real</code>로 못 박음.</li>
+      <li><strong>데모</strong>: 소실점 원근 격자 + 거리 슬라이더 + 단서 5개 체크박스. 전부 끄면 거대·납작하게 떠 보이고, 켤수록 장면에 녹아듦.</li>
+      <li><strong>색</strong>: 신규 액센트 <code>--c3d #4d7a99</code>(블루프린트 슬레이트) + <code>.c-3d</code>. 시리즈 번호(c1~c12)와 구분되는 비-에피소드 토큰.</li>
+    </ul>
+  </div>
+
+  <h2>배경 — 왜 / 무엇을</h2>
+  <p>
+    사용자가 “3D 개념 문서”를 요청했고, 어떤 주제가 가능한지 검토를 먼저 했다. 탐색 결과 <strong>Entry는 스프라이트가 x·y·방향·크기만 갖는 순수 2D 플랫폼</strong>이며,
+    기존 1~12편도 모두 2D 물리, <code>docs/</code>·<code>dev-docs/</code>에 3D 언급이 0건이었다. 따라서 문서의 본질은
+    <strong>“평평한 2D가 어떻게 입체로 보이는가, 그 눈속임을 Entry로 흉내내는 법”</strong>(fake-3D)으로 잡았다 — 이는 “2D에서 물리를 흉내낸다”는 시리즈 정신과 일치한다.
+  </p>
+  <p>
+    초기 계획은 게임/Entry에서 출발했으나, 사용자 피드백으로 <strong>소실점과 ‘그림에서 입체를 표현하는 법’(미술·지각)을 먼저</strong> 깔고
+    도구(Entry)는 마지막에 내려오는 순서로 전환했다.
+  </p>
+
+  <h2>검토한 3D 주제 후보</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>주제</th><th>핵심</th><th>난이도</th><th>채택</th></tr></thead>
+      <tbody>
+        <tr><td>원근·깊이·그림자(입체감 기초)</td><td>멀수록 작게(크기∝1/거리)·그림자·시차</td><td>쉬움</td><td>✅ 본문 핵심</td></tr>
+        <tr><td>z(깊이) 좌표 확장</td><td>x·y에 깊이 추가, 점프 그림자·앞뒤 이동</td><td>중간</td><td>✅ 일부(높이/그림자/‘깊이’ 변수)</td></tr>
+        <tr><td>아이소메트릭 2.5D 쿼터뷰</td><td>마름모 타일·깊이 정렬</td><td>어려움</td><td>★ 도전 미리보기</td></tr>
+        <tr><td>회전하는 3D 도형(투영)</td><td>정육면체 회전 + 원근 투영(삼각함수)</td><td>고급</td><td>★ 도전 미리보기</td></tr>
+        <tr><td>슈도3D 도로/레이싱</td><td>지평선 수렴·세그먼트 스케일</td><td>고급</td><td>❌ 범위 밖</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>채택 안 — 페이지 구성(3단 + 도전)</h2>
+  <ol class="steps">
+    <li><strong>인트로 + <code>.goals</code></strong> — 🔬 3D를 보는 눈(소실점·원근·단서) / 🧩 엔트리로 흉내내기(크기·y·맨앞·투명도·‘깊이’ 변수).</li>
+    <li><strong>1부 · 소실점과 원근</strong>(<code>.c-3d</code>) — 기찻길/복도가 한 점으로 모임 = 소실점, 지평선, 1점/2점 투시. <code>.tip.real</code>로 “레일은 실제로 평행, 모이는 건 착시”.</li>
+    <li><strong>2부 · 입체 단서 5종</strong> — 겹침🧱·크기📏·높이📐·그림자/명암🌑·공기원근🌫️ 카드 그리드(<code>.cue-grid</code>) + “단서들의 합” 요약.</li>
+    <li><strong>3부 · 단서 토글 데모</strong> — 아래 별도 절.</li>
+    <li><strong>4부 · 엔트리로 흉내내기</strong> — 단서→블록 매핑표(<code>.map-table</code>) + ‘깊이’ 변수 하나로 크기·y·투명도를 한꺼번에 계산하는 코드 박스. 겹침은 <code>맨 앞으로 보내기</code> 한 번.</li>
+    <li><strong>★ 더 나아가기</strong> — 아이소메트릭(쿼터뷰)·회전 정육면체(투영)를 <code>.tip.bonus</code> ⭐로 미리보기만, 좌표변환/삼각함수 부담 명시. + <code>.tip.real</code> “전부 평면 위 눈속임”.</li>
+    <li><strong>🔧 안 될 때 확인 → ✅ 마무리 체크리스트 → 참고자료 → CTA(→index)</strong>.</li>
+  </ol>
+
+  <h2>단서 토글 데모 (<code>demoCanvas3d</code>)</h2>
+  <div class="callout fix">
+    <div class="callout-title">설계 — “입체감 = 단서들의 합”을 손으로 증명</div>
+    <ul>
+      <li><strong>장면</strong>: 소실점(VP=화면 중앙, 지평선 y=150)으로 수렴하는 원근 격자 + 중앙 길을 따라 멀어지는 캐릭터(도형으로 그림, 이미지 의존 0) + 겹침 기준 덤불(깊이 t=0.5 고정).</li>
+      <li><strong>거리 슬라이더</strong> t(0~1) → 원근 거리 <code>D = 1 + 4t</code>, 바닥 <code>floorY = 150 + 210/D</code>.</li>
+      <li><strong>단서 체크박스 5개</strong>(각각 독립 토글): 크기(<code>scale=1/D</code>)·높이(<code>feetY=floorY</code> vs 고정 nearY)·겹침(t&gt;0.5면 덤불을 캐릭터 뒤→앞 순서로 그려 가림)·그림자(발밑 타원)·흐림(공기원근: 알파↓ + 색을 옅은 파랑으로 lerp).</li>
+      <li><strong>가르치는 순간</strong>: 전부 끄면 캐릭터가 거대·또렷·덤불 위에 납작하게 떠 보임(슬라이더를 움직여도 변화 없음) → 단서를 켤수록 장면에 쏙 들어감. 🟠 바닥의 “있어야 할 자리” 점선 마커가 항상 정확한 깊이 위치를 표시해 어긋남을 드러냄.</li>
+      <li><strong>가벼운 구현</strong>: 애니메이션 루프 없음 — 슬라이더/체크박스 입력마다 <code>render()</code> 1회. 2편 <code>.try-demo</code> 패턴 재사용(액센트만 <code>--c3d</code>).</li>
+    </ul>
+  </div>
+  <p>흐림은 너무 사라지지 않게 알파 하한(<code>1−0.3t</code>)·색 혼합 상한(<code>min(0.5, 0.6t)</code>)을 두고, 덤불은 캐릭터 윗부분이 위로 보이도록 낮춰(겹침이 “뒤에 섰다”로 읽히게) 조정했다.</p>
+
+  <h2>정확성 (authoring-editing-guide A-3 계열)</h2>
+  <ul>
+    <li><strong>“진짜 3D 아님”</strong>: 소실점=착시, Entry는 단서로 입체를 흉내낼 뿐 — <code>.tip.real</code> 2곳에서 명시.</li>
+    <li><strong>좌표계</strong>: “멀수록 화면 위쪽”을 Entry <strong>위쪽 +y</strong> 규칙에 맞춰 “y를 키운다”로 표기(A-3 좌표계 항목과 일치).</li>
+    <li><strong>난이도 분리</strong>: 투영 행렬·삼각함수는 본문에서 빼고 ★도전 미리보기로만(회전 도형은 11편 원운동의 cos·sin 연결로 안내).</li>
+    <li><strong>레퍼런스</strong>: Entry 도움말(생김새·움직임 블록)만 인용. 원근·소실점·공기원근은 미술 일반 개념을 학습자 눈높이로 재서술(외부 직접 인용 없음 → 라이선스 이슈 없음). 미술 도식·캐릭터는 캔버스 도형으로 자체 제작.</li>
+  </ul>
+
+  <h2>적용 범위</h2>
+  <div class="callout impact">
+    <div class="callout-title">이번 변경이 건드린 것</div>
+    <ul>
+      <li><strong>신규</strong> <a href="../docs/about-3d.html">docs/about-3d.html</a> — 보너스 개념 페이지(데모 포함).</li>
+      <li><strong>공통 CSS</strong> <code>docs/assets/styles.css</code> — 액센트 <code>--c3d #4d7a99</code> + <code>.c-3d .step-no</code> 1줄(기존 토큰·클래스 불변).</li>
+      <li><strong>목차</strong> <a href="../docs/index.html">docs/index.html</a> — <code>.coming</code> 아래에 <code>.about-entry.bonus3d</code> 보너스 카드(🧊) 추가 + 액센트 override CSS 2줄. <strong>물리 path strip·12편 카드/CTA는 미변경</strong>(시리즈 시퀀스가 아니라 별도 보너스이므로 의도적으로 path에 넣지 않음).</li>
+    </ul>
+  </div>
+
+  <h2>검증</h2>
+  <ul>
+    <li>태그 균형 OK(파서), 데모 스크립트가 참조하는 ID 12개 전부 존재.</li>
+    <li>Playwright(헤드리스 Chromium)로 데모 4상태 스크린샷 + 콘솔/페이지 에러 0(폰트 CDN 차단 경고만): 전부 켬(중간·멀리)·전부 끔(멀리)·겹침만 끔(멀리)에서 크기·높이·겹침·그림자·흐림이 의도대로 분기.</li>
+    <li>헤더/<code>.goals</code>/footer(© 2026 김경환 · CC BY-NC-SA 4.0)/<code>.toc-sidebar</code> 자동수집 정상, index 보너스 카드 슬레이트 액센트 렌더 확인.</li>
+  </ul>
+
+  <h2>후속 TODO</h2>
+  <ul>
+    <li>실기기/visible 탭에서 데모 입력 반응 최종 확인(헤드리스 스크린샷은 정적 렌더 검증).</li>
+    <li>(선택) 반응이 좋으면 ★도전을 별도 페이지로 — 아이소메트릭 쿼터뷰 데모, 회전 정육면체(원근 투영) 데모.</li>
+    <li>(선택) 데모에 “시차(parallax) 배경 레이어” 단서를 6번째로 추가할지 검토(정보량↑ 트레이드오프).</li>
+  </ul>
+
+  <footer class="doc-footer">
+    <h2>관련 문서</h2>
+    <ul>
+      <li><a href="new-page-guide.html">new-page-guide.html</a> — §2 뼈대·§4 체크리스트·색상표(<code>--c3d</code> 비-에피소드 토큰)</li>
+      <li><a href="design-guide.html">design-guide.html</a> — D-1 기능 색·D-4 「물리↔구현 분리」 표준 구조(개념→구현 적용)</li>
+      <li><a href="authoring-editing-guide.html">authoring-editing-guide.html</a> — A-3 현실 vs 게임 정확성</li>
+      <li><a href="fix-history.md">fix-history.md</a> — 변경 인덱스 · <a href="next-steps.md">next-steps.md</a> — 후속 TODO</li>
+    </ul>
+  </footer>
+
+</main>
+<aside id="toc"></aside>
+</body>
+</html>

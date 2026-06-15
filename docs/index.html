@@ -160,6 +160,9 @@
   .about-entry .ae-desc{font-size:14px;color:var(--soft);margin-top:3px;line-height:1.6;}
   .about-entry .ae-arrow{font-family:'Jua',sans-serif;font-size:22px;color:var(--muted);flex-shrink:0;}
   .about-entry:hover .ae-arrow{color:var(--ink);}
+  /* 보너스 읽을거리 (3D) — 액센트만 다르게 */
+  .about-entry.bonus3d{border-left-color:var(--c3d);}
+  .about-entry.bonus3d .ae-ico{background:var(--c3d);box-shadow:inset -4px -4px 0 #3a5e76;}
 
   /* 참고자료 · 라이선스 */
   .meta-box{
@@ -476,6 +479,16 @@
       <span class="opt">🌈 빛 반사</span>
     </div>
   </div>
+
+  <a class="about-entry bonus3d" href="about-3d.html">
+    <div class="ae-ico">🧊</div>
+    <div class="ae-body">
+      <div class="ae-tag">보너스 읽을거리</div>
+      <div class="ae-title">3D는 어떻게 보일까? — 소실점과 입체의 비밀</div>
+      <div class="ae-desc">평평한 화면이 입체로 보이는 단서들을 알아보고, 엔트리로 흉내내 봐요!</div>
+    </div>
+    <div class="ae-arrow">›</div>
+  </a>
 
   <div class="meta-box">
     <b>📚 참고 자료</b><br>
