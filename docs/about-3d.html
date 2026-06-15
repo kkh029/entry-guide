@@ -55,6 +55,20 @@
     margin-top:9px;text-align:center;
   }
   .vp-cap b{color:var(--c3d);}
+  .vp-art{position:relative;}
+  .vp-art img{display:block;width:100%;height:auto;border-radius:8px;}
+  .vp-mark{
+    position:absolute;left:45%;top:76%;transform:translate(-50%,-50%);
+    width:13px;height:13px;border-radius:50%;
+    background:#d24b4b;box-shadow:0 0 0 4px rgba(210,75,75,.32);
+    pointer-events:none;animation:vpPulse 1.8s ease-in-out infinite;
+  }
+  .vp-mark::after{
+    content:"소실점";position:absolute;left:50%;bottom:150%;transform:translateX(-50%);
+    font-family:'Jua',sans-serif;font-size:11.5px;color:#fff;white-space:nowrap;
+    background:#d24b4b;padding:1px 7px;border-radius:10px;
+  }
+  @keyframes vpPulse{0%,100%{box-shadow:0 0 0 4px rgba(210,75,75,.32);}50%{box-shadow:0 0 0 8px rgba(210,75,75,.12);}}
   .vp-twin{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:16px 0;}
   .vp-twin .vp-fig{margin:0;}
   .vp-twin .vp-mini-t{
@@ -279,7 +293,17 @@
         <text x="10" y="144" font-family="Jua, sans-serif" font-size="13" fill="#5a7286">지평선(눈높이)</text>
         <text x="360" y="372" font-family="Jua, sans-serif" font-size="13" fill="#6b5a36" text-anchor="middle">가까울수록 나무가 크고, 멀수록 작아져요</text>
       </svg>
-      <figcaption class="vp-cap">양옆 <b>가로수</b>가 줄지어 작아지며 <b>소실점</b> 한 점으로 모여요. 나무 꼭대기를 이은 빨간 점선도, 길의 양쪽 가장자리도 모두 같은 점에서 만나죠. 화가 <b>호베마</b>의 「미델하르니스의 가로수길」(1689)이 바로 이런 그림이에요.</figcaption>
+      <figcaption class="vp-cap">양옆 <b>가로수</b>가 줄지어 작아지며 <b>소실점</b> 한 점으로 모여요. 나무 꼭대기를 이은 빨간 점선도, 길의 양쪽 가장자리도 모두 같은 점에서 만나죠. 👇 실제 명화에서도 똑같은 일이 일어나요!</figcaption>
+    </figure>
+
+    <!-- 실제 명화: 호베마 「미델하르니스의 가로수길」 -->
+    <figure class="vp-fig">
+      <div class="vp-art">
+        <img src="assets/hobbema-avenue-middelharnis.jpg" loading="lazy"
+             alt="메인더르트 호베마 「미델하르니스의 가로수길」 — 양옆 가로수가 소실점으로 모이는 원근법 명화">
+        <span class="vp-mark"></span>
+      </div>
+      <figcaption class="vp-cap">진짜 그림에서도 양옆 키 큰 가로수와 흙길이 저 멀리 <b>한 점(소실점)</b>으로 쏙 빨려 들어가죠? 그래서 평평한 그림인데도 길이 <b>쭉 뻗어 보이는</b> 거예요.<br><span style="opacity:.85;">메인더르트 호베마, 「미델하르니스의 가로수길」(1689) · 퍼블릭 도메인(Wikimedia Commons)</span></figcaption>
     </figure>
 
     <p>화가들은 이 규칙을 이용해 평평한 종이에 깊이를 그려요. 소실점 하나만 잡고 거기로 선을 모으면, 신기하게도 <b>쭉 뻗은 입체 공간</b>이 만들어지거든요. 이걸 <b>원근법(perspective)</b>이라고 해요. 소실점이 하나면 <b>1점 투시</b>, 모서리를 비스듬히 보면 소실점이 둘인 <b>2점 투시</b>가 되기도 해요.</p>
