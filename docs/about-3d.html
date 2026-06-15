@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D는 어떻게 보일까? — 소실점과 입체의 비밀, 그리고 엔트리로 흉내내기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<style>
+  /* ───── 헤더 스테이지 — 떠 있는 큐브 + 소실점 선 ───── */
+  .d-grid-bg{
+    position:absolute;inset:0;overflow:hidden;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 38px, rgba(77,122,153,.10) 38px 39px),
+      linear-gradient(180deg, transparent 60%, rgba(77,122,153,.08));
+  }
+  .d-cube{
+    position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
+    width:60px;height:60px;border-radius:14px;
+    background:linear-gradient(135deg, #6f9bbb, var(--c3d));
+    box-shadow:inset -8px -8px 0 rgba(0,0,0,.18), 0 6px 0 #3a5e76;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Jua',sans-serif;font-size:30px;color:#fff;
+    animation:bobby 1.7s ease-in-out infinite;
+  }
+  @keyframes bobby{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-10px)}}
+  .d-cloud{position:absolute;background:#fff;border-radius:30px;opacity:.78;}
+  .d-cloud.l{left:10%;top:22px;width:60px;height:18px;}
+  .d-cloud.r{right:10%;top:34px;width:76px;height:20px;}
+
+  /* ───── 입체 단서 카드 그리드 ───── */
+  .cue-grid{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:18px 0 8px;
+  }
+  .cue{
+    background:#fff;border:1px solid var(--border);
+    border-left:3px solid var(--c3d);
+    border-radius:10px;padding:14px 16px;
+  }
+  .cue .ico{font-size:22px;display:block;margin-bottom:4px;}
+  .cue b{font-family:'Jua',sans-serif;color:var(--ink);display:block;font-size:15.5px;margin-bottom:3px;}
+  .cue span.desc{font-size:14px;color:var(--soft);line-height:1.65;}
+  @media (max-width:520px){.cue-grid{grid-template-columns:1fr;}}
+
+  /* ───── 엔트리 블록 매핑 표 ───── */
+  .map-table{
+    width:100%;border-collapse:collapse;background:#fff;
+    border:1px solid var(--border);border-radius:10px;overflow:hidden;
+    margin:14px 0;font-size:14.5px;
+  }
+  .map-table th, .map-table td{padding:10px 12px;border-bottom:1px solid var(--border-s);text-align:left;vertical-align:top;}
+  .map-table th{
+    background:#fafaf6;font-family:'Jua',sans-serif;font-size:13.5px;
+    color:var(--soft);letter-spacing:.5px;
+  }
+  .map-table tr:last-child td{border-bottom:none;}
+  .map-table td.k{font-family:'Jua',sans-serif;color:var(--ink);width:26%;}
+  .map-table code{
+    font-family:'Gaegu',sans-serif;font-weight:700;font-size:14px;
+    background:#eef3f7;color:var(--c3d);padding:1px 7px;border-radius:6px;
+    border:1px solid var(--border-s);white-space:nowrap;
+  }
+
+  /* ───── '깊이 변수 하나로' 코드 박스 ───── */
+  .depth-code{
+    background:#2a3540;color:#e7eef4;border-radius:10px;
+    padding:16px 18px;margin:14px 0;
+    font-family:'Gaegu',sans-serif;font-weight:700;font-size:15px;line-height:2;
+  }
+  .depth-code .cm{color:#8aa0b2;font-size:13px;}
+  .depth-code .v{color:#ffc23c;}
+  .depth-code .hd{color:#7fc8ff;}
+
+  /* ───── 인터랙티브 데모 (entry-game-N과 동일 패턴, 액센트만 --c3d) ───── */
+  .try-demo{
+    background:#fff;border:1px solid var(--border);
+    border-radius:12px;padding:16px 16px 14px;margin:16px 0 6px;
+  }
+  .try-demo .demo-title{
+    font-family:'Jua',sans-serif;font-size:16px;color:var(--ink);
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  }
+  .try-demo .demo-title .pill{
+    background:var(--c3d);color:#fff;font-family:'Jua',sans-serif;
+    font-size:11px;padding:2px 9px;border-radius:20px;letter-spacing:.5px;
+  }
+  .try-canvas-wrap{
+    position:relative;background:linear-gradient(180deg,#cfe6f3,#eaf4fa);
+    border-radius:10px;overflow:hidden;
+  }
+  .try-canvas-wrap canvas{display:block;width:100%;height:auto;}
+  .try-hud{
+    position:absolute;top:8px;left:10px;
+    font-family:'Jua',sans-serif;font-size:13px;
+    background:rgba(255,255,255,.85);color:var(--ink);
+    padding:3px 10px;border-radius:14px;
+  }
+  .try-hud.cnt{
+    top:8px;left:auto;right:10px;
+    background:rgba(77,122,153,.18);color:var(--ink);
+  }
+  .try-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;}
+  .try-controls .dist-row{
+    display:flex;align-items:center;gap:8px;
+    font-family:'Jua',sans-serif;font-size:13px;color:var(--soft);
+  }
+  .try-controls .dist-row input[type=range]{width:200px;max-width:46vw;}
+  .try-controls button.secondary{
+    font-family:'Jua',sans-serif;font-size:14px;
+    background:#fff;color:var(--ink);border:1px solid var(--border);
+    padding:7px 16px;border-radius:20px;box-shadow:0 2px 0 var(--border);cursor:pointer;
+    margin-left:auto;transition:transform .1s ease;
+  }
+  .try-controls button.secondary:active{transform:translateY(1px);box-shadow:0 1px 0 var(--border);}
+  /* 단서 체크박스 */
+  .cue-toggles{
+    display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;
+  }
+  .cue-toggles label{
+    display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+    background:#fafaf6;border:1px solid var(--border);
+    border-radius:20px;padding:6px 13px;
+    font-family:'Jua',sans-serif;font-size:13.5px;color:var(--soft);
+    transition:background .12s ease, color .12s ease, border-color .12s ease;
+    user-select:none;
+  }
+  .cue-toggles label.on{background:#eaf3f8;border-color:var(--c3d);color:var(--c3d);}
+  .cue-toggles input{accent-color:var(--c3d);width:15px;height:15px;}
+  .try-hint{
+    font-family:'Gowun Dodum',sans-serif;font-size:13.5px;
+    color:var(--soft);margin-top:10px;line-height:1.65;
+  }
+
+  /* ───── CTA ───── */
+  .cta{
+    background:linear-gradient(180deg, #e8eff5, #fafaf6);
+    border:1px solid var(--border-s);
+    border-radius:12px;padding:22px 20px;text-align:center;margin:22px 0;
+  }
+  .cta h3{font-family:'Jua',sans-serif;font-size:20px;color:var(--ink);margin-bottom:6px;}
+  .cta p{font-size:15px;color:var(--soft);margin-bottom:12px;}
+  .cta a.go{
+    display:inline-block;background:var(--c3d);color:#fff;
+    font-family:'Jua',sans-serif;font-size:16px;
+    padding:10px 22px;border-radius:30px;box-shadow:0 3px 0 #3a5e76;
+    transition:transform .12s ease;
+  }
+  .cta a.go:hover{transform:translateY(-1px);}
+
+  /* 참고자료 */
+  .meta-box{
+    background:#fafaf6;border:1px solid var(--border-s);border-radius:10px;
+    padding:14px 18px;margin-top:14px;font-size:13px;color:var(--soft);line-height:1.95;
+  }
+  .meta-box b{font-size:13.5px;color:var(--ink);}
+  .meta-box a{color:var(--c3d);text-decoration:underline;text-underline-offset:2px;}
+</style>
+</head>
+<body>
+
+<a href="index.html" class="home-link">🏠</a>
+
+<header>
+  <span class="badge">보너스 · 입체 표현 이야기</span>
+  <h1>3D는 어떻게<br>보이는 걸까?</h1>
+  <p class="sub">평평한 화면인데 왜 깊이가 느껴질까? 소실점부터 엔트리 흉내내기까지 🧊</p>
+</header>
+
+<div class="stage">
+  <div class="d-grid-bg"></div>
+  <div class="d-cloud l"></div>
+  <div class="d-cloud r"></div>
+  <div class="d-cube">3D</div>
+  <div class="ground"></div>
+</div>
+
+<div class="wrap">
+
+  <section class="card">
+    <p class="big">🖼️ 종이도, 화면도 사실은 <b>완전히 납작한 평면</b>이에요. 그런데 그림이나 게임을 보면 <b>가까운 것·먼 것</b>이 느껴지고, 길은 저 멀리로 쭉 뻗어 있죠. 어떻게 평평한 그림에서 <b>깊이(입체감)</b>가 생기는 걸까요? 이번 글에서는 화가들이 수백 년 전부터 쓰던 <b>입체의 비밀</b>을 먼저 알아보고, 그걸 <b>엔트리로 흉내내는 법</b>까지 이어가 볼게요!</p>
+  </section>
+
+  <!-- 학습 목표 -->
+  <div class="goals">
+    <div class="goal-col phys">
+      <div class="goal-head">🔬 3D를 보는 눈 (개념)</div>
+      <ul>
+        <li>소실점과 원근 — 평행선이 한 점으로 모이는 이유</li>
+        <li>깊이를 만드는 다섯 가지 단서</li>
+        <li>"진짜 3D"가 아니라 뇌가 속는 것이라는 점</li>
+      </ul>
+    </div>
+    <div class="goal-col code">
+      <div class="goal-head">🧩 엔트리로 흉내내기 (구현)</div>
+      <ul>
+        <li>크기·y좌표·맨 앞으로·투명도 블록 활용</li>
+        <li>‘깊이’ 변수 하나로 입체 이동 만들기</li>
+        <li>(도전) 아이소메트릭·회전하는 입체 미리보기</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 1) 소실점 -->
+  <section class="card c-3d">
+    <div class="step-no">1</div>
+    <h2>소실점 — 길은 왜 멀리서 한 점으로 모일까?</h2>
+    <p>곧게 뻗은 <b>기찻길</b>이나 긴 <b>복도</b>를 떠올려 봐요. 두 레일은 분명히 <b>나란히(평행)</b> 달리는데, 멀리 바라보면 저 끝에서 <b>한 점</b>으로 딱 모여요. 도로의 양쪽 가로수도, 천장과 바닥의 선도 모두 그 점을 향해 달려가죠.</p>
+    <p>이렇게 <b>나란한 선들이 멀리서 모이는 그 한 점</b>을 <b>소실점(消失點, vanishing point)</b>이라고 불러요. 그리고 소실점이 놓이는 눈높이 가로선을 <b>지평선(수평선)</b>이라고 해요.</p>
+    <p>화가들은 이 규칙을 이용해 평평한 종이에 깊이를 그려요. 소실점 하나만 잡고 거기로 선을 모으면, 신기하게도 <b>쭉 뻗은 입체 공간</b>이 만들어지거든요. 이걸 <b>원근법(perspective)</b>이라고 해요. 소실점이 하나면 <b>1점 투시</b>, 모서리를 비스듬히 보면 소실점이 둘인 <b>2점 투시</b>가 되기도 해요.</p>
+    <div class="tip real"><b>🌍 진짜 vs 그림</b> 기찻길 레일은 <b>실제로는 끝까지 똑같은 간격으로 평행</b>해요. 멀리서 모이는 건 <b>우리 눈에 그렇게 보일 뿐</b>이죠. 소실점은 ‘세상이 좁아지는 곳’이 아니라 ‘멀어질수록 작게 보인다’는 우리 눈의 성질이 만들어내는 <b>착시</b>예요.</div>
+  </section>
+
+  <!-- 2) 입체 단서 -->
+  <section class="card c-3d">
+    <div class="step-no">2</div>
+    <h2>깊이를 만드는 다섯 가지 단서</h2>
+    <p>우리 뇌는 평평한 그림에서도 여러 가지 <b>힌트(단서)</b>를 모아 “이건 가깝고 저건 멀구나”를 척척 알아내요. 그림과 게임에서 가장 많이 쓰는 다섯 가지는 이거예요.</p>
+    <div class="cue-grid">
+      <div class="cue">
+        <span class="ico">🧱</span>
+        <b>1. 겹침</b>
+        <span class="desc">앞에 있는 물체가 뒤 물체를 가려요. 가장 강력하고 확실한 단서! 가린 쪽이 무조건 더 가까워요.</span>
+      </div>
+      <div class="cue">
+        <span class="ico">📏</span>
+        <b>2. 크기</b>
+        <span class="desc">같은 물체라도 멀수록 작게 보여요. 소실점과 똑같은 원리예요 (멀수록 작게).</span>
+      </div>
+      <div class="cue">
+        <span class="ico">📐</span>
+        <b>3. 높이(위치)</b>
+        <span class="desc">바닥에 놓인 물체는 멀수록 화면에서 <b>위쪽(지평선 쪽)</b>으로 올라가 보여요.</span>
+      </div>
+      <div class="cue">
+        <span class="ico">🌑</span>
+        <b>4. 그림자·명암</b>
+        <span class="desc">발밑 그림자는 ‘바닥에 붙어 있다’를, 음영(밝고 어두움)은 ‘둥글고 두툼하다’를 알려줘요.</span>
+      </div>
+      <div class="cue">
+        <span class="ico">🌫️</span>
+        <b>5. 공기 원근(흐림)</b>
+        <span class="desc">아주 먼 산이 뿌옇고 푸르스름하게 보이죠? 멀수록 흐려지고 연해지는 단서예요.</span>
+      </div>
+      <div class="cue" style="border-left-color:var(--muted);">
+        <span class="ico">✨</span>
+        <b>합치면 ‘진짜’ 같아요</b>
+        <span class="desc">하나만 쓰면 어색해도, 여러 단서를 <b>겹쳐 쓰면</b> 평면이 살아 있는 입체처럼 느껴져요!</span>
+      </div>
+    </div>
+    <div class="tip"><b>📌 한 줄 요약</b> 입체감 = 평면 위에 뿌려 놓은 <b>여러 단서들의 합</b>이에요. 컴퓨터 화면도 결국 납작한 평면이라, 게임의 3D도 사실은 이 단서들을 솜씨 좋게 합친 거랍니다.</div>
+  </section>
+
+  <!-- 3) 데모 -->
+  <section class="card c-3d">
+    <div class="step-no">3</div>
+    <h2>직접 켜 보기 — 단서를 하나씩 더해 봐요</h2>
+    <p>아래에서 <b>거리 슬라이더</b>로 캐릭터를 가까이↔멀리 보내고, 단서를 하나씩 <b>체크</b>해 보세요. 처음엔 모두 꺼져 있어서 멀리 보내도 그대로 큼지막하게 떠 있어요. 단서를 켤수록 캐릭터가 점점 <b>장면 속으로 쏙 들어가</b> 입체처럼 보일 거예요!</p>
+
+    <div class="try-demo">
+      <div class="demo-title"><span class="pill">직접 해보기</span> 거리를 옮기고, 단서를 켜 보세요!</div>
+      <div class="try-canvas-wrap" id="demoStage3d">
+        <canvas id="demoCanvas3d" width="720" height="400"></canvas>
+        <div class="try-hud">거리: <b id="demoDist">가까움</b></div>
+        <div class="try-hud cnt">켜진 단서: <b id="demoCnt">0</b>/5</div>
+      </div>
+      <div class="try-controls">
+        <span class="dist-row">가까이
+          <input type="range" id="demoDistRange" min="0" max="100" step="1" value="55" aria-label="거리">
+          멀리</span>
+        <button id="demoToggleAll" class="secondary">전부 켜기</button>
+      </div>
+      <div class="cue-toggles" id="demoToggles">
+        <label data-cue="size"><input type="checkbox" id="cueSize"> 📏 크기</label>
+        <label data-cue="pos"><input type="checkbox" id="cuePos"> 📐 높이</label>
+        <label data-cue="occ"><input type="checkbox" id="cueOcc"> 🧱 겹침</label>
+        <label data-cue="shadow"><input type="checkbox" id="cueShadow"> 🌑 그림자</label>
+        <label data-cue="atmo"><input type="checkbox" id="cueAtmo"> 🌫️ 흐림</label>
+      </div>
+      <div class="try-hint">🟠 바닥의 작은 동그라미는 캐릭터가 <b>‘있어야 할 자리’</b>예요. 단서를 끄면 캐릭터가 그 자리를 무시하고 앞에 둥둥 떠 보이죠? 단서를 모두 켜면 자리에 딱 맞게 들어가요. (나무 뒤로 숨는 건 <b>겹침</b> 단서랍니다!)</div>
+    </div>
+  </section>
+
+  <!-- 4) 엔트리로 -->
+  <section class="card c-3d">
+    <div class="step-no">4</div>
+    <h2>엔트리로 흉내내기 — 단서를 블록으로</h2>
+    <p>엔트리는 사실 <b>2D(평면) 도구</b>예요. 진짜 3D 공간을 만드는 기능은 없어요. 하지만 위에서 배운 <b>단서들</b>을 블록으로 흉내내면, 평면 무대에서도 충분히 입체처럼 보이게 할 수 있어요! 각 단서를 어떤 블록으로 만드는지 정리하면 이래요.</p>
+    <table class="map-table">
+      <thead>
+        <tr><th>입체 단서</th><th>엔트리 블록 (꾸러미)</th><th>이렇게 써요</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="k">📏 크기</td><td><code>크기를 ◯%로 정하기</code> (생김새)</td><td>멀수록 작은 %로 — 가까우면 100%, 멀면 30%처럼</td></tr>
+        <tr><td class="k">📐 높이</td><td><code>y좌표를 ◯로 정하기</code> (움직임)</td><td>멀수록 위쪽으로 — 엔트리는 <b>위가 +y</b>라서 y를 키워요</td></tr>
+        <tr><td class="k">🧱 겹침</td><td><code>맨 앞으로 보내기</code> / <code>뒤로 보내기</code> (생김새)</td><td>더 가까운(아래에 있는) 스프라이트를 맨 앞으로</td></tr>
+        <tr><td class="k">🌑 그림자</td><td>그림자용 스프라이트 + <code>크기를 ◯%로</code></td><td>발밑에 회색 타원을 두고 캐릭터 크기를 따라가게</td></tr>
+        <tr><td class="k">🌫️ 흐림</td><td><code>투명도 효과를 ◯로 정하기</code> (생김새)</td><td>멀수록 투명도를 높여 연하게 (공기 원근)</td></tr>
+      </tbody>
+    </table>
+
+    <p>핵심 비결은 <b>‘깊이’ 변수 하나</b>를 만들어 두는 거예요. 이 숫자 하나(0=가까움 ~ 100=멀리)로 위의 블록들을 <b>한꺼번에</b> 계산하면, 깊이만 바꿔도 크기·높이·투명도가 동시에 변해 자연스럽게 멀어져요.</p>
+    <div class="depth-code">
+      <span class="cm"># ‘깊이’ 변수: 0(코앞) ~ 100(저 멀리)</span><br>
+      <span class="hd">계속 반복하기</span><br>
+      &nbsp;&nbsp;크기를 <span class="v">(100 − 깊이 × 0.7)</span>%로 정하기 &nbsp;<span class="cm"># 멀수록 작게</span><br>
+      &nbsp;&nbsp;y좌표를 <span class="v">(깊이 × 1.4)</span>로 정하기 &nbsp;<span class="cm"># 멀수록 위로</span><br>
+      &nbsp;&nbsp;투명도 효과를 <span class="v">(깊이 × 0.5)</span>로 정하기 &nbsp;<span class="cm"># 멀수록 흐리게</span>
+    </div>
+    <div class="tip bonus"><b>💡 겹침은 코드가 거의 필요 없어요</b> 엔트리는 <b>오브젝트 목록에서 위에 있는 스프라이트일수록 화면 앞에</b> 그려져요. 그래서 가까운 캐릭터를 <code style="font-family:'Gaegu';">맨 앞으로 보내기</code> 한 번이면 끝! 단서 중에 제일 쉬운 편이에요.</div>
+  </section>
+
+  <!-- 5) 더 나아가기 -->
+  <section class="card c-3d">
+    <div class="step-no">★</div>
+    <h2>더 나아가기 — 진짜 입체에 도전!</h2>
+    <p>위의 단서들만으로도 충분히 입체처럼 보이지만, 더 ‘진짜 3D’에 가까운 표현도 있어요. 조금 어려우니 <b>도전하고 싶은 친구</b>만 살짝 구경해 봐요.</p>
+    <div class="tip bonus"><b>⭐ 도전 1 · 아이소메트릭(쿼터뷰)</b> 위에서 비스듬히 내려다본 시점이에요. 바닥을 <b>마름모 모양 타일</b>로 깔고, 캐릭터가 위로 갈수록 멀어지게 해요. <b>심시티</b>·<b>쿠키런 킹덤</b> 같은 게임 느낌! 화면 좌표를 마름모 좌표로 바꾸는 <b>계산</b>이 조금 필요해요.</div>
+    <div class="tip bonus"><b>⭐ 도전 2 · 빙글빙글 도는 입체 도형</b> 정육면체의 꼭짓점들을 <b>회전</b>시키고, 멀리 있는 점일수록 화면 가운데로 당겨(나누기) 그리면 — 평면 화면에서 도형이 빙글빙글 도는 입체로 보여요! 이건 <b>삼각함수(11편 원운동)</b>와 나눗셈을 써요. 진짜 3D 게임 엔진도 속으로는 이 계산을 엄청나게 빠르게 하는 거랍니다.</div>
+    <div class="tip real"><b>🌍 기억해요</b> 아무리 진짜 같아도, 엔트리(와 컴퓨터 화면)가 보여주는 3D는 전부 <b>평평한 평면 위의 똑똑한 눈속임</b>이에요. ‘입체로 보이게 하는 단서를 얼마나 잘 합치느냐’가 실력이에요!</div>
+  </section>
+
+  <!-- 안 될 때 확인 -->
+  <section class="card">
+    <h2>🔧 안 될 때 확인!</h2>
+    <p>입체 흉내를 내다 어색하면 대부분 단서가 <b>서로 안 맞아서</b>예요. 아래를 확인해 봐요.</p>
+    <div class="fix">
+      <div class="fix-title">🔧 이렇게 어색한가요?</div>
+      <ul>
+        <li><b>멀리 보냈는데 너무 커요/작아요</b> → 크기 계산의 숫자(<code style="font-family:'Gaegu';">× 0.7</code>)를 키우거나 줄여 보세요. 0%보다 작아지지 않게 주의!</li>
+        <li><b>먼 캐릭터가 가까운 물체 앞에 떠 있어요</b> → <b>겹침</b> 문제예요. 가까운(아래쪽) 스프라이트를 <code style="font-family:'Gaegu';">맨 앞으로 보내기</code> 해 주세요.</li>
+        <li><b>바닥에서 붕 떠 보여요</b> → <b>그림자</b>가 없거나, 캐릭터의 <b>발(아래쪽)</b>이 아니라 가운데가 바닥선에 맞춰져 있을 수 있어요.</li>
+        <li><b>멀어도 또렷해서 가까워 보여요</b> → <b>투명도(흐림)</b> 단서를 살짝 더해 보세요. 너무 세면 사라져 보이니 조금만!</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 마무리 -->
+  <div class="finish">
+    <h2>🎉 이제 평면이 입체로 보이는 비밀을 알았어요!</h2>
+    <p>화면은 납작해도, 단서만 잘 합치면 깊이가 살아나요.</p>
+    <div class="check">
+      <div>✅ 나란한 선이 멀리서 모이는 점 = <b>소실점</b> (사실은 착시!)</div>
+      <div>✅ 깊이는 <b>겹침·크기·높이·그림자·흐림</b> 단서들의 합</div>
+      <div>✅ 엔트리는 2D지만 <b>크기·y좌표·맨 앞으로·투명도</b>로 흉내 가능</div>
+      <div>✅ ‘깊이’ 변수 하나로 여러 블록을 한꺼번에!</div>
+    </div>
+    <div class="next">🚀 다음 작품에선 캐릭터가 <b>앞뒤로도 움직이는</b> 입체 느낌 게임에 도전해 봐요!</div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta">
+    <h3>🏠 목차로 돌아갈까요?</h3>
+    <p>배운 입체 단서를 1~12편의 움직임에 더하면, 한층 살아 있는 게임이 돼요!</p>
+    <a class="go" href="index.html">🏠 목차로 돌아가기</a>
+  </div>
+
+  <div class="meta-box">
+    <b>📚 참고 자료</b><br>
+    • <a href="https://docs.playentry.org" target="_blank">엔트리 도움말 — 생김새·움직임 블록 (docs.playentry.org)</a><br>
+    • 원근법·소실점·공기 원근은 미술의 일반 개념을 학습자 눈높이로 다시 설명한 것입니다.
+  </div>
+
+  <footer>
+    엔트리로 만드는 나만의 게임 · 보너스: 3D 입체 표현<br>
+    <span style="font-size:10px;opacity:.7;">
+      © 2026 김경환 · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ko" target="_blank" style="color:inherit;">CC BY-NC-SA 4.0</a>
+    </span>
+  </footer>
+</div>
+
+<nav class="toc-sidebar">
+  <div class="toc-title">이 페이지 목차</div>
+  <ol id="toc-list"></ol>
+</nav>
+
+<!-- 데모 스크립트 -->
+<script>
+(function(){
+  const canvas = document.getElementById('demoCanvas3d');
+  if(!canvas) return;
+  const ctx    = canvas.getContext('2d');
+  const distRange = document.getElementById('demoDistRange');
+  const toggleAll = document.getElementById('demoToggleAll');
+  const distLabel = document.getElementById('demoDist');
+  const cntLabel  = document.getElementById('demoCnt');
+  const togglesBox= document.getElementById('demoToggles');
+  const boxes = {
+    size:   document.getElementById('cueSize'),
+    pos:    document.getElementById('cuePos'),
+    occ:    document.getElementById('cueOcc'),
+    shadow: document.getElementById('cueShadow'),
+    atmo:   document.getElementById('cueAtmo')
+  };
+
+  const W = canvas.width, H = canvas.height;
+  const VPx = W/2, horizonY = 150, nearY = 360;   // 소실점·지평선·가까운 바닥
+  const tRef = 0.5;                                // 나무의 깊이(겹침 기준)
+
+  // 깊이 t(0~1) → 원근 거리 D와 바닥 y
+  function depthOf(t){ return 1 + 4*t; }           // D: 1(가까움) ~ 5(멀리)
+  function floorYat(t){ return horizonY + 210/depthOf(t); }
+
+  function lerp(a,b,m){ return a + (b-a)*m; }
+  function mixCol(c1,c2,m){
+    return 'rgb(' + Math.round(lerp(c1[0],c2[0],m)) + ',' +
+                    Math.round(lerp(c1[1],c2[1],m)) + ',' +
+                    Math.round(lerp(c1[2],c2[2],m)) + ')';
+  }
+
+  function drawScene(){
+    // 하늘
+    let sky = ctx.createLinearGradient(0,0,0,horizonY);
+    sky.addColorStop(0,'#cfe6f3'); sky.addColorStop(1,'#eaf4fa');
+    ctx.fillStyle = sky; ctx.fillRect(0,0,W,horizonY);
+    // 바닥 (멀수록 뿌옇게)
+    let gr = ctx.createLinearGradient(0,horizonY,0,H);
+    gr.addColorStop(0,'#d6e4cd'); gr.addColorStop(1,'#93b873');
+    ctx.fillStyle = gr; ctx.fillRect(0,horizonY,W,H-horizonY);
+    // 소실점으로 모이는 세로선
+    ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1;
+    for(let i=-6;i<=6;i++){
+      ctx.beginPath();
+      ctx.moveTo(VPx + i*72, nearY+40);
+      ctx.lineTo(VPx, horizonY);
+      ctx.stroke();
+    }
+    // 깊이에 따라 촘촘해지는 가로선
+    for(let k=1;k<=9;k++){
+      const y = floorYat(k/10);
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+    }
+    // 지평선
+    ctx.strokeStyle = 'rgba(77,122,153,.5)';
+    ctx.beginPath(); ctx.moveTo(0,horizonY); ctx.lineTo(W,horizonY); ctx.stroke();
+  }
+
+  // 나무 (겹침 기준 물체) — 항상 같은 자리. 낮은 덤불 정도라 캐릭터 윗부분은 위로 보임
+  function drawTree(){
+    const D = depthOf(tRef), sc = 1/D;
+    const x = VPx, fy = floorYat(tRef);
+    const th = 120*sc;            // 나무 높이
+    // 옅은 그림자
+    ctx.fillStyle = 'rgba(0,0,0,.12)';
+    ctx.beginPath(); ctx.ellipse(x, fy, th*0.34, th*0.10, 0, 0, Math.PI*2); ctx.fill();
+    // 줄기
+    ctx.fillStyle = '#8a6a45';
+    ctx.fillRect(x-th*0.07, fy-th*0.42, th*0.14, th*0.42);
+    // 잎
+    ctx.fillStyle = '#5f9e57';
+    ctx.beginPath();
+    ctx.arc(x, fy-th*0.55, th*0.30, 0, Math.PI*2);
+    ctx.arc(x-th*0.22, fy-th*0.40, th*0.22, 0, Math.PI*2);
+    ctx.arc(x+th*0.22, fy-th*0.40, th*0.22, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  function drawHero(t, cues){
+    const D = depthOf(t);
+    const sc   = cues.size ? (1/D) : 1;            // 크기 단서
+    const feetY= cues.pos  ? floorYat(t) : nearY;  // 높이 단서
+    const x = VPx;
+    const h = 150*sc, w = h*0.46;
+    const mix = cues.atmo ? Math.min(0.5, 0.6*t) : 0;     // 흐림 단서 (너무 사라지지 않게 제한)
+    const alpha = cues.atmo ? (1 - 0.3*t) : 1;
+    const body = mixCol([77,122,153],[205,224,238], mix);
+    const head = mixCol([99,142,170],[210,228,240], mix);
+
+    // 그림자 단서
+    if(cues.shadow){
+      ctx.fillStyle = 'rgba(0,0,0,' + (0.18*alpha) + ')';
+      ctx.beginPath();
+      ctx.ellipse(x, feetY, w*0.62, w*0.20, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = alpha;
+    // 몸통
+    ctx.fillStyle = body;
+    const bodyTop = feetY - h*0.66, bodyH = h*0.66;
+    const r = w*0.32;
+    ctx.beginPath();
+    ctx.moveTo(x-w/2+r, bodyTop);
+    ctx.lineTo(x+w/2-r, bodyTop);
+    ctx.quadraticCurveTo(x+w/2, bodyTop, x+w/2, bodyTop+r);
+    ctx.lineTo(x+w/2, feetY-r);
+    ctx.quadraticCurveTo(x+w/2, feetY, x+w/2-r, feetY);
+    ctx.lineTo(x-w/2+r, feetY);
+    ctx.quadraticCurveTo(x-w/2, feetY, x-w/2, feetY-r);
+    ctx.lineTo(x-w/2, bodyTop+r);
+    ctx.quadraticCurveTo(x-w/2, bodyTop, x-w/2+r, bodyTop);
+    ctx.closePath(); ctx.fill();
+    // 머리
+    ctx.fillStyle = head;
+    ctx.beginPath();
+    ctx.arc(x, bodyTop - h*0.20, h*0.21, 0, Math.PI*2);
+    ctx.fill();
+    // 눈 (흐림 약할 때만 또렷)
+    ctx.fillStyle = 'rgba(42,53,64,' + (alpha*(1-mix)) + ')';
+    ctx.beginPath();
+    ctx.arc(x - h*0.07, bodyTop - h*0.22, h*0.035, 0, Math.PI*2);
+    ctx.arc(x + h*0.07, bodyTop - h*0.22, h*0.035, 0, Math.PI*2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  // '있어야 할 자리' 표시 (항상 정확한 깊이 위치) — 깊이에 따라 크기도 살짝 줄여 또렷하게
+  function drawTarget(t){
+    const x = VPx, y = floorYat(t), rs = 1/depthOf(t);
+    const rx = 8 + 14*rs;
+    ctx.fillStyle = 'rgba(224,138,60,.28)';
+    ctx.beginPath(); ctx.ellipse(x, y, rx, rx*0.4, 0, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#e08a3c'; ctx.lineWidth = 2.5;
+    ctx.setLineDash([5,4]);
+    ctx.beginPath(); ctx.ellipse(x, y, rx, rx*0.4, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function render(){
+    const t = parseInt(distRange.value,10)/100;
+    const cues = {
+      size:   boxes.size.checked,
+      pos:    boxes.pos.checked,
+      occ:    boxes.occ.checked,
+      shadow: boxes.shadow.checked,
+      atmo:   boxes.atmo.checked
+    };
+    ctx.clearRect(0,0,W,H);
+    drawScene();
+    drawTarget(t);
+
+    // 그리는 순서 = 겹침. 겹침 켜고 캐릭터가 나무보다 멀면 나무가 앞(나중).
+    const treeCoversHero = cues.occ && (t > tRef);
+    if(treeCoversHero){ drawHero(t,cues); drawTree(); }
+    else             { drawTree(); drawHero(t,cues); }
+
+    // HUD
+    distLabel.textContent = t < 0.33 ? '가까움' : (t < 0.66 ? '중간' : '멀리');
+    let n = 0; for(const k in cues) if(cues[k]) n++;
+    cntLabel.textContent = n;
+    // 토글 라벨 강조
+    togglesBox.querySelectorAll('label').forEach(function(lab){
+      lab.classList.toggle('on', cues[lab.dataset.cue]);
+    });
+  }
+
+  distRange.addEventListener('input', render);
+  Object.values(boxes).forEach(function(b){ b.addEventListener('change', render); });
+  toggleAll.addEventListener('click', function(){
+    const allOn = Object.values(boxes).every(function(b){ return b.checked; });
+    Object.values(boxes).forEach(function(b){ b.checked = !allOn; });
+    toggleAll.textContent = allOn ? '전부 켜기' : '전부 끄기';
+    render();
+  });
+
+  render();
+})();
+</script>
+
+<!-- 사이드바 목차 -->
+<script>
+(function(){
+  var hs = document.querySelectorAll('section.card h2');
+  var list = document.getElementById('toc-list');
+  if(!hs.length || !list) return;
+  hs.forEach(function(h, i){
+    if(!h.id) h.id = 'toc-' + i;
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a); list.appendChild(li);
+  });
+  var links = list.querySelectorAll('a');
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = list.querySelector('a[href="#' + e.target.id + '"]');
+        if(a) a.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-8% 0px -80% 0px'});
+  hs.forEach(function(h){ io.observe(h); });
+})();
+</script>
+
+</body>
+</html>
